@@ -1,0 +1,38 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#22c55e', 'primaryTextColor': '#000', 'primaryBorderColor': '#16a34a', 'lineColor': '#475569', 'secondaryColor': '#f0fdf4', 'tertiaryColor': '#f0fdf4' } } }%%
+
+flowchart TD
+    F["🎓 Dashboard Mahasiswa"] --> F1["📁 Upload Berkas / Dokumen"]
+    F1 --> F2["Menunggu Verifikasi Admin"]
+    F2 --> F3{"Status Verifikasi?"}
+    F3 -- Pending --> F2
+    F3 -- Revisi --> F4["Upload Ulang Berkas"]
+    F4 --> F2
+    F3 -- Ditolak --> F5["Ditolak"]
+    F3 -- Disetujui --> F6["Akses Fitur Terbuka"]
+
+    F6 --> M2["📅 Presensi"]
+    F6 --> M3["👥 Tim BRIDA"]
+    F6 --> M4["📖 Logbook"]
+    F6 --> M5["🏆 Hasil & Sertifikat"]
+    F6 --> M6["👤 Profil"]
+
+    M2 --> M2a["Catat Kehadiran Harian"]
+    M3 --> M3a["Lihat Info Tim"]
+    M4 --> M4a["Tambah / Edit Entri"]
+    M5 --> M5a["Penilaian Perilaku Kerja"]
+    M5 --> M5b["Penilaian Kinerja"]
+    M5 --> M5c["Upload Laporan Akhir"]
+    M5 --> M5d["Download Sertifikat"]
+    M6 --> M6a["Lihat / Edit Profil"]
+
+    classDef main fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#1e293b
+    classDef locked fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#1e293b
+    classDef feature fill:#ecfdf5,stroke:#10b981,stroke-width:1px,color:#1e293b
+    classDef decision fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef status fill:#faf5ff,stroke:#a855f7,stroke-width:1px,color:#1e293b
+
+    class F main
+    class F1,F2 locked
+    class F6,M2,M3,M4,M5,M6,M2a,M3a,M4a,M5a,M5b,M5c,M5d,M6a feature
+    class F3 decision
+    class F4,F5 status

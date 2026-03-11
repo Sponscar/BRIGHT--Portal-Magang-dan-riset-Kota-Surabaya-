@@ -1,0 +1,92 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#dc2626', 'primaryTextColor': '#fff', 'primaryBorderColor': '#b91c1c', 'lineColor': '#475569', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fef2f2' } } }%%
+
+flowchart TD
+    %% ===========================
+    %% ALUR UTAMA
+    %% ===========================
+    A(["🌐 Buka Website"]) --> HP["📄 Homepage"]
+    HP --> HP1["Baca Tugas & Fungsi BRIDA"]
+    HP1 --> HP2["Klik Daftar Sekarang"]
+    HP2 --> B{"Sudah punya akun?"}
+    
+    B -- Ya --> C["🔐 Halaman Login"]
+    B -- Tidak --> D["📝 Halaman Registrasi"]
+    D --> D1["Isi Data Diri"]
+    D1 --> D2["Klik Daftar"]
+    D2 --> C
+
+    C --> C1["Masukkan Email & Password"]
+    C1 --> E{"Role Pengguna?"}
+    E -- Mahasiswa --> F["🎓 Dashboard Mahasiswa"]
+    E -- Admin --> G["🛡️ Dashboard Admin"]
+
+    %% ===========================
+    %% FLOW MAHASISWA
+    %% ===========================
+    F --> F1["Upload Proposal"]
+    F1 --> F2{"Status Proposal?"}
+    F2 -- Pending --> F3["⏳ Menunggu Verifikasi"]
+    F3 --> F2
+    F2 -- Revisi --> F4["🔄 Upload Ulang"]
+    F4 --> F2
+    F2 -- Ditolak --> F5["❌ Ditolak"]
+    F2 -- Disetujui --> F6["✅ Akses Fitur Terbuka"]
+
+    F6 --> M1["📁 Dokumen"]
+    F6 --> M2["📅 Presensi"]
+    F6 --> M3["👥 Tim BRIDA"]
+    F6 --> M4["📖 Logbook"]
+    F6 --> M5["🏆 Hasil & Sertifikat"]
+    F6 --> M6["👤 Profil"]
+
+    M1 --> M1a["Upload / Kelola Dokumen"]
+    M2 --> M2a["Catat Kehadiran Harian"]
+    M3 --> M3a["Lihat Info Tim"]
+    M4 --> M4a["Tambah / Edit Entri"]
+    M5 --> M5a["Penilaian Perilaku Kerja"]
+    M5 --> M5b["Penilaian Kinerja"]
+    M5 --> M5c["Upload Laporan Akhir"]
+    M5 --> M5d["Download Sertifikat"]
+    M6 --> M6a["Lihat / Edit Profil"]
+
+    %% ===========================
+    %% FLOW ADMIN
+    %% ===========================
+    G --> A1["📊 Dashboard Overview"]
+    G --> A2["🎓 Mahasiswa"]
+    G --> A3["👥 Data Tim BRIDA"]
+    G --> A4["✅ Verifikasi Mahasiswa"]
+    G --> A5["📖 Review Logbook"]
+    G --> A6["📄 Laporan Akhir / Jurnal"]
+    G --> A7["🏆 Penilaian & Sertifikat"]
+
+    A1 --> A1a["Lihat Statistik Pendaftar"]
+    A2 --> A2a["Lihat Daftar Mahasiswa"]
+    A3 --> A3a["Kelola Data Tim"]
+    A4 --> A4a["Review Berkas Proposal"]
+    A4a --> A4b{"Aksi Admin?"}
+    A4b -- Setujui --> A4c["Status: Diterima"]
+    A4b -- Revisi --> A4d["Status: Perlu Revisi"]
+    A4b -- Tolak --> A4e["Status: Ditolak"]
+    A5 --> A5a["Review Logbook Mahasiswa"]
+    A6 --> A6a["Review Laporan"]
+    A7 --> A7a["Beri Penilaian Perilaku Kerja"]
+    A7 --> A7b["Beri Penilaian Kinerja"]
+    A7 --> A7c["Generate Sertifikat"]
+
+    %% ===========================
+    %% STYLING
+    %% ===========================
+    classDef homepage fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#1e293b
+    classDef auth fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e293b
+    classDef student fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#1e293b
+    classDef admin fill:#fefce8,stroke:#eab308,stroke-width:2px,color:#1e293b
+    classDef decision fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef status fill:#faf5ff,stroke:#a855f7,stroke-width:1px,color:#1e293b
+
+    class HP,HP1,HP2 homepage
+    class C,C1,D,D1,D2 auth
+    class F,F1,F6,M1,M2,M3,M4,M5,M6,M1a,M2a,M3a,M4a,M5a,M5b,M5c,M5d,M6a student
+    class G,A1,A2,A3,A4,A5,A6,A7,A1a,A2a,A3a,A4a,A5a,A6a,A7a,A7b,A7c admin
+    class B,E,F2,A4b decision
+    class F3,F4,F5,A4c,A4d,A4e status

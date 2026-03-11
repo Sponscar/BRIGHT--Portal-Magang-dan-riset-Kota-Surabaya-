@@ -1,0 +1,51 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#eab308', 'primaryTextColor': '#000', 'primaryBorderColor': '#ca8a04', 'lineColor': '#475569', 'secondaryColor': '#fefce8', 'tertiaryColor': '#fefce8' } } }%%
+
+flowchart TD
+    G["Dashboard Admin"] --> A1["Dashboard Overview"]
+    G --> A2["Mahasiswa"]
+    G --> A3["Data Tim BRIDA"]
+    G --> A4["Verifikasi Mahasiswa"]
+    G --> A5["Review Logbook"]
+    G --> A6["Laporan Akhir / Jurnal"]
+    G --> A7["Penilaian & Sertifikat"]
+
+    A1 --> A1a["Lihat Statistik Pendaftar"]
+
+    A2 --> A2a["Lihat Daftar Mahasiswa"]
+    A2a --> A2b["Lihat Detail Mahasiswa"]
+    A2b --> A2c["Review Presensi Mahasiswa"]
+    A2c --> A2d{"Aksi Presensi?"}
+    A2d -- Setujui --> A2e["Presensi: Disetujui"]
+    A2d -- Tolak --> A2f["Presensi: Ditolak"]
+
+    A3 --> A3a["Kelola Data Tim"]
+
+    A4 --> A4a["Review Berkas Proposal"]
+    A4a --> A4b{"Aksi Verifikasi?"}
+    A4b -- Setujui --> A4c["Status: Diterima"]
+    A4b -- Revisi --> A4d["Status: Perlu Revisi"]
+    A4b -- Tolak --> A4e["Status: Ditolak"]
+
+    A5 --> A5a["Review Logbook Mahasiswa"]
+    A5a --> A5b{"Aksi Logbook?"}
+    A5b -- Setujui --> A5c["Logbook: Disetujui"]
+    A5b -- Tolak --> A5d["Logbook: Ditolak"]
+
+    A6 --> A6a["Review Laporan Akhir / Jurnal"]
+    A6a --> A6b{"Aksi Laporan?"}
+    A6b -- Setujui --> A6c["Laporan: Disetujui"]
+    A6b -- Tolak --> A6d["Laporan: Ditolak"]
+
+    A7 --> A7a["Beri Penilaian Perilaku Kerja"]
+    A7 --> A7b["Beri Penilaian Kinerja"]
+    A7 --> A7c["Generate Sertifikat"]
+
+    classDef main fill:#fefce8,stroke:#eab308,stroke-width:2px,color:#000
+    classDef feature fill:#fffbeb,stroke:#f59e0b,stroke-width:1px,color:#000
+    classDef decision fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#000
+    classDef status fill:#faf5ff,stroke:#a855f7,stroke-width:1px,color:#000
+
+    class G main
+    class A1,A2,A3,A4,A5,A6,A7,A1a,A2a,A2b,A2c,A3a,A4a,A5a,A6a,A7a,A7b,A7c feature
+    class A2d,A4b,A5b,A6b decision
+    class A2e,A2f,A4c,A4d,A4e,A5c,A5d,A6c,A6d status

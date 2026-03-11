@@ -1,0 +1,28 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#dc2626', 'primaryTextColor': '#fff', 'primaryBorderColor': '#b91c1c', 'lineColor': '#475569', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fef2f2' } } }%%
+
+flowchart TD
+    A(["🌐 Buka Website"]) --> HP["📄 Homepage"]
+    HP --> HP1["Baca Tugas & Fungsi BRIDA"]
+    HP1 --> HP2["Klik Daftar Sekarang"]
+    HP2 --> B{"Sudah punya akun?"}
+    
+    B -- Ya --> C["🔐 Halaman Login"]
+    B -- Tidak --> D["📝 Halaman Registrasi"]
+    D --> D1["Isi Data Diri"]
+    D1 --> D2["Klik Daftar"]
+    D2 --> C
+
+    C --> C1["Masukkan Email & Password"]
+    C1 --> E{"Role Pengguna?"}
+    E -- Mahasiswa --> F["🎓 Dashboard Mahasiswa"]
+    E -- Admin --> G["🛡️ Dashboard Admin"]
+
+    classDef homepage fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#1e293b
+    classDef auth fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e293b
+    classDef decision fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef dashboard fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#1e293b
+
+    class HP,HP1,HP2 homepage
+    class C,C1,D,D1,D2 auth
+    class B,E decision
+    class F,G dashboard

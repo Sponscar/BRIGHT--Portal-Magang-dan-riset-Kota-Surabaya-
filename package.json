@@ -1,0 +1,16 @@
+{
+  "name": "brida-portal-magang",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=dashboard\" \"npm run dev --workspace=home-page\"",
+    "dev:dashboard": "npm run dev --workspace=dashboard",
+    "dev:homepage": "npm run dev --workspace=home-page"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

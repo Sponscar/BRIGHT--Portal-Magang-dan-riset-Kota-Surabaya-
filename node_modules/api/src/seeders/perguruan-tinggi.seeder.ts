@@ -1,0 +1,175 @@
+import { MikroORM } from '@mikro-orm/postgresql';
+import * as dotenv from 'dotenv';
+import { PerguruanTinggi } from '../entities';
+
+dotenv.config();
+
+const data = [
+    { nama: "Akademi Akupuntur Surabaya", alamat: "Jl. Arief Rahman Hakim No.2", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Akademi Farmasi Surabaya", alamat: "Jl. Ketintang Madya No. 81", kelurahan: "Ketintang", kecamatan: "Gayungan" },
+    { nama: "Akademi Kelautan dan Perikanan Otiawa Indonesia", alamat: "Jl. Cumi-Cumi, Jl. Studi Perikanan No.01.X", kelurahan: "Lidah Kulon", kecamatan: "Lakarsantri" },
+    { nama: "Akademi Sekretari dan Manajemen Indonesia Surabaya", alamat: "Jl. Trunojoyo No.60", kelurahan: "Darmo", kecamatan: "Wonokromo" },
+    { nama: "Akademi Teknik dan Optisi Surabaya", alamat: "Jl. Padmosusastro No.2", kelurahan: "Ketabang", kecamatan: "Genteng" },
+    { nama: "Institut Kesehatan dan Bisnis Surabaya", alamat: "Jl. Mojo Klanggran No.21", kelurahan: "Mojo", kecamatan: "Gubeng" },
+    { nama: "Institut Teknologi Sepuluh November (ITS)", alamat: "JI. Raya ITS Sukolilo", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+    { nama: "Institut Teknologi Telkom Surabaya", alamat: "Jl. Ketintang No.156", kelurahan: "Ketintang", kecamatan: "Gayungan" },
+    { nama: "STIA Bayuangga Probolinggo", alamat: "Jl. Mastrip", kelurahan: "Kanigaran", kecamatan: "Kanigaran" },
+    { nama: "Institut Bisnis dan Teknologi Indonesia (INSTIKI)", alamat: "Jl. Raya Jemur Sari", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Politeknik Kesehatan Kemenkes - Kota Surabaya Prodi", alamat: "Jl. Pucang Jajar Tengah No. 56", kelurahan: "Kertajaya", kecamatan: "Gubeng" },
+    { nama: "Politeknik Penerbangan Surabaya", alamat: "Jl. Jemur Andayani I No. 73", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Politeknik Perkapalan Negeri Surabaya (PPNS)", alamat: "Jl. Teknik Kimia, ITS Sukolilo", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+    { nama: "Politeknik Pelayaran Surabaya", alamat: "Jl. Gunung Anyar Tambak Surabaya", kelurahan: "Gunung Anyar", kecamatan: "Gunung Anyar" },
+    { nama: "STIE Mahardhika Surabaya", alamat: "Jl. Wisata Menanggal No.1A", kelurahan: "Menanggal", kecamatan: "Gayungan" },
+    { nama: "STIKES Hang Tuah Surabaya", alamat: "Jl. Gadung No. 1", kelurahan: "Jagir", kecamatan: "Wonokromo" },
+    { nama: "STIKES Yayasan RS Dr. Soetomo Surabaya", alamat: "Jl. Karangmenjangan No. 12", kelurahan: "Airlangga", kecamatan: "Gubeng" },
+    { nama: "STKIP Bina Insan Mandiri (BIMA)", alamat: "Jl. Raya Menganti Kramat No.133", kelurahan: "Lakarsantri", kecamatan: "Lakarsantri" },
+    { nama: "Sekolah Tinggi Ilmu Administrasi dan Manajemen Kepelabuhan Barunawati", alamat: "Jl. Perak Barat No.173", kelurahan: "Perak Utara", kecamatan: "Pabean Cantian" },
+    { nama: "Sekolah Tinggi Ilmu Bahasa dan Sastra Satya Widya Surabaya", alamat: "Jl. Juwingan No.24", kelurahan: "Pacarkeling", kecamatan: "Tambaksari" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi (STIE) IEU", alamat: "Jl. Raya Kletek No. 20", kelurahan: "Kletek", kecamatan: "Taman" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi Indonesia (STIESIA) Surabaya", alamat: "Jl. Menur Pumpungan No. 30", kelurahan: "Menur Pumpungan", kecamatan: "Sukolilo" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi Mahardika Surabaya", alamat: "Jl. Wisata Menanggal No.1A", kelurahan: "Menanggal", kecamatan: "Gayungan" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi Perbanas Surabaya", alamat: "Jl. Nginden Semolo No. 34-36", kelurahan: "Nginden Jangkungan", kecamatan: "Sukolilo" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi Urip Sumoharjo Surabaya", alamat: "Jl. Arif Rahman Hakim 46", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Sekolah Tinggi Ilmu Hukum (STIH) Surabaya", alamat: "Jl. Tidar No. 61", kelurahan: "Sawunggaling", kecamatan: "Wonokromo" },
+    { nama: "Sekolah Tinggi Manajemen Informatika dan Komputer (STMIK) Surabaya", alamat: "Jl. Raya Kedung Baruk No. 98", kelurahan: "Kedung Baruk", kecamatan: "Rungkut" },
+    { nama: "Sekolah Tinggi Teknik Surabaya", alamat: "Jl. Ngagel Jaya Tengah No. 73-77", kelurahan: "Pucang Sewu", kecamatan: "Gubeng" },
+    { nama: "Sekolah Tinggi Ilmu Kesehatan William Booth Surabaya", alamat: "Jl. Cimanuk No. 20", kelurahan: "Darmo", kecamatan: "Wonokromo" },
+    { nama: "Sekolah Tinggi Ilmu Komputer (STIKOM) Surabaya", alamat: "Jl. Raya Kedung Baruk No. 98", kelurahan: "Kedung Baruk", kecamatan: "Rungkut" },
+    { nama: "Sekolah Tinggi Informatika dan Komputer Indonesia (STIKI) Surabaya", alamat: "Jl. Tidar No. 100", kelurahan: "Sawunggaling", kecamatan: "Wonokromo" },
+    { nama: "STIE Urip Sumoharjo Surabaya", alamat: "Jl. Arief Rahman Hakim No.46", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi dan Bisnis Internasional (STIEBI) Global Surabaya", alamat: "Jl. Rungkut Lor VII No. 1", kelurahan: "Kali Rungkut", kecamatan: "Rungkut" },
+    { nama: "Sekolah Tinggi Agama Islam YPBWI Surabaya", alamat: "Jl. Pandegiling No. 308", kelurahan: "Tegalsari", kecamatan: "Tegalsari" },
+    { nama: "STIKES Katolik St. Vincentius A Paulo Surabaya", alamat: "Jl. Jambi 12-18", kelurahan: "Ngagel", kecamatan: "Wonokromo" },
+    { nama: "Sekolah Tinggi Ilmu Pelayaran (STIP) Marunda", alamat: "Jl. Marunda Mauk", kelurahan: "Krembangan Selatan", kecamatan: "Krembangan" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi Artha Bodhi Iswara Surabaya", alamat: "Jl. Barata Jaya XVII No.2", kelurahan: "Barata Jaya", kecamatan: "Gubeng" },
+    { nama: "Sekolah Tinggi Bahasa Asing JIA Surabaya", alamat: "Jl. Cut Meutia No.30", kelurahan: "Kertajaya", kecamatan: "Gubeng" },
+    { nama: "Sekolah Tinggi Ilmu Ekonomi (STIE) ABI Surabaya", alamat: "Jl. Barata Jaya XVII No.2", kelurahan: "Barata Jaya", kecamatan: "Gubeng" },
+    { nama: "Sekolah Tinggi Agama Islam dan Ilmu Pendidikan Al-Ijtihad Wresinin", alamat: "Jl. Kedondong Lbr No. 1", kelurahan: "Karang Pilang", kecamatan: "Karang Pilang" },
+    { nama: "Sekolah Tinggi Keguruan dan Ilmu Pendidikan al-Hikmah", alamat: "JI. Kebonsari Elveka V", kelurahan: "Kebonsari", kecamatan: "Jambangan" },
+    { nama: "Sekolah Tinggi Teologi Abdi Allah Indonesia (STTAI)", alamat: "Jl. Raya Panjang Jiwo Permai", kelurahan: "Panjang Jiwo", kecamatan: "Tenggilis Mejoyo" },
+    { nama: "Universitas 17 Agustus 1945 (UNTAG) Surabaya", alamat: "Jl. Semolowaru No.45", kelurahan: "Menur Pumpungan", kecamatan: "Sukolilo" },
+    { nama: "Universitas Airlangga (UNAIR)", alamat: "Jl. Dharmahusada Permai (Kampus C)", kelurahan: "Mulyorejo", kecamatan: "Mulyorejo" },
+    { nama: "Universitas Bhayangkara Surabaya", alamat: "Jl. Ahmad Yani 114", kelurahan: "Ketintang", kecamatan: "Gayungan" },
+    { nama: "Universitas Ciputra Surabaya", alamat: "UC Town, Citraland Surabaya", kelurahan: "Made", kecamatan: "Sambikerep" },
+    { nama: "Universitas Dinamika (STIKOM)", alamat: "Jl. Raya Kedung Baruk No.98", kelurahan: "Kedung Baruk", kecamatan: "Rungkut" },
+    { nama: "Universitas Dr. Soetomo Surabaya", alamat: "Jl. Semolowaru No. 84", kelurahan: "Semolowaru", kecamatan: "Sukolilo" },
+    { nama: "Universitas Hang Tuah Surabaya", alamat: "Jl. Arif Rahman Hakim No.150", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+    { nama: "Universitas Islam Negeri Sunan Ampel Surabaya (UINSA)", alamat: "Jl. Ahmad Yani No. 117", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Universitas Katolik Widya Mandala Surabaya", alamat: "Jl. Dinoyo No. 42-44", kelurahan: "Keputran", kecamatan: "Tegalsari" },
+    { nama: "Universitas Katolik Darma Cendika", alamat: "Jl. Dr. Ir. H. Soekarno No.201", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Universitas Kristen Petra Surabaya", alamat: "Jl. Siwalankerto No.121-131", kelurahan: "Siwalankerto", kecamatan: "Wonocolo" },
+    { nama: "Universitas Muhammadiyah Surabaya", alamat: "Jl. Sutorejo No. 59", kelurahan: "Dukuh Sutorejo", kecamatan: "Mulyorejo" },
+    { nama: "Universitas Narotama Surabaya", alamat: "Jl. Arief Rahman Hakim 51", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Universitas Negeri Surabaya (UNESA)", alamat: "Jl. Lidah Wetan, Surabaya", kelurahan: "Lidah Wetan", kecamatan: "Lakarsantri" },
+    { nama: "Universitas PGRI Adi Buana Surabaya", alamat: "Jl. Ngagel Dadi III B/37", kelurahan: "Ngagel Rejo", kecamatan: "Wonokromo" },
+    { nama: "Universitas Pembangunan Nasional Veteran Jawa Timur (UPNVJT)", alamat: "Jl. Raya Rungkut Madya", kelurahan: "Gunung Anyar", kecamatan: "Gunung Anyar" },
+    { nama: "Universitas Pelita Harapan Surabaya", alamat: "Jl. Raya Kalidami Surabaya", kelurahan: "Kertajaya", kecamatan: "Gubeng" },
+    { nama: "Universitas Surabaya (UBAYA)", alamat: "Jl. Ngagel Jaya Selatan No.169", kelurahan: "Pucang Sewu", kecamatan: "Gubeng" },
+    { nama: "Universitas Wijaya Kusuma Surabaya", alamat: "Jl. Dukuh Kupang XXV No.54", kelurahan: "Dukuh Kupang", kecamatan: "Dukuh Pakis" },
+    { nama: "Universitas Widya Kartika Surabaya", alamat: "Jl. Sutorejo Prima Utara II No.1", kelurahan: "Dukuh Sutorejo", kecamatan: "Mulyorejo" },
+    { nama: "Universitas WR. Supratman Surabaya", alamat: "Jl. Arif Rahman Hakim 14", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Universitas Wijaya Putra Surabaya", alamat: "Jl. Raya Benowo No.1-3", kelurahan: "Lidah Kulon", kecamatan: "Lakarsantri" },
+    { nama: "Universitas Yos Sudarso Surabaya", alamat: "Jl. Dukuh Kupang Barat I No.216-218", kelurahan: "Dukuh Kupang", kecamatan: "Dukuh Pakis" },
+    { nama: "Universitas Maarif Hasyim Latif (UMAHA)", alamat: "Jl. Raya Ngelom Megare Taman-Sidoarjo", kelurahan: "Ngelom", kecamatan: "Taman" },
+    { nama: "Universitas Islam Darul Ulum (UNISDA) Lamongan", alamat: "Jl. Airlangga 3, Sukodadi, Lamongan", kelurahan: "Sukodadi", kecamatan: "Sukodadi" },
+    { nama: "Universitas Trunojoyo Madura", alamat: "Jl. Raya Telang, Kamal, Bangkalan", kelurahan: "Telang", kecamatan: "Kamal" },
+    { nama: "Universitas Internasional Semen Indonesia (UISI)", alamat: "Kompleks PT. Semen Indonesia (Persero) Tbk, Jl. Veteran, Kb. Dalem, Sidomoro, Kebomas, Gresik", kelurahan: "Sidomoro", kecamatan: "Kebomas" },
+    { nama: "Universitas Muhammadiyah Gresik", alamat: "Jl. Sumatra No. 101 GKB", kelurahan: "Randuagung", kecamatan: "Kebomas" },
+    { nama: "Universitas Muhammadiyah Lamongan", alamat: "Jl. Raya Plalangan Km.3 Plosowahyu", kelurahan: "Plosowahyu", kecamatan: "Lamongan" },
+    { nama: "Universitas Nahdlatul Ulama Surabaya (UNUSA)", alamat: "Jl. SMEA No. 57", kelurahan: "Wonokromo", kecamatan: "Wonokromo" },
+    { nama: "Universitas Ciputra (UC) Surabaya", alamat: "UC Town, Citraland", kelurahan: "Made", kecamatan: "Sambikerep" },
+    { nama: "STIE Perbanas Surabaya", alamat: "Jl. Nginden Semolo 34-36", kelurahan: "Nginden Jangkungan", kecamatan: "Sukolilo" },
+    { nama: "Universitas Sunan Giri Surabaya", alamat: "Jl. Brigjen Katamso II", kelurahan: "Wonokromo", kecamatan: "Wonokromo" },
+    { nama: "STMIK Surabaya", alamat: "Jl. Raya Kedung Baruk 98", kelurahan: "Kedung Baruk", kecamatan: "Rungkut" },
+    { nama: "STIAMAK Barunawati Surabaya", alamat: "Jl. Perak Barat No.173", kelurahan: "Perak Utara", kecamatan: "Pabean Cantian" },
+    { nama: "Sekolah Tinggi Ilmu Kesehatan Surabaya", alamat: "Jl. Medokan Semampir Indah No.27", kelurahan: "Medokan Semampir", kecamatan: "Sukolilo" },
+    { nama: "Politeknik Sakti Surabaya", alamat: "Jl. Ir. Soekarno No.183", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Akademi Farmasi Surabaya (AKFAR)", alamat: "Jl. Ketintang Madya No.81", kelurahan: "Ketintang", kecamatan: "Gayungan" },
+    { nama: "Akademi Manajemen Jasa Maritim", alamat: "Jl. Perak Barat No.173", kelurahan: "Perak Utara", kecamatan: "Pabean Cantian" },
+    { nama: "STIE Indonesia (STIESIA) Surabaya", alamat: "Jl. Menur Pumpungan 30", kelurahan: "Menur Pumpungan", kecamatan: "Sukolilo" },
+    { nama: "STIE Pemuda Surabaya", alamat: "Jl. Biliton 52", kelurahan: "Gubeng", kecamatan: "Gubeng" },
+    { nama: "STIE Tri Bhakti Surabaya", alamat: "Jl. Panjang Jiwo No.25", kelurahan: "Panjang Jiwo", kecamatan: "Tenggilis Mejoyo" },
+    { nama: "STIKES Yayasan RS Dr. Soetomo", alamat: "Jl. Karangmenjangan No.12", kelurahan: "Airlangga", kecamatan: "Gubeng" },
+    { nama: "Politeknik Ubaya", alamat: "Jl. Ngagel Jaya Selatan 169", kelurahan: "Pucang Sewu", kecamatan: "Gubeng" },
+    { nama: "STIA dan Manajemen Kepelabuhan Barunawati Surabaya", alamat: "Jl. Perak Barat 173", kelurahan: "Perak Utara", kecamatan: "Pabean Cantian" },
+    { nama: "Sekolah Tinggi Ilmu Kesehatan Hang Tuah Surabaya", alamat: "Jl. Gadung No.1", kelurahan: "Jagir", kecamatan: "Wonokromo" },
+    { nama: "Sekolah Tinggi Desain dan Kuliner Indonesia (STIDKI) Surabaya", alamat: "Jl. Rungkut Lor Surabaya", kelurahan: "Kali Rungkut", kecamatan: "Rungkut" },
+    { nama: "Sekolah Tinggi Teologi Bethany", alamat: "Jl. Rungkut Asri Utara IX/9", kelurahan: "Rungkut Kidul", kecamatan: "Rungkut" },
+    { nama: "Sekolah Tinggi Teologi IKAT Jakarta", alamat: "Jl. Enggano 2", kelurahan: "Tanjung Priok", kecamatan: "Tanjung Priok" },
+    { nama: "Sekolah Tinggi Filsafat Widya Sasana", alamat: "Jl. Terusan Rajabasa No.6", kelurahan: "Pisang Candi", kecamatan: "Sukun" },
+    { nama: "Sekolah Tinggi Theologi INTI Timor", alamat: "EMIT CENTER-DUKUH CORP Rt. 6/8", kelurahan: "Mulyorejo", kecamatan: "Mulyorejo" },
+    { nama: "Sekolah Tinggi Teologi Baptis Independen Surabaya", alamat: "Jl. Raya Jemur Sari Utara IX/9", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Sekolah Tinggi Bahasa Asing Harvest Surabaya", alamat: "Jl. Medaeng Waru", kelurahan: "Medaeng", kecamatan: "Waru" },
+    { nama: "Sekolah Tinggi Teologi ISEN Surabaya", alamat: "Jl. RA Kartini 35 Surabaya", kelurahan: "Tegalsari", kecamatan: "Tegalsari" },
+    { nama: "Sekolah Tinggi Teologi Misi Global Surabaya", alamat: "Jl. Rungkut Lor", kelurahan: "Kali Rungkut", kecamatan: "Rungkut" },
+    { nama: "Universitas Katolik Darma Cendika Surabaya", alamat: "Jl. Dr.Ir.H.Soekarno No.201", kelurahan: "Klampis Ngasem", kecamatan: "Sukolilo" },
+    { nama: "Sekolah Tinggi Ilmu Administrasi Bayuangga Probolinggo", alamat: "Jl. Mastrip", kelurahan: "Kanigaran", kecamatan: "Kanigaran" },
+    { nama: "Institut Informatika Indonesia (IKADO)", alamat: "Jl. Raya Sukomanunggal Jaya 3", kelurahan: "Sukomanunggal", kecamatan: "Sukomanunggal" },
+    { nama: "Sekolah Tinggi Manajemen IMNI Jakarta", alamat: "Jl. Tj. Barat Raya No.11", kelurahan: "Tanjung Barat", kecamatan: "Jagakarsa" },
+    { nama: "Sekolah Tinggi Ilmu Tarbiyah NU Al Hikmah Mojokerto", alamat: "Jl. KH. Hasyim Asy'ari No.117", kelurahan: "Kauman", kecamatan: "Kota Mojokerto" },
+    { nama: "Politeknik NSC Surabaya", alamat: "Jl. Basuki Rahmat No. 85-87", kelurahan: "Embong Kaliasin", kecamatan: "Genteng" },
+    { nama: "Sekolah Tinggi Teologi Bethel Indonesia", alamat: "Jl. Mayjen Sungkono VIII/16 Surabaya", kelurahan: "Pakis", kecamatan: "Sawahan" },
+    { nama: "Sekolah Tinggi Teologi Soteria Purwokerto", alamat: "Jl. Raya Dukuhwaluh", kelurahan: "Dukuhwaluh", kecamatan: "Kembaran" },
+    { nama: "Sekolah Tinggi Teologi IKAT (Jakarta)", alamat: "Jl. Enggano 2", kelurahan: "Tanjung Priok", kecamatan: "Tanjung Priok" },
+    { nama: "Sekolah Tinggi Alkitab Tiranus Bandung", alamat: "Jl. Cihanjuang Km 5.2", kelurahan: "Cihanjuang", kecamatan: "Parongpong" },
+    { nama: "Sekolah Tinggi Teologi Gereja Kalimantan Evangelis (GSKE)", alamat: "Jl. A. Yani 45", kelurahan: "Banjarmasin", kecamatan: "Banjarmasin" },
+    { nama: "Sekolah Tinggi Teologi Moriah Tangerang", alamat: "Jl. Raya Kebon Nanas", kelurahan: "Batuceper", kecamatan: "Batuceper" },
+    { nama: "Sekolah Tinggi Teologi Amanat Agung Jakarta", alamat: "Jl. BIOSKOP II", kelurahan: "Mangga Besar", kecamatan: "Tamansari" },
+    { nama: "Sekolah Tinggi Teologi Aletheia Lawang", alamat: "Jl. Argopuro No.28", kelurahan: "Lawang", kecamatan: "Lawang" },
+    { nama: "Sekolah Tinggi Teologi Injili Arastamar (SETIA) Jakarta", alamat: "Jl. Kaliurang", kelurahan: "Tugu Utara", kecamatan: "Koja" },
+    { nama: "Sekolah Tinggi Teologi Misi Nusantara Surabaya", alamat: "Jl. Raya Jemur Sari Utara", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Akademi Keperawatan Adi Husada Surabaya", alamat: "Jl. Kapas Madya XII/61", kelurahan: "Kapas Madya", kecamatan: "Tambaksari" },
+    { nama: "Sekolah Tinggi Teologi Pelita Bangsa Jakarta", alamat: "Jl. Pahlawan Revolusi", kelurahan: "Klender", kecamatan: "Duren Sawit" },
+    { nama: "Akademi Analis Kesehatan Surabaya", alamat: "Jl. Karang Menjangan No.20", kelurahan: "Airlangga", kecamatan: "Gubeng" },
+    { nama: "Sekolah Tinggi Ilmu Pelayaran (STIP) Surabaya", alamat: "Jl. Hang Tuah No.1", kelurahan: "Perak Utara", kecamatan: "Pabean Cantian" },
+    { nama: "Politeknik Elektronika Negeri Surabaya (PENS)", alamat: "Jl. Raya ITS, Keputih, Sukolilo", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+    { nama: "Akademi Keperawatan William Booth Surabaya", alamat: "Jl. Cimanuk No.20", kelurahan: "Darmo", kecamatan: "Wonokromo" },
+    { nama: "Akademi Pariwisata Majapahit Surabaya", alamat: "Jl. Raya Jemur Sari 244", kelurahan: "Jemur Wonosari", kecamatan: "Wonocolo" },
+    { nama: "Akademi Teknik Warga Surakarta", alamat: "Jl. Raya Solo - Baki, Pandeyan", kelurahan: "Pandeyan", kecamatan: "Grogol" },
+    { nama: "Akademi Farmasi dan Makanan Putra Indonesia Malang", alamat: "Jl. Barito No.5", kelurahan: "Gadang", kecamatan: "Sukun" },
+    { nama: "Akademi Keperawatan Kerta Cendekia Sidoarjo", alamat: "Jl. Kerto No.8", kelurahan: "Sidokare", kecamatan: "Sidoarjo" },
+    { nama: "Politeknik Perkapalan Negeri Surabaya", alamat: "Jl. Teknik Kimia, Kampus ITS", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+    { nama: "Universitas Widya Mandala Surabaya", alamat: "Jl. Dinoyo No. 42-44", kelurahan: "Keputran", kecamatan: "Tegalsari" },
+    { nama: "Universitas Pembangunan Nasional (UPN) Veteran Jawa Timur", alamat: "Jl. Raya Rungkut Madya", kelurahan: "Gunung Anyar", kecamatan: "Gunung Anyar" },
+    { nama: "Universitas Negeri Surabaya", alamat: "Jl. Ketintang, Surabaya", kelurahan: "Ketintang", kecamatan: "Gayungan" },
+    { nama: "Universitas Airlangga", alamat: "Jl. Airlangga No.4-6", kelurahan: "Airlangga", kecamatan: "Gubeng" },
+    { nama: "Institut Teknologi Sepuluh Nopember", alamat: "Jl. Raya ITS, Keputih, Sukolilo", kelurahan: "Keputih", kecamatan: "Sukolilo" },
+];
+
+async function seed() {
+    const orm = await MikroORM.init({
+        entities: ['./dist/entities/*.entity.js'],
+        entitiesTs: ['./src/entities/*.entity.ts'],
+        dbName: process.env.DB_NAME || 'brida_magang',
+        host: process.env.DB_HOST || 'localhost',
+        port: Number(process.env.DB_PORT) || 5432,
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'postgres',
+    });
+
+    const em = orm.em.fork();
+
+    for (const pt of data) {
+        const exists = await em.findOne(PerguruanTinggi, { nama: pt.nama });
+        if (!exists) {
+            const entity = new PerguruanTinggi();
+            entity.nama = pt.nama;
+            entity.alamat = pt.alamat;
+            entity.kelurahan = pt.kelurahan;
+            entity.kecamatan = pt.kecamatan;
+            em.persist(entity);
+            console.log(`✅ Created: ${pt.nama}`);
+        } else {
+            console.log(`⏩ Skipped: ${pt.nama} (already exists)`);
+        }
+    }
+
+    await em.flush();
+    await orm.close(true);
+    console.log(`\n🎉 Perguruan Tinggi seeding completed! (${data.length} entries)`);
+}
+
+seed().catch((err) => {
+    console.error('❌ Seeding failed:', err);
+    process.exit(1);
+});

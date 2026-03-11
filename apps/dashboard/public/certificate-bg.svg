@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1123 794" width="1123" height="794">
+  <rect width="1123" height="794" fill="#ffffff"/>
+
+  <!-- Thin border -->
+  <rect x="14" y="14" width="1095" height="766" fill="none" stroke="#333" stroke-width="1.5" rx="3"/>
+
+  <!-- ===== TOP-LEFT: Teal organic blob ===== -->
+  <path d="M0,0 L300,0 C340,20 370,80 350,160 C330,240 280,300 200,340 C140,370 80,390 40,400 C20,405 0,410 0,410Z" fill="#3b7d8c"/>
+
+  <!-- TOP-LEFT: Red/coral organic blob (overlapping) -->
+  <path d="M0,0 L200,0 C240,30 270,100 250,190 C230,280 170,320 110,310 C60,300 30,260 10,220 C0,200 0,180 0,180Z" fill="#d9534f"/>
+
+  <!-- TOP-LEFT: Small orange accent blob -->
+  <path d="M0,300 C20,280 60,270 90,290 C120,310 110,350 70,370 C40,385 15,400 0,410Z" fill="#e8a838"/>
+
+  <!-- ===== MID-LEFT: Polkadot grid ===== -->
+  <g fill="#e8a838">
+    <!-- Row 1 -->
+    <circle cx="50" cy="300" r="4"/><circle cx="68" cy="300" r="4"/><circle cx="86" cy="300" r="4"/><circle cx="104" cy="300" r="4"/><circle cx="122" cy="300" r="4"/><circle cx="140" cy="300" r="4"/><circle cx="158" cy="300" r="4"/>
+    <!-- Row 2 -->
+    <circle cx="50" cy="318" r="4"/><circle cx="68" cy="318" r="4"/><circle cx="86" cy="318" r="4"/><circle cx="104" cy="318" r="4"/><circle cx="122" cy="318" r="4"/><circle cx="140" cy="318" r="4"/><circle cx="158" cy="318" r="4"/>
+    <!-- Row 3 -->
+    <circle cx="50" cy="336" r="4"/><circle cx="68" cy="336" r="4"/><circle cx="86" cy="336" r="4"/><circle cx="104" cy="336" r="4"/><circle cx="122" cy="336" r="4"/><circle cx="140" cy="336" r="4"/><circle cx="158" cy="336" r="4"/>
+    <!-- Row 4 -->
+    <circle cx="50" cy="354" r="4"/><circle cx="68" cy="354" r="4"/><circle cx="86" cy="354" r="4"/><circle cx="104" cy="354" r="4"/><circle cx="122" cy="354" r="4"/><circle cx="140" cy="354" r="4"/><circle cx="158" cy="354" r="4"/>
+    <!-- Row 5 -->
+    <circle cx="50" cy="372" r="4"/><circle cx="68" cy="372" r="4"/><circle cx="86" cy="372" r="4"/><circle cx="104" cy="372" r="4"/><circle cx="122" cy="372" r="4"/><circle cx="140" cy="372" r="4"/><circle cx="158" cy="372" r="4"/>
+    <!-- Row 6 -->
+    <circle cx="50" cy="390" r="4"/><circle cx="68" cy="390" r="4"/><circle cx="86" cy="390" r="4"/><circle cx="104" cy="390" r="4"/><circle cx="122" cy="390" r="4"/><circle cx="140" cy="390" r="4"/><circle cx="158" cy="390" r="4"/>
+  </g>
+
+  <!-- ===== BOTTOM-LEFT: Large orange organic blob ===== -->
+  <path d="M0,794 L0,520 C40,500 100,490 160,520 C220,550 260,610 270,670 C280,730 250,794 250,794Z" fill="#e8a838"/>
+
+  <!-- BOTTOM-LEFT: Wavy golden lines -->
+  <path d="M0,540 C80,510 160,560 240,530 C320,500 400,480 480,500" stroke="#e8a838" stroke-width="2.5" fill="none"/>
+  <path d="M0,560 C80,530 160,580 240,550 C320,520 400,500 480,520" stroke="#e8a838" stroke-width="2.5" fill="none"/>
+  <path d="M0,580 C80,550 160,600 240,570 C320,540 400,520 480,540" stroke="#e8a838" stroke-width="2" fill="none"/>
+  <path d="M0,600 C80,570 160,620 240,590 C320,560 400,540 480,560" stroke="#e8a838" stroke-width="1.5" fill="none" opacity="0.7"/>
+  <path d="M0,618 C80,588 160,638 240,608 C320,578 400,558 480,578" stroke="#d9534f" stroke-width="1.5" fill="none" opacity="0.4"/>
+
+  <!-- ===== BOTTOM-RIGHT: Geometric triangle stack ===== -->
+  <!-- Large red triangle -->
+  <polygon points="1123,794 1123,400 780,794" fill="#d9534f"/>
+
+  <!-- Orange/yellow triangle -->
+  <polygon points="1123,794 1123,540 880,794" fill="#e8a838"/>
+
+  <!-- Dark triangle at corner -->
+  <polygon points="1123,794 1123,700 1040,794" fill="#333"/>
+
+  <!-- Light cream triangle -->
+  <polygon points="980,580 870,690 980,690" fill="#fef3c7"/>
+
+  <!-- Teal small triangle -->
+  <polygon points="920,520 860,580 920,580" fill="#3b7d8c"/>
+
+  <!-- Small yellow triangle -->
+  <polygon points="960,480 900,540 960,540" fill="#f5c842"/>
+
+  <!-- Yellow/golden diagonal accent lines -->
+  <line x1="870" y1="794" x2="1020" y2="644" stroke="#f5c842" stroke-width="2.5"/>
+  <line x1="890" y1="794" x2="1040" y2="644" stroke="#f5c842" stroke-width="2.5"/>
+  <line x1="910" y1="794" x2="1060" y2="644" stroke="#f5c842" stroke-width="2.5"/>
+  <line x1="930" y1="794" x2="1080" y2="644" stroke="#f5c842" stroke-width="2.5"/>
+</svg>
