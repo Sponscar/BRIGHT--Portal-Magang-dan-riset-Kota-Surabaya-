@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import CertificateTemplate from './CertificateTemplate';
+import Swal from 'sweetalert2';
 
 const CertificateGenerateModal = ({
     isOpen, onClose,
@@ -57,7 +58,12 @@ const CertificateGenerateModal = ({
         e.preventDefault();
 
         if (!certForm.mahasiswa_id || !certForm.nomor_sertifikat || !certForm.tanggal_mulai || !certForm.tanggal_selesai) {
-            alert("Harap lengkapi formulir terlebih dahulu.");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Formulir Belum Lengkap',
+                text: 'Harap lengkapi formulir terlebih dahulu.',
+                confirmButtonColor: '#2563eb'
+            });
             return;
         }
 

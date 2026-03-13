@@ -7,6 +7,7 @@ import AssessmentDetailModal from '../../components/admin/assessment/AssessmentD
 import CertificateTable from '../../components/admin/assessment/CertificateTable';
 import CertificateGenerateModal from '../../components/admin/assessment/CertificateGenerateModal';
 import CertificatePreviewModal from '../../components/admin/assessment/CertificatePreviewModal';
+import Swal from 'sweetalert2';
 
 const AssessmentCertificate = () => {
     // Master: Kriteria Penilaian
@@ -150,14 +151,22 @@ const AssessmentCertificate = () => {
         return (weightedTotal / totalBobot).toFixed(2);
     };
 
-    const getTotalBobot = () => criteria.reduce((sum, c) => sum + (c.bobot || 0), 0);
+    const getBobotByCategory = (category) => criteria.filter(c => c.category === category).reduce((sum, c) => sum + (c.bobot || 0), 0);
 
     const handleSaveAssessment = (e) => {
         e.preventDefault();
         const student = studentList.find(s => s.id === assessmentForm.mahasiswa_id);
         if (!student) return;
         const hasEmptyScores = assessmentForm.scores.some(s => s.score === '' || s.score === 0);
-        if (hasEmptyScores) { alert('Harap isi semua nilai kriteria.'); return; }
+        if (hasEmptyScores) { 
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Belum Lengkap',
+                text: 'Harap isi semua nilai kriteria.',
+                confirmButtonColor: '#2563eb'
+            });
+            return; 
+        }
         const newAssessment = {
             id: `a${Date.now()}`, mahasiswa_id: assessmentForm.mahasiswa_id, studentName: student.name,
             university: student.university, team: student.team, final_score: parseFloat(calculateFinalScore()),
@@ -166,6 +175,12 @@ const AssessmentCertificate = () => {
             scores: assessmentForm.scores.map(s => ({ ...s, score: Number(s.score) }))
         };
         setAssessments([newAssessment, ...assessments]);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Data penilaian berhasil disimpan.',
+            confirmButtonColor: '#2563eb'
+        });
         setIsAssessmentModalOpen(false);
     };
 
@@ -208,17 +223,66 @@ const AssessmentCertificate = () => {
     // --- CRITERIA MANAGEMENT ---
     const openCriteriaModal = () => { setEditingCriteria(null); setCriteriaForm({ name: '', category: 'behavior', bobot: '' }); setIsCriteriaModalOpen(true); };
     const handleEditCriteria = (c) => { setEditingCriteria(c); setCriteriaForm({ name: c.name, category: c.category, bobot: c.bobot || '' }); };
-    const handleDeleteCriteria = (id) => { if (window.confirm('Apakah Anda yakin ingin menghapus kriteria ini?')) { setCriteria(criteria.filter(c => c.id !== id)); } };
+    const handleDeleteCriteria = (id) => { 
+        Swal.fire({
+            title: 'Hapus Kriteria?',
+            text: "Kriteria yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setCriteria(criteria.filter(c => c.id !== id));
+                Swal.fire({
+                    title: 'Terhapus!',
+                    text: 'Kriteria berhasil dihapus.',
+                    icon: 'success',
+                    confirmButtonColor: '#2563eb'
+                });
+            }
+        });
+    };
     const handleSaveCriteria = (e) => {
         e.preventDefault();
         if (!criteriaForm.name.trim()) return;
         const bobotValue = Number(criteriaForm.bobot) || 0;
+        const category = criteriaForm.category;
+
+        // Hitung total bobot saat ini untuk kategori yang sama
+        const maxBobot = category === 'behavior' ? 40 : 60;
+        const categoryLabel = category === 'behavior' ? 'Perilaku Kerja' : 'Kinerja';
+        let currentBobot = criteria
+            .filter(c => c.category === category && (!editingCriteria || c.id !== editingCriteria.id))
+            .reduce((sum, c) => sum + (c.bobot || 0), 0);
+
+        if (currentBobot + bobotValue > maxBobot) {
+            const sisa = maxBobot - currentBobot;
+            Swal.fire({
+                icon: 'error',
+                title: 'Bobot Melebihi Batas',
+                text: `Total bobot ${categoryLabel} tidak boleh melebihi ${maxBobot}%.\nSaat ini: ${currentBobot}%, sisa tersedia: ${sisa}%.\nAnda mencoba menambah ${bobotValue}%.`,
+                confirmButtonColor: '#2563eb'
+            });
+            return;
+        }
+
         if (editingCriteria) {
             setCriteria(criteria.map(c => c.id === editingCriteria.id ? { ...c, name: criteriaForm.name, category: criteriaForm.category, bobot: bobotValue } : c));
             setEditingCriteria(null);
         } else {
             setCriteria([...criteria, { id: `c${Date.now()}`, name: criteriaForm.name, category: criteriaForm.category, bobot: bobotValue }]);
         }
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Kriteria berhasil disimpan.',
+            confirmButtonColor: '#2563eb',
+            timer: 1500,
+            showConfirmButton: false
+        });
         setCriteriaForm({ name: '', category: 'behavior', bobot: '' });
     };
 
@@ -383,7 +447,7 @@ const AssessmentCertificate = () => {
 
             <CriteriaManagementModal
                 isOpen={isCriteriaModalOpen} criteria={criteria} editingCriteria={editingCriteria}
-                criteriaForm={criteriaForm} setCriteriaForm={setCriteriaForm} getTotalBobot={getTotalBobot}
+                criteriaForm={criteriaForm} setCriteriaForm={setCriteriaForm} getBobotByCategory={getBobotByCategory}
                 onClose={() => setIsCriteriaModalOpen(false)} onSave={handleSaveCriteria}
                 onEdit={handleEditCriteria} onDelete={handleDeleteCriteria}
                 onCancelEdit={() => { setEditingCriteria(null); setCriteriaForm({ name: '', category: 'behavior', bobot: '' }); }}

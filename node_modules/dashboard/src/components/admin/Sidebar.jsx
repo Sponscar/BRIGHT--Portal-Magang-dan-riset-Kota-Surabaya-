@@ -51,6 +51,9 @@ const Sidebar = () => {
                             <div className="flex h-10 w-10 bg-white p-1.5 items-center justify-center rounded-xl overflow-hidden shadow-sm">
                                 <img src="/logo1.png" alt="Logo 1" className="h-full w-full object-contain" />
                             </div>
+                            <div className="flex h-10 w-10 bg-white p-1.5 items-center justify-center rounded-xl overflow-hidden shadow-sm">
+                                <img src="/logo.png" alt="BRIDA Logo" className="h-full w-full object-contain" />
+                            </div>
                             <div className="flex flex-col">
                                 <h1 className="text-base font-bold leading-tight tracking-tight text-white">BRIGHT</h1>
                                 <p className="text-[11px] font-medium text-white/80">Admin Portal</p>

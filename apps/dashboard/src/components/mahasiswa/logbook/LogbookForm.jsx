@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { initialActivityTypes, activityCategories, categoryLabels } from '../../../data/activityTypes';
 import { useCourseConversion } from '../../../context/CourseConversionContext';
 import LocationPicker from './LocationPicker';
+import Swal from 'sweetalert2';
 
 const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) => {
     const { courses: mataKuliahOptions } = useCourseConversion();
@@ -133,15 +134,24 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
             const maxSize = isJournal ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
 
             if (!allowedTypes.includes(file.type)) {
-                alert(isJournal
-                    ? 'Hanya format PDF yang didukung untuk Jurnal.'
-                    : 'Format file tidak didukung. Gunakan PNG, JPG, atau PDF.'
-                );
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Format Tidak Didukung',
+                    text: isJournal
+                        ? 'Hanya format PDF yang didukung untuk Jurnal.'
+                        : 'Format file tidak didukung. Gunakan PNG, JPG, atau PDF.',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
 
             if (file.size > maxSize) {
-                alert(`Ukuran file terlalu besar. Maksimal ${isJournal ? '5MB' : '2MB'}.`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ukuran Terlalu Besar',
+                    text: `Ukuran file terlalu besar. Maksimal ${isJournal ? '5MB' : '2MB'}.`,
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
 

@@ -10,7 +10,7 @@ const AgreementModal = ({ isOpen, onClose, onAgree }) => {
                 <div className="bg-primary px-6 py-4 flex items-center justify-between">
                     <h3 className="text-white font-bold text-lg flex items-center gap-2">
                         <span className="material-symbols-outlined notranslate text-[24px]">gavel</span>
-                        Pernyataan Kesediaan Magang
+                        Pernyataan Kesediaan Magang / Riset di Seluruh Perangkat Daerah Kota Surabaya
                     </h3>
                     <button
                         onClick={onClose}
@@ -23,10 +23,10 @@ const AgreementModal = ({ isOpen, onClose, onAgree }) => {
                 {/* Content */}
                 <div className="p-6 md:p-8 space-y-4 text-slate-700 leading-relaxed text-sm md:text-base">
                     <p>
-                        Dengan ini saya menyatakan bersedia mengikuti seluruh rangkaian kegiatan magang di BRIDA. Saya juga berkomitmen untuk bekerja sama dengan tim BRIDA, serta mematuhi seluruh peraturan, waktu, dan jadwal kegiatan yang telah ditetapkan dan disepakati selama pelaksanaan program magang.
+                        Dengan ini saya menyatakan bersedia mengikuti seluruh rangkaian kegiatan magang / riset di seluruh perangkat daerah kota surabaya. Saya juga berkomitmen untuk bekerja sama dengan seluruh tim perangkat daerah kota surabaya, serta mematuhi seluruh peraturan, waktu, dan jadwal kegiatan yang telah ditetapkan dan disepakati selama pelaksanaan program magang.
                     </p>
                     <p>
-                        Dengan menyetujui pernyataan ini, saya memahami dan bersedia menjalankan kewajiban sebagai peserta magang secara bertanggung jawab, disiplin, dan profesional.
+                        Dengan menyetujui pernyataan ini, saya memahami dan bersedia menjalankan kewajiban sebagai peserta magang / riset secara bertanggung jawab, disiplin, dan profesional.
                     </p>
                 </div>
 

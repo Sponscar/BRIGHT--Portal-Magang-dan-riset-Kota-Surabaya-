@@ -15,7 +15,7 @@ export class NilaiPenilaian {
     kriteria!: KriteriaPenilaian;
 
     @Property()
-    score!: number; // 1-100
+    score!: number; // Likert 1-5
 
     @Property({ type: 'text', nullable: true })
     keterangan?: string;

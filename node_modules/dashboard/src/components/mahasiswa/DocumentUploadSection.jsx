@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import Swal from 'sweetalert2';
 
 const DocumentUploadCard = ({ id, icon, title, description, file, onFileChange }) => {
     const fileInputRef = useRef(null);
@@ -12,11 +13,21 @@ const DocumentUploadCard = ({ id, icon, title, description, file, onFileChange }
         if (selectedFile) {
             // Validation: PDF only, max 2MB
             if (selectedFile.type !== 'application/pdf') {
-                alert('Hanya file PDF yang diperbolehkan.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Format Tidak Didukung',
+                    text: 'Hanya file PDF yang diperbolehkan.',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
             if (selectedFile.size > 2 * 1024 * 1024) {
-                alert('Ukuran file maksimal 2MB.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ukuran Terlalu Besar',
+                    text: 'Ukuran file maksimal 2MB.',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
             onFileChange(id, selectedFile);

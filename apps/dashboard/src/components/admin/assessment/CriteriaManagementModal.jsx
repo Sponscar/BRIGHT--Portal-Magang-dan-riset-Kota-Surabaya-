@@ -4,7 +4,7 @@ const CriteriaManagementModal = ({
     editingCriteria,
     criteriaForm,
     setCriteriaForm,
-    getTotalBobot,
+    getBobotByCategory,
     onClose,
     onSave,
     onEdit,
@@ -12,6 +12,12 @@ const CriteriaManagementModal = ({
     onCancelEdit
 }) => {
     if (!isOpen) return null;
+
+    const behaviorBobot = getBobotByCategory('behavior');
+    const performanceBobot = getBobotByCategory('performance');
+    const isBehaviorOver = behaviorBobot > 40;
+    const isPerformanceOver = performanceBobot > 60;
+    const canSave = !isBehaviorOver && !isPerformanceOver;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
@@ -27,6 +33,24 @@ const CriteriaManagementModal = ({
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                    {/* Alert Cards - Bobot Perilaku */}
+                    <BobotAlertCard
+                        label="Perilaku Kerja"
+                        current={behaviorBobot}
+                        max={40}
+                        icon="psychology"
+                        color="blue"
+                    />
+
+                    {/* Alert Cards - Bobot Kinerja */}
+                    <BobotAlertCard
+                        label="Kinerja"
+                        current={performanceBobot}
+                        max={60}
+                        icon="trending_up"
+                        color="emerald"
+                    />
+
                     {/* Form Tambah/Edit */}
                     <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
                         <h4 className="text-sm font-bold text-slate-900 mb-3">{editingCriteria ? 'Edit Kriteria' : 'Tambah Kriteria Baru'}</h4>
@@ -68,15 +92,7 @@ const CriteriaManagementModal = ({
                                     />
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div className={`text-xs font-semibold px-3 py-1 rounded-full border ${getTotalBobot() === 100
-                                    ? 'text-emerald-600 bg-emerald-50 border-emerald-200'
-                                    : getTotalBobot() > 100
-                                        ? 'text-blue-600 bg-blue-50 border-blue-200'
-                                        : 'text-amber-600 bg-amber-50 border-amber-200'
-                                    }`}>
-                                    Total Bobot: {getTotalBobot()}% {getTotalBobot() === 100 ? '✓' : getTotalBobot() > 100 ? '(Melebihi!)' : `(Kurang ${100 - getTotalBobot()}%)`}
-                                </div>
+                            <div className="flex items-center justify-end">
                                 <div className="flex gap-2">
                                     {editingCriteria && (
                                         <button
@@ -103,6 +119,7 @@ const CriteriaManagementModal = ({
                         {/* Behavior List */}
                         <CriteriaList
                             title="Perilaku Kerja (Behavior)"
+                            subtitle={`Total bobot: ${behaviorBobot}% / 40%`}
                             icon="psychology"
                             iconColor="text-blue-500"
                             hoverBorderColor="hover:border-blue-200"
@@ -116,6 +133,7 @@ const CriteriaManagementModal = ({
                         {/* Performance List */}
                         <CriteriaList
                             title="Kinerja (Performance)"
+                            subtitle={`Total bobot: ${performanceBobot}% / 60%`}
                             icon="trending_up"
                             iconColor="text-emerald-500"
                             hoverBorderColor="hover:border-emerald-200"
@@ -128,25 +146,97 @@ const CriteriaManagementModal = ({
                     </div>
                 </div>
 
-                <div className="p-4 border-t border-slate-100 bg-slate-50 text-right">
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors"
-                    >
-                        Selesai
-                    </button>
+                <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                    {(!canSave) && (
+                        <p className="text-xs text-red-500 font-semibold flex items-center gap-1">
+                            <span className="material-symbols-outlined notranslate text-[16px]">error</span>
+                            Bobot melebihi batas. Perbaiki sebelum menutup.
+                        </p>
+                    )}
+                    <div className="ml-auto">
+                        <button
+                            onClick={onClose}
+                            disabled={!canSave}
+                            className={`px-6 py-2 rounded-xl text-sm font-bold transition-colors ${
+                                canSave
+                                    ? 'bg-slate-800 text-white hover:bg-slate-900'
+                                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                            }`}
+                        >
+                            Selesai
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-const CriteriaList = ({ title, icon, iconColor, hoverBorderColor, badgeColor, items, emptyMessage, onEdit, onDelete }) => (
+// Alert Card component for bobot limits
+const BobotAlertCard = ({ label, current, max, icon, color }) => {
+    const isOver = current > max;
+    const isExact = current === max;
+    const percentage = Math.min((current / max) * 100, 100);
+
+    if (isOver) {
+        return (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-in slide-in-from-top duration-300">
+                <span className="material-symbols-outlined notranslate text-red-500 text-[24px] mt-0.5">warning</span>
+                <div className="flex-1">
+                    <p className="text-sm font-bold text-red-700">
+                        Bobot {label} Melebihi Batas!
+                    </p>
+                    <p className="text-xs text-red-600 mt-1">
+                        Total bobot saat ini: <strong>{current}%</strong> dari maksimal <strong>{max}%</strong>.
+                        Anda perlu mengurangi <strong>{current - max}%</strong> agar bisa menyimpan.
+                    </p>
+                    <div className="mt-2 w-full bg-red-100 rounded-full h-2">
+                        <div className="bg-red-500 h-2 rounded-full" style={{ width: '100%' }} />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`mb-4 p-4 rounded-xl flex items-start gap-3 border transition-all ${
+            isExact
+                ? `bg-emerald-50 border-emerald-200`
+                : `bg-${color}-50/50 border-${color}-100`
+        }`}>
+            <span className={`material-symbols-outlined notranslate text-[24px] mt-0.5 ${
+                isExact ? 'text-emerald-500' : `text-${color}-400`
+            }`}>{isExact ? 'check_circle' : icon}</span>
+            <div className="flex-1">
+                <p className={`text-sm font-bold ${isExact ? 'text-emerald-700' : 'text-slate-700'}`}>
+                    {label}: {current}% / {max}%
+                    {isExact && ' ✓ Lengkap'}
+                </p>
+                <div className="mt-2 w-full bg-slate-100 rounded-full h-2">
+                    <div
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                            isExact ? 'bg-emerald-500' : `bg-${color}-400`
+                        }`}
+                        style={{ width: `${percentage}%` }}
+                    />
+                </div>
+                {!isExact && (
+                    <p className="text-xs text-slate-500 mt-1">Sisa tersedia: {max - current}%</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const CriteriaList = ({ title, subtitle, icon, iconColor, hoverBorderColor, badgeColor, items, emptyMessage, onEdit, onDelete }) => (
     <div>
-        <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <span className={`material-symbols-outlined notranslate ${iconColor} text-[18px]`}>{icon}</span>
-            {title}
-        </h4>
+        <div className="mb-3">
+            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className={`material-symbols-outlined notranslate ${iconColor} text-[18px]`}>{icon}</span>
+                {title}
+            </h4>
+            {subtitle && <p className="text-xs text-slate-500 ml-7 mt-0.5">{subtitle}</p>}
+        </div>
         <div className="space-y-2">
             {items.length > 0 ? (
                 items.map(c => (

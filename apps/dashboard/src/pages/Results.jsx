@@ -6,6 +6,7 @@ import CertificateCard from '../components/mahasiswa/results/CertificateCard';
 import PerformanceAssessment from '../components/mahasiswa/results/PerformanceAssessment';
 import SelfAssessmentForm from '../components/mahasiswa/results/SelfAssessmentForm';
 import PeerAssessmentForm from '../components/mahasiswa/results/PeerAssessmentForm';
+import Swal from 'sweetalert2';
 
 const Results = () => {
     const [uploadedReport, setUploadedReport] = useState(null);
@@ -64,24 +65,44 @@ const Results = () => {
         console.log('Self assessment submitted:', data);
         // API call: POST /api/penilaian/self-assessment
         setHasSelfAssessment(true);
-        alert('Penilaian diri sendiri berhasil disimpan!');
+        Swal.fire({
+            icon: 'success',
+            title: 'Tersimpan!',
+            text: 'Penilaian diri sendiri berhasil disimpan.',
+            confirmButtonColor: '#2563eb'
+        });
     };
 
     const handlePeerAssessment = async (data) => {
         console.log('Peer assessment submitted:', data);
         // API call: POST /api/penilaian/peer-assessment
-        alert('Penilaian teman berhasil disimpan!');
+        Swal.fire({
+            icon: 'success',
+            title: 'Tersimpan!',
+            text: 'Penilaian teman berhasil disimpan.',
+            confirmButtonColor: '#2563eb'
+        });
     };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             if (file.type !== 'application/pdf') {
-                alert('Format file tidak didukung. Gunakan PDF.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Format Tidak Didukung',
+                    text: 'Gunakan file dengan format PDF.',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {
-                alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ukuran Terlalu Besar',
+                    text: 'Ukuran file maksimal 5MB.',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
             setUploadedReport(file);
@@ -94,10 +115,20 @@ const Results = () => {
 
     const handleSubmit = () => {
         if (!uploadedReport) {
-            alert('Silakan unggah laporan akhir terlebih dahulu.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'File Belum Diunggah',
+                text: 'Silakan unggah laporan akhir terlebih dahulu.',
+                confirmButtonColor: '#2563eb'
+            });
             return;
         }
-        alert('Laporan akhir berhasil disimpan (simulasi).');
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: 'Laporan akhir berhasil disimpan (simulasi).',
+            confirmButtonColor: '#2563eb'
+        });
     };
 
     const handleCancel = () => {

@@ -10,6 +10,7 @@ import {
   JenisAktivitas, MataKuliahKonversi, MahasiswaMataKuliah, Logbook,
   Jurnal, Presensi, KriteriaPenilaian, Penilaian, NilaiPenilaian,
   NilaiAkhir, Sertifikat, LaporanAkhir, PerguruanTinggi, KurikulumMagang,
+  Feedback,
 } from './entities';
 
 // Core Modules
@@ -34,12 +35,14 @@ import { LaporanAkhirModule } from './modules/laporan-akhir/laporan-akhir.module
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { KurikulumMagangModule } from './modules/kurikulum-magang/kurikulum-magang.module';
 import { PerguruanTinggiModule } from './modules/perguruan-tinggi/perguruan-tinggi.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 
 const entities = [
   User, OtpToken, Mahasiswa, TusiBrida, Dokumen, Administrasi,
   JenisAktivitas, MataKuliahKonversi, MahasiswaMataKuliah, Logbook,
   Jurnal, Presensi, KriteriaPenilaian, Penilaian, NilaiPenilaian,
   NilaiAkhir, Sertifikat, LaporanAkhir, PerguruanTinggi, KurikulumMagang,
+  Feedback,
 ];
 
 @Module({
@@ -84,6 +87,7 @@ const entities = [
     DashboardModule,
     KurikulumMagangModule,
     PerguruanTinggiModule,
+    FeedbackModule,
   ],
   providers: [
     {

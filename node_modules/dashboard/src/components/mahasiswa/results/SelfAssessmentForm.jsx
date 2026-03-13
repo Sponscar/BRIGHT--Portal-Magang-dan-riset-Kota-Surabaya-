@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSubmit }) => {
     const [scores, setScores] = useState(
@@ -21,7 +22,15 @@ const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSub
     const handleSubmit = async (e) => {
         e.preventDefault();
         const hasEmpty = scores.some(s => s.score === '' || s.score === 0);
-        if (hasEmpty) { alert('Harap isi semua nilai kriteria.'); return; }
+        if (hasEmpty) { 
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Belum Lengkap',
+                text: 'Harap isi semua nilai kriteria.',
+                confirmButtonColor: '#2563eb'
+            });
+            return; 
+        }
         setIsSubmitting(true);
         try {
             await onSubmit({ scores: scores.map(s => ({ ...s, score: Number(s.score) })), feedback });

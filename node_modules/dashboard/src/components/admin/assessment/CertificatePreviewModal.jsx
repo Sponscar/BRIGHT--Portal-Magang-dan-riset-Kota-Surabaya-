@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import CertificateTemplate from './CertificateTemplate';
+import Swal from 'sweetalert2';
 
 const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
     const certificateRef = useRef(null);
@@ -18,7 +19,12 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
             // Get the source element HTML with all inline styles
             const sourceElement = certificateRef.current;
             if (!sourceElement) {
-                alert("Element sertifikat tidak ditemukan.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Element sertifikat tidak ditemukan.',
+                    confirmButtonColor: '#2563eb'
+                });
                 setIsDownloading(false);
                 return;
             }
@@ -58,7 +64,12 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
             // Open a new window with the certificate for printing
             const printWindow = window.open('', '_blank', 'width=1123,height=794');
             if (!printWindow) {
-                alert("Popup diblokir oleh browser. Izinkan popup untuk mengunduh sertifikat.");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Popup Diblokir',
+                    text: 'Popup diblokir oleh browser. Izinkan popup untuk mengunduh sertifikat.',
+                    confirmButtonColor: '#2563eb'
+                });
                 setIsDownloading(false);
                 return;
             }
@@ -99,7 +110,12 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
             printWindow.document.close();
         } catch (error) {
             console.error("Error generating PDF:", error);
-            alert("Gagal membuat PDF. Silakan coba lagi.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: 'Gagal membuat PDF. Silakan coba lagi.',
+                confirmButtonColor: '#2563eb'
+            });
         } finally {
             setIsDownloading(false);
         }

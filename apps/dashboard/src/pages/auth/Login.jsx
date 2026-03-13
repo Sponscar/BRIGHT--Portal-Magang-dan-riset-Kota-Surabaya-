@@ -84,7 +84,7 @@ const Login = () => {
                         Untuk Surabaya.
                     </h1>
                     <p className="text-white/80 text-lg max-w-md leading-relaxed">
-                        Platform terintegrasi untuk pengelolaan data magang, penelitian, dan inovasi daerah Kota Surabaya.
+                        Platform terintegrasi untuk pengelolaan data magang, riset, dan inovasi daerah Kota Surabaya.
                     </p>
                 </div>
             </div>

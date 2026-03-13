@@ -80,6 +80,9 @@ const Register = () => {
         universityAddress: '',
         uniKelurahan: '',
         uniKecamatan: '',
+        dosenPembimbing: '',
+        dosenPhone: '',
+        dosenWhatsapp: '',
         internshipType: '',
         perangkatDaerah: '',
         password: '',
@@ -275,7 +278,7 @@ const Register = () => {
                         Mendorong Riset dan Inovasi Berdampak<br />Untuk Surabaya.
                     </h1>
                     <p className="text-white/80 text-lg max-w-md leading-relaxed">
-                        Platform terintegrasi untuk pengelolaan data magang, penelitian, dan inovasi daerah Kota Surabaya.
+                        Platform terintegrasi untuk pengelolaan data magang, riset, dan inovasi daerah Kota Surabaya.
                     </p>
                 </div>
             </div>
@@ -306,105 +309,21 @@ const Register = () => {
                         {error && <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>}
 
                         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                            {/* ============================================ */}
+                            {/* SECTION 1: DATA DIRI */}
+                            {/* ============================================ */}
+                            <div className="pt-2">
+                                <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">person</span>
+                                    Data Diri
+                                </p>
+                            </div>
+
                             {/* Nama Lengkap */}
                             <InputField label="Nama Lengkap" icon="person" id="fullName" placeholder="Nama Lengkap Anda" value={formData.fullName} onChange={handleChange} />
 
                             {/* NIK */}
                             <InputField label="NIK (Nomor Induk Kependudukan)" icon="badge" id="nik" placeholder="16 Digit NIK Anda" value={formData.nik} onChange={handleChange} />
-
-                            {/* ============================================ */}
-                            {/* SECTION: DATA PERGURUAN TINGGI */}
-                            {/* ============================================ */}
-                            <div className="border-t border-gray-100 pt-4 mt-2">
-                                <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined notranslate text-[14px]">school</span>
-                                    Data Perguruan Tinggi
-                                </p>
-                            </div>
-
-                            {/* Perguruan Tinggi Dropdown */}
-                            <div className="space-y-1.5" ref={uniDropdownRef}>
-                                <label className="text-sm font-semibold text-[#1b140d]">Perguruan Tinggi</label>
-                                <div className="relative group">
-                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors z-10">
-                                        <span className="material-symbols-outlined notranslate text-[20px]">school</span>
-                                    </div>
-                                    <input className="w-full pl-11 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        placeholder="Cari atau ketik nama perguruan tinggi..." type="text" value={uniSearch}
-                                        onChange={handleUniSearchChange} onFocus={() => setShowUniDropdown(true)} required />
-                                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                                        <span className="material-symbols-outlined notranslate text-[20px]">{showUniDropdown ? 'expand_less' : 'expand_more'}</span>
-                                    </div>
-                                    {showUniDropdown && (
-                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-[220px] overflow-y-auto">
-                                            {filteredUniversities.slice(0, 20).map((uni, idx) => (
-                                                <button key={idx} type="button"
-                                                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-primary transition-colors border-b border-gray-50 last:border-0 flex items-start gap-3 cursor-pointer"
-                                                    onClick={() => handleUniversitySelect(uni)}>
-                                                    <span className="material-symbols-outlined notranslate text-[16px] text-gray-400 mt-0.5 shrink-0">location_city</span>
-                                                    <div><div className="font-medium text-[#1b140d]">{uni.nama}</div><div className="text-xs text-gray-400 mt-0.5">{uni.alamat}</div></div>
-                                                </button>
-                                            ))}
-                                            <button type="button"
-                                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2 cursor-pointer border-t border-gray-100 bg-gray-50/50"
-                                                onClick={handleManualUni}>
-                                                <span className="material-symbols-outlined notranslate text-[16px] text-blue-500">edit</span>
-                                                <span className="font-medium text-blue-600">Perguruan tinggi saya tidak ada di daftar (isi manual)</span>
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                                {isManualUni && (
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="material-symbols-outlined notranslate text-[14px] text-blue-500">info</span>
-                                        <span className="text-xs text-blue-600">Mode input manual — silakan isi data alamat kampus di bawah.</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-4">
-                                {/* Program Studi */}
-                                <div className="w-full">
-                                    <InputField label="Program Studi" icon="menu_book" id="major" placeholder="Jurusan" value={formData.major} onChange={handleChange} />
-                                </div>
-                                {/* NIM */}
-                                <div className="w-full">
-                                    <InputField label="NIM / NPM" icon="pin" id="nim" placeholder="Nomor Induk Mahasiswa" value={formData.nim} onChange={handleChange} />
-                                </div>
-                            </div>
-
-                            {/* Alamat Perguruan Tinggi */}
-                            <InputField label="Alamat Perguruan Tinggi" icon="location_on" id="universityAddress" placeholder="Alamat kampus"
-                                value={formData.universityAddress} onChange={handleChange}
-                                readOnly={!isManualUni && !!formData.universityAddress}
-                                bgClass={!isManualUni && formData.universityAddress ? 'bg-green-50' : 'bg-gray-50'} />
-
-                            <div className="flex flex-col md:flex-row gap-4">
-                                <div className="w-full">
-                                    <InputField label="Kelurahan Kampus" icon="map" id="uniKelurahan" placeholder="Kelurahan"
-                                        value={formData.uniKelurahan} onChange={handleChange}
-                                        readOnly={!isManualUni && !!formData.uniKelurahan}
-                                        bgClass={!isManualUni && formData.uniKelurahan ? 'bg-green-50' : 'bg-gray-50'} />
-                                </div>
-                                <div className="w-full">
-                                    <InputField label="Kecamatan Kampus" icon="pin_drop" id="uniKecamatan" placeholder="Kecamatan"
-                                        value={formData.uniKecamatan} onChange={handleChange}
-                                        readOnly={!isManualUni && !!formData.uniKecamatan}
-                                        bgClass={!isManualUni && formData.uniKecamatan ? 'bg-green-50' : 'bg-gray-50'} />
-                                </div>
-                            </div>
-
-                            {/* ============================================ */}
-                            {/* SECTION: KONTAK */}
-                            {/* ============================================ */}
-                            <div className="border-t border-gray-100 pt-4 mt-2">
-                                <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined notranslate text-[14px]">contact_phone</span>
-                                    Data Kontak
-                                </p>
-                            </div>
-
-                            <InputField label="Alamat Email" icon="mail" id="email" type="email" placeholder="nama@instansi.com" value={formData.email} onChange={handleChange} />
 
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="w-full">
@@ -416,7 +335,7 @@ const Register = () => {
                             </div>
 
                             {/* ============================================ */}
-                            {/* SECTION: DOMISILI */}
+                            {/* SECTION 2: ALAMAT DOMISILI */}
                             {/* ============================================ */}
                             <div className="border-t border-gray-100 pt-4 mt-2">
                                 <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
@@ -498,29 +417,125 @@ const Register = () => {
                             </div>
 
                             {/* ============================================ */}
-                            {/* SECTION: MAGANG & KEAMANAN */}
+                            {/* SECTION 3: DATA PERGURUAN TINGGI */}
+                            {/* ============================================ */}
+                            <div className="border-t border-gray-100 pt-4 mt-2">
+                                <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">school</span>
+                                    Data Perguruan Tinggi
+                                </p>
+                            </div>
+
+                            {/* Perguruan Tinggi Dropdown */}
+                            <div className="space-y-1.5" ref={uniDropdownRef}>
+                                <label className="text-sm font-semibold text-[#1b140d]">Perguruan Tinggi</label>
+                                <div className="relative group">
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors z-10">
+                                        <span className="material-symbols-outlined notranslate text-[20px]">school</span>
+                                    </div>
+                                    <input className="w-full pl-11 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        placeholder="Cari atau ketik nama perguruan tinggi..." type="text" value={uniSearch}
+                                        onChange={handleUniSearchChange} onFocus={() => setShowUniDropdown(true)} required />
+                                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <span className="material-symbols-outlined notranslate text-[20px]">{showUniDropdown ? 'expand_less' : 'expand_more'}</span>
+                                    </div>
+                                    {showUniDropdown && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-[220px] overflow-y-auto">
+                                            {filteredUniversities.slice(0, 20).map((uni, idx) => (
+                                                <button key={idx} type="button"
+                                                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-primary transition-colors border-b border-gray-50 last:border-0 flex items-start gap-3 cursor-pointer"
+                                                    onClick={() => handleUniversitySelect(uni)}>
+                                                    <span className="material-symbols-outlined notranslate text-[16px] text-gray-400 mt-0.5 shrink-0">location_city</span>
+                                                    <div><div className="font-medium text-[#1b140d]">{uni.nama}</div><div className="text-xs text-gray-400 mt-0.5">{uni.alamat}</div></div>
+                                                </button>
+                                            ))}
+                                            <button type="button"
+                                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2 cursor-pointer border-t border-gray-100 bg-gray-50/50"
+                                                onClick={handleManualUni}>
+                                                <span className="material-symbols-outlined notranslate text-[16px] text-blue-500">edit</span>
+                                                <span className="font-medium text-blue-600">Perguruan tinggi saya tidak ada di daftar (isi manual)</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                {isManualUni && (
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="material-symbols-outlined notranslate text-[14px] text-blue-500">info</span>
+                                        <span className="text-xs text-blue-600">Mode input manual — silakan isi data alamat kampus di bawah.</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col md:flex-row gap-4">
+                                {/* Program Studi */}
+                                <div className="w-full">
+                                    <InputField label="Program Studi" icon="menu_book" id="major" placeholder="Jurusan" value={formData.major} onChange={handleChange} />
+                                </div>
+                                {/* NIM */}
+                                <div className="w-full">
+                                    <InputField label="NIM / NPM" icon="pin" id="nim" placeholder="Nomor Induk Mahasiswa" value={formData.nim} onChange={handleChange} />
+                                </div>
+                            </div>
+
+                            {/* Alamat Perguruan Tinggi */}
+                            <InputField label="Alamat Perguruan Tinggi" icon="location_on" id="universityAddress" placeholder="Alamat kampus"
+                                value={formData.universityAddress} onChange={handleChange}
+                                readOnly={!isManualUni && !!formData.universityAddress}
+                                bgClass={!isManualUni && formData.universityAddress ? 'bg-green-50' : 'bg-gray-50'} />
+
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="w-full">
+                                    <InputField label="Kelurahan Kampus" icon="map" id="uniKelurahan" placeholder="Kelurahan"
+                                        value={formData.uniKelurahan} onChange={handleChange}
+                                        readOnly={!isManualUni && !!formData.uniKelurahan}
+                                        bgClass={!isManualUni && formData.uniKelurahan ? 'bg-green-50' : 'bg-gray-50'} />
+                                </div>
+                                <div className="w-full">
+                                    <InputField label="Kecamatan Kampus" icon="pin_drop" id="uniKecamatan" placeholder="Kecamatan"
+                                        value={formData.uniKecamatan} onChange={handleChange}
+                                        readOnly={!isManualUni && !!formData.uniKecamatan}
+                                        bgClass={!isManualUni && formData.uniKecamatan ? 'bg-green-50' : 'bg-gray-50'} />
+                                </div>
+                            </div>
+
+                            {/* Dosen Pembimbing */}
+                            <InputField label="Dosen Pembimbing / Promotor" icon="person_4" id="dosenPembimbing" placeholder="Nama Dosen Pembimbing" value={formData.dosenPembimbing} onChange={handleChange} />
+
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="w-full">
+                                    <InputField label="No. Telp Dosen" icon="call" id="dosenPhone" type="tel" placeholder="08xxxxxxxxxx" value={formData.dosenPhone} onChange={handleChange} />
+                                </div>
+                                <div className="w-full">
+                                    <InputField label="No. WhatsApp Dosen" icon="chat" id="dosenWhatsapp" type="tel" placeholder="08xxxxxxxxxx" value={formData.dosenWhatsapp} onChange={handleChange} required={false} />
+                                </div>
+                            </div>
+
+
+                            {/* ============================================ */}
+                            {/* SECTION 4: PENGAJUAN & KEAMANAN */}
                             {/* ============================================ */}
                             <div className="border-t border-gray-100 pt-4 mt-2">
                                 <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-1.5">
                                     <span className="material-symbols-outlined notranslate text-[14px]">work</span>
-                                    Magang & Keamanan Akun
+                                    Pengajuan & Keamanan Akun
                                 </p>
                             </div>
 
-                            {/* Jenis Magang */}
+                            {/* Jenis Pengajuan */}
                             <div className="space-y-1.5">
-                                <label className="text-sm font-semibold text-[#1b140d]" htmlFor="internshipType">Jenis Magang</label>
+                                <label className="text-sm font-semibold text-[#1b140d]" htmlFor="internshipType">Jenis Pengajuan</label>
                                 <div className="relative group">
                                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
                                         <span className="material-symbols-outlined notranslate text-[20px]">work</span>
                                     </div>
                                     <select className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#1b140d] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
                                         id="internshipType" value={formData.internshipType} onChange={handleChange} required>
-                                        <option value="" disabled>Pilih Jenis Magang</option>
+                                        <option value="" disabled>Pilih Jenis Pengajuan</option>
                                         <option value="Magang KP">Magang KP (Kerja Praktik)</option>
                                         <option value="Magang Berdampak">Magang Berdampak</option>
                                         <option value="Magang Mandiri">Magang Mandiri</option>
                                         <option value="Magang Riset">Magang Riset</option>
+                                        <option value="Riset / Penelitian">Riset / Penelitian</option>
                                     </select>
                                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                                         <span className="material-symbols-outlined notranslate text-[20px]">expand_more</span>
@@ -530,7 +545,7 @@ const Register = () => {
 
                             {/* Perangkat Daerah Kota Surabaya */}
                             <SearchableDropdown
-                                label="Perangkat Daerah Kota Surabaya" icon="account_balance" placeholder="Cari perangkat daerah kota surabaya..."
+                                label="Lokus Perangkat Daerah Kota Surabaya" icon="account_balance" placeholder="Cari perangkat daerah kota surabaya..."
                                 value={perangkatSearch}
                                 onSearchChange={(e) => { setPerangkatSearch(e.target.value); setShowPerangkatDropdown(true); }}
                                 showDropdown={showPerangkatDropdown}
@@ -539,6 +554,9 @@ const Register = () => {
                                 onSelect={handlePerangkatSelect}
                                 dropdownRef={perangkatRef}
                             />
+
+                            {/* Alamat Email */}
+                            <InputField label="Alamat Email" icon="mail" id="email" type="email" placeholder="nama@gmail.com" value={formData.email} onChange={handleChange} />
 
                             <div className="flex flex-col md:flex-row gap-4">
                                 {/* Kata Sandi */}

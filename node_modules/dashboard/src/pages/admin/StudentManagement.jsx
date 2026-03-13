@@ -130,7 +130,7 @@ const StudentManagement = () => {
                                         >
                                             <option value="semua">Semua</option>
                                             <option value="perguruan_tinggi">Perguruan Tinggi</option>
-                                            <option value="jenis_magang">Jenis Magang</option>
+                                            <option value="jenis_pengajuan">Jenis Pengajuan</option>
                                             <option value="tahun">Tahun</option>
                                         </select>
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined notranslate text-[20px] text-slate-400 pointer-events-none">filter_list</span>

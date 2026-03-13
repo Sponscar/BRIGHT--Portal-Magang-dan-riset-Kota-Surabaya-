@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Swal from 'sweetalert2';
 
 const PeerAssessmentForm = ({ peers, criteria, onSubmit }) => {
     const [selectedPeer, setSelectedPeer] = useState('');
@@ -44,9 +45,25 @@ const PeerAssessmentForm = ({ peers, criteria, onSubmit }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!selectedPeer) { alert('Pilih teman magang terlebih dahulu.'); return; }
+        if (!selectedPeer) { 
+            Swal.fire({
+                icon: 'warning',
+                title: 'Teman Belum Dipilih',
+                text: 'Pilih teman magang terlebih dahulu.',
+                confirmButtonColor: '#2563eb'
+            });
+            return; 
+        }
         const hasEmpty = scores.some(s => s.score === '' || s.score === 0);
-        if (hasEmpty) { alert('Harap isi semua nilai kriteria.'); return; }
+        if (hasEmpty) { 
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Belum Lengkap',
+                text: 'Harap isi semua nilai kriteria.',
+                confirmButtonColor: '#2563eb'
+            });
+            return; 
+        }
         setIsSubmitting(true);
         try {
             await onSubmit({

@@ -26,7 +26,7 @@ export enum PermissionLevel {
 
 export const ROLE_PERMISSION_MAP: Record<UserRole, PermissionLevel> = {
     [UserRole.STUDENT]: PermissionLevel.STUDENT,
-    [UserRole.KEPALA_BRIDA]: PermissionLevel.VIEWER,
+    [UserRole.KEPALA_BRIDA]: PermissionLevel.EDITOR,
     [UserRole.SEKRETARIATAN]: PermissionLevel.EDITOR,
     [UserRole.KOORDINATOR_RISET]: PermissionLevel.EDITOR,
     [UserRole.KOORDINATOR_INOVASI]: PermissionLevel.EDITOR,

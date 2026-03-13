@@ -19,7 +19,10 @@ const RekapMahasiswaTable = ({ students, filterMode }) => {
             { key: 'university', label: 'Perguruan Tinggi' },
             { key: 'major', label: 'Prodi' },
             { key: 'team', label: 'Tim' },
-            { key: 'internshipType', label: 'Jenis Magang' },
+            { key: 'internshipType', label: 'Jenis Pengajuan' },
+            { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
+            { key: 'dosenPhone', label: 'No. HP Dosen' },
+            { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
             { key: 'email', label: 'Email' },
             { key: 'phone', label: 'No. HP' },
             { key: 'whatsapp', label: 'WhatsApp' },
@@ -35,12 +38,15 @@ const RekapMahasiswaTable = ({ students, filterMode }) => {
             { key: 'phone', label: 'No. HP' },
             { key: 'whatsapp', label: 'WhatsApp' },
         ],
-        jenis_magang: [
+        jenis_pengajuan: [
             { key: 'no', label: 'No' },
             { key: 'fullName', label: 'Nama' },
             { key: 'nik', label: 'NIK' },
             { key: 'team', label: 'Tim' },
-            { key: 'internshipType', label: 'Jenis Magang' },
+            { key: 'internshipType', label: 'Jenis Pengajuan' },
+            { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
+            { key: 'dosenPhone', label: 'No. HP Dosen' },
+            { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
             { key: 'email', label: 'Email' },
             { key: 'phone', label: 'No. HP' },
             { key: 'whatsapp', label: 'WhatsApp' },
@@ -73,10 +79,13 @@ const RekapMahasiswaTable = ({ students, filterMode }) => {
             );
         }
         if (col.key === 'internshipType') {
+            const isRiset = student.internshipType && (student.internshipType.includes('Penelitian') || student.internshipType.includes('Riset'));
+            const isMagang = student.internshipType && student.internshipType.includes('Magang');
+            
             return (
                 <td key={col.key} className="px-4 py-3 whitespace-nowrap">
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${student.internshipType === 'Penelitian' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
-                            student.internshipType === 'Magang' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${isRiset ? 'bg-purple-50 text-purple-700 border border-purple-200' :
+                            isMagang ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                                 'bg-amber-50 text-amber-700 border border-amber-200'
                         }`}>
                         {student.internshipType}
@@ -117,9 +126,9 @@ const RekapMahasiswaTable = ({ students, filterMode }) => {
 // Export column config for CSV export
 export const getRekapColumns = (filterMode) => {
     const map = {
-        semua: ['No', 'Nama Lengkap', 'NIK', 'NIM', 'Perguruan Tinggi', 'Prodi', 'Tim', 'Jenis Magang', 'Email', 'No HP', 'WhatsApp', 'Tahun'],
+        semua: ['No', 'Nama Lengkap', 'NIK', 'NIM', 'Perguruan Tinggi', 'Prodi', 'Tim', 'Jenis Pengajuan', 'Dosen Pembimbing', 'No HP Dosen', 'WhatsApp Dosen', 'Email', 'No HP', 'WhatsApp', 'Tahun'],
         perguruan_tinggi: ['No', 'Nama', 'Perguruan Tinggi', 'NIM', 'Prodi', 'Email', 'No HP', 'WhatsApp'],
-        jenis_magang: ['No', 'Nama', 'NIK', 'Tim', 'Jenis Magang', 'Email', 'No HP', 'WhatsApp'],
+        jenis_pengajuan: ['No', 'Nama', 'NIK', 'Tim', 'Jenis Pengajuan', 'Dosen Pembimbing', 'No HP Dosen', 'WhatsApp Dosen', 'Email', 'No HP', 'WhatsApp'],
         tahun: ['No', 'Nama', 'NIK', 'Email', 'No HP', 'WhatsApp', 'Tahun'],
     };
     return map[filterMode] || map.semua;
@@ -127,9 +136,9 @@ export const getRekapColumns = (filterMode) => {
 
 export const getRekapRowKeys = (filterMode) => {
     const map = {
-        semua: ['fullName', 'nik', 'nim', 'university', 'major', 'team', 'internshipType', 'email', 'phone', 'whatsapp', 'year'],
+        semua: ['fullName', 'nik', 'nim', 'university', 'major', 'team', 'internshipType', 'dosenPembimbing', 'dosenPhone', 'dosenWhatsapp', 'email', 'phone', 'whatsapp', 'year'],
         perguruan_tinggi: ['fullName', 'university', 'nim', 'major', 'email', 'phone', 'whatsapp'],
-        jenis_magang: ['fullName', 'nik', 'team', 'internshipType', 'email', 'phone', 'whatsapp'],
+        jenis_pengajuan: ['fullName', 'nik', 'team', 'internshipType', 'dosenPembimbing', 'dosenPhone', 'dosenWhatsapp', 'email', 'phone', 'whatsapp'],
         tahun: ['fullName', 'nik', 'email', 'phone', 'whatsapp', 'year'],
     };
     return map[filterMode] || map.semua;

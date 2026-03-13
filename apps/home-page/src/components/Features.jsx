@@ -12,7 +12,7 @@ const Features = () => {
                     {[
                         { icon: "database", title: "Riset Solutif ", desc: "Pendekatan penelitian yang fokus mencari solusi nyata, dengan hasil bukti dan rekomendasi kebijakan praktis serta bermanfaat bagi masyarakat." },
                         { icon: "supervisor_account", title: "Inovasi Implementatif", desc: "Pembaruan yang langsung diterapkan untuk meningkatkan kualitas layanan publik dan memberikan dampak nyata bagi masyarakat." },
-                        { icon: "verified", title: "Sertifikat Resmi", desc: "Sertifikat ini diberikan kepada mahasiswa yang telah menyelesaikan program magang di BRIGHT dengan baik, disiplin, dan penuh tanggung jawab." }
+                        { icon: "verified", title: "Sertifikat Resmi", desc: "Sertifikat ini diberikan kepada mahasiswa yang telah menyelesaikan program magang dan riset di BRIGHT dengan baik, disiplin, dan penuh tanggung jawab." }
                     ].map((feature, index) => (
                         <div key={index} className="feature-card">
                             <div className="feature-icon-wrapper">

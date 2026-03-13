@@ -4,6 +4,7 @@ import MobileHeader from '../components/mahasiswa/MobileHeader';
 import { useAuth } from '../context/AuthContext';
 import ProfileCard from '../components/mahasiswa/profile/ProfileCard';
 import ProfileForm from '../components/mahasiswa/profile/ProfileForm';
+import Swal from 'sweetalert2';
 
 const Profile = () => {
     const { user } = useAuth();
@@ -47,7 +48,12 @@ const Profile = () => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) { // 2MB limit
-                alert('Ukuran file maksimal 2MB');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ukuran File Terlalu Besar',
+                    text: 'Ukuran file foto profil maksimal 2MB',
+                    confirmButtonColor: '#2563eb'
+                });
                 return;
             }
 
@@ -120,7 +126,12 @@ const Profile = () => {
             localStorage.setItem('brida_latest_registration', JSON.stringify(updatedReg));
         }
 
-        alert('Profil berhasil diperbarui!');
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Profil berhasil diperbarui.',
+            confirmButtonColor: '#2563eb'
+        });
     };
 
     return (

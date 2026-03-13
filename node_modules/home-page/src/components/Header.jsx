@@ -15,6 +15,7 @@ const Header = () => {
                 <div className="header-content">
                     <div className="header-logo-container">
                         <img src="/logo1.png" alt="Logo 1" className="h-12 w-auto object-contain" />
+                        <img src="/logo.png" alt="BRIGHT Logo" className="h-12 w-auto object-contain" />
                         <div className="header-logo-text-wrapper">
                             <h2 className="header-logo-text">BRIGHT</h2>
                             <span className="header-logo-sub">Surabaya</span>

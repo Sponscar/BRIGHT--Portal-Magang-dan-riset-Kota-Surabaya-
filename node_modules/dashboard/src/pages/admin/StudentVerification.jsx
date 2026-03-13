@@ -3,7 +3,7 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import VerificationActionModal from '../../components/admin/verification/VerificationActionModal';
 import AdminDetailModal from '../../components/admin/verification/AdminDetailModal';
 import VerificationTable from '../../components/admin/verification/VerificationTable';
-import ValidationAlertModal from '../../components/admin/verification/ValidationAlertModal';
+import Swal from 'sweetalert2';
 
 const StudentVerification = () => {
     // Mock Data
@@ -29,10 +29,6 @@ const StudentVerification = () => {
     const [feedback, setFeedback] = useState('');
     const [selectedAdminDetail, setSelectedAdminDetail] = useState(null);
     const [isAdminDetailOpen, setIsAdminDetailOpen] = useState(false);
-
-    // Validation Alert State
-    const [alertMessage, setAlertMessage] = useState('');
-    const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     // Filter & Search
     const [searchQuery, setSearchQuery] = useState('');
@@ -99,14 +95,23 @@ const StudentVerification = () => {
     // --- ACTION HANDLERS ---
     const handleAction = (student, type) => {
         const sel = teamSelections[student.id];
+        const showAlert = (message) => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan Validasi',
+                text: message,
+                confirmButtonColor: '#f59e0b'
+            });
+        };
+
         if (type === 'approve') {
-            if (!sel || sel.teams.length === 0) { setAlertMessage('Silakan pilih minimal satu Tim BRIGHT terlebih dahulu sebelum menyetujui.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Enabler / Faktor Pendorong') && sel.enablerTypes.length === 0) { setAlertMessage('Silakan pilih jenis penugasan Enabler.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Riset') && sel.risetTypes.length === 0) { setAlertMessage('Silakan pilih jenis penugasan Riset.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Inovasi') && sel.inovasiTypes.length === 0) { setAlertMessage('Silakan pilih jenis penugasan Inovasi.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Pengelolaan Kebun Raya Mangrove') && sel.pengelolaankebunrayamangroveTypes.length === 0) { setAlertMessage('Silakan pilih jenis penugasan Kebun Raya Mangrove.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Kesekretariatan') && sel.kesekretariatanTypes.length === 0) { setAlertMessage('Silakan pilih jenis penugasan Kesekretariatan.'); setIsAlertOpen(true); return; }
-            if (sel.teams.includes('Lainnya') && !sel.lainnyaCustomText?.trim()) { setAlertMessage('Silakan isi jenis penugasan untuk tim Lainnya.'); setIsAlertOpen(true); return; }
+            if (!sel || sel.teams.length === 0) { showAlert('Silakan pilih minimal satu Tim BRIGHT terlebih dahulu sebelum menyetujui.'); return; }
+            if (sel.teams.includes('Enabler / Faktor Pendorong') && sel.enablerTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Enabler.'); return; }
+            if (sel.teams.includes('Riset') && sel.risetTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Riset.'); return; }
+            if (sel.teams.includes('Inovasi') && sel.inovasiTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Inovasi.'); return; }
+            if (sel.teams.includes('Pengelolaan Kebun Raya Mangrove') && sel.pengelolaankebunrayamangroveTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Kebun Raya Mangrove.'); return; }
+            if (sel.teams.includes('Kesekretariatan') && sel.kesekretariatanTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Kesekretariatan.'); return; }
+            if (sel.teams.includes('Lainnya') && !sel.lainnyaCustomText?.trim()) { showAlert('Silakan isi jenis penugasan untuk tim Lainnya.'); return; }
         }
         setSelectedStudent(student);
         setActionType(type);
@@ -184,7 +189,6 @@ const StudentVerification = () => {
                 onClose={() => setIsModalOpen(false)} onSubmit={handleSubmitAction}
             />
             <AdminDetailModal isOpen={isAdminDetailOpen} adminDetail={selectedAdminDetail} onClose={() => setIsAdminDetailOpen(false)} />
-            <ValidationAlertModal isOpen={isAlertOpen} message={alertMessage} onClose={() => setIsAlertOpen(false)} />
         </>
     );
 };

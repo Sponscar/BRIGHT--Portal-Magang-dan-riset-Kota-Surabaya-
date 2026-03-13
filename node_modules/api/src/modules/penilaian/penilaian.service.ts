@@ -11,7 +11,22 @@ const STAFF_ASSESSOR_ROLES: UserRole[] = [
     UserRole.SEKRETARIATAN,
     UserRole.KOORDINATOR_RISET,
     UserRole.KOORDINATOR_INOVASI,
+    UserRole.KEPALA_BRIDA,
 ];
+
+// Sub-bobot per assessor type untuk penilaian perilaku 360°
+const PERILAKU_WEIGHT: Record<string, number> = {
+    [AssessorType.SELF]: 0.10,
+    [AssessorType.PEER]: 0.15,
+    [AssessorType.KOORDINATOR]: 0.25,
+    [AssessorType.KEPALA_BRIDA]: 0.25,
+    [AssessorType.ADMIN]: 0.25,
+};
+
+// Konversi skor Likert (1-5) ke skala 100
+function likertToScale100(likertScore: number): number {
+    return likertScore * 20;
+}
 
 function getGrade(score: number): string {
     if (score >= 86) return 'A';
@@ -24,6 +39,7 @@ function mapRoleToAssessorType(role: UserRole): AssessorType {
     if (role === UserRole.ADMIN) return AssessorType.ADMIN;
     if (role === UserRole.SEKRETARIATAN) return AssessorType.SEKRETARIS;
     if (role === UserRole.KOORDINATOR_RISET || role === UserRole.KOORDINATOR_INOVASI) return AssessorType.KOORDINATOR;
+    if (role === UserRole.KEPALA_BRIDA) return AssessorType.KEPALA_BRIDA;
     throw new ForbiddenException('Role tidak memiliki akses menilai');
 }
 
@@ -133,16 +149,18 @@ export class PenilaianService {
         const fork = this.em.fork();
         const mahasiswa = await fork.findOneOrFail(Mahasiswa, { id: mahasiswaId });
 
-        // 1. Ambil semua penilaian PERILAKU
+        // ═══════════════════════════════════════════
+        // 1. PERILAKU — Weighted 360° Assessment
+        // ═══════════════════════════════════════════
         const perilakuList = await fork.find(Penilaian, {
             mahasiswa: { id: mahasiswaId },
             component: PenilaianComponent.PERILAKU,
         }, { populate: ['nilaiList'] });
 
-        // Group by assessorType dan hitung rata-rata per assessor
+        // Group by assessorType → rata-rata skor (sudah dalam skala 100)
         const perilakuScoresByType: Partial<Record<AssessorType, number[]>> = {};
         for (const p of perilakuList) {
-            const scores = p.nilaiList.getItems().map(n => Number(n.score));
+            const scores = p.nilaiList.getItems().map(n => likertToScale100(Number(n.score)));
             if (scores.length > 0) {
                 const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
                 if (!perilakuScoresByType[p.assessorType]) perilakuScoresByType[p.assessorType] = [];
@@ -151,27 +169,47 @@ export class PenilaianService {
         }
 
         // Rata-rata per type
-        const getTypeAvg = (type: AssessorType): number => {
+        const getTypeAvg = (type: AssessorType): number | null => {
             const vals = perilakuScoresByType[type];
-            if (!vals || vals.length === 0) return 0;
+            if (!vals || vals.length === 0) return null;
             return vals.reduce((sum, v) => sum + v, 0) / vals.length;
         };
 
-        const selfAvg = getTypeAvg(AssessorType.SELF);
-        const peerAvg = getTypeAvg(AssessorType.PEER);
-        const koordinatorAvg = getTypeAvg(AssessorType.KOORDINATOR);
-        // Gabungkan admin dan sekretaris sebagai "admin" bucket
-        const adminScores = [
-            ...(perilakuScoresByType[AssessorType.ADMIN] || []),
+        // Gabungkan sekretaris ke dalam bucket koordinator
+        const koordinatorScores = [
+            ...(perilakuScoresByType[AssessorType.KOORDINATOR] || []),
             ...(perilakuScoresByType[AssessorType.SEKRETARIS] || []),
         ];
-        const adminAvg = adminScores.length > 0 ? adminScores.reduce((s, v) => s + v, 0) / adminScores.length : 0;
+        const koordinatorAvg = koordinatorScores.length > 0
+            ? koordinatorScores.reduce((s, v) => s + v, 0) / koordinatorScores.length
+            : null;
 
-        // R = (N1 + N2 + N3 + N4) / 4
-        const rataPerilaku = (selfAvg + peerAvg + koordinatorAvg + adminAvg) / 4;
+        // Hitung weighted average — hanya dari assessor yang sudah menilai
+        // Sub-bobot: Self 10%, Peer 15%, Koordinator 25%, Kepala BRIDA 25%, Admin 25%
+        const assessorBuckets: { type: AssessorType | 'koordinator_bucket'; avg: number | null; weight: number }[] = [
+            { type: AssessorType.SELF, avg: getTypeAvg(AssessorType.SELF), weight: PERILAKU_WEIGHT[AssessorType.SELF] },
+            { type: AssessorType.PEER, avg: getTypeAvg(AssessorType.PEER), weight: PERILAKU_WEIGHT[AssessorType.PEER] },
+            { type: 'koordinator_bucket', avg: koordinatorAvg, weight: PERILAKU_WEIGHT[AssessorType.KOORDINATOR] },
+            { type: AssessorType.KEPALA_BRIDA, avg: getTypeAvg(AssessorType.KEPALA_BRIDA), weight: PERILAKU_WEIGHT[AssessorType.KEPALA_BRIDA] },
+            { type: AssessorType.ADMIN, avg: getTypeAvg(AssessorType.ADMIN), weight: PERILAKU_WEIGHT[AssessorType.ADMIN] },
+        ];
+
+        // Redistribusi bobot jika ada assessor yang belum menilai
+        const activeBuckets = assessorBuckets.filter(b => b.avg !== null);
+        const totalActiveWeight = activeBuckets.reduce((sum, b) => sum + b.weight, 0);
+
+        let rataPerilaku = 0;
+        if (totalActiveWeight > 0) {
+            rataPerilaku = activeBuckets.reduce((sum, b) => {
+                const normalizedWeight = b.weight / totalActiveWeight;
+                return sum + (b.avg! * normalizedWeight);
+            }, 0);
+        }
         const nilaiPerilakuFinal = rataPerilaku * 0.4;
 
-        // 2. Ambil semua penilaian KINERJA
+        // ═══════════════════════════════════════════
+        // 2. KINERJA — tetap sama (rata-rata semua)
+        // ═══════════════════════════════════════════
         const kinerjaList = await fork.find(Penilaian, {
             mahasiswa: { id: mahasiswaId },
             component: PenilaianComponent.KINERJA,
@@ -185,7 +223,9 @@ export class PenilaianService {
         const rataKinerja = kinerjaScores.length > 0 ? kinerjaScores.reduce((s, v) => s + v, 0) / kinerjaScores.length : 0;
         const nilaiKinerjaFinal = rataKinerja * 0.6;
 
-        // 3. NA = NP + NK
+        // ═══════════════════════════════════════════
+        // 3. NILAI AKHIR = NP + NK
+        // ═══════════════════════════════════════════
         const nilaiAkhirValue = nilaiPerilakuFinal + nilaiKinerjaFinal;
         const grade = getGrade(nilaiAkhirValue);
 
@@ -360,13 +400,17 @@ export class PenilaianService {
         let count = 0;
         for (const s of data.scores) {
             const kriteria = await fork.findOneOrFail(KriteriaPenilaian, { id: s.kriteriaId });
+            // Validasi skor Likert 1-5
+            if (s.score < 1 || s.score > 5) {
+                throw new BadRequestException(`Skor harus antara 1-5, diterima: ${s.score}`);
+            }
             const nilai = new NilaiPenilaian();
             nilai.penilaian = penilaian;
             nilai.kriteria = kriteria;
-            nilai.score = s.score;
+            nilai.score = s.score; // Simpan sebagai Likert 1-5
             nilai.keterangan = s.keterangan;
             fork.persist(nilai);
-            totalScore += s.score;
+            totalScore += likertToScale100(s.score); // Konversi ke skala 100 untuk finalScore
             count++;
         }
 
