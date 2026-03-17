@@ -8,7 +8,7 @@ export declare class LogbookService {
     create(userId: string, data: any, file?: Express.Multer.File): Promise<Logbook>;
     findByUser(userId: string, filters?: {
         status?: LogbookStatus;
-    }): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, "mataKuliah" | "jenisAktivitas", import("@mikro-orm/postgresql").PopulatePath.ALL, never>[]>;
+    }): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, "jenisAktivitas" | "mataKuliah", import("@mikro-orm/postgresql").PopulatePath.ALL, never>[]>;
     update(id: string, userId: string, data: any, file?: Express.Multer.File): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, never, "*", never>>;
     softDelete(id: string, userId: string): Promise<{
         message: string;
@@ -16,6 +16,6 @@ export declare class LogbookService {
     findAll(filters?: {
         status?: LogbookStatus;
     }): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, "mahasiswa" | "mahasiswa.user" | "jenisAktivitas", import("@mikro-orm/postgresql").PopulatePath.ALL, never>[]>;
-    findById(id: string): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, "mahasiswa" | "mataKuliah" | "mahasiswa.user" | "jenisAktivitas", "*", never>>;
+    findById(id: string): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, "mahasiswa" | "mahasiswa.user" | "jenisAktivitas" | "mataKuliah", "*", never>>;
     review(id: string, status: LogbookStatus, reviewedByUserId: string): Promise<import("@mikro-orm/postgresql").Loaded<Logbook, never, "*", never>>;
 }

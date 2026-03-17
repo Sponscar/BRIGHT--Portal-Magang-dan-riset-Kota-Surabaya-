@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import Sidebar from '../components/mahasiswa/Sidebar';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import DashboardStats from '../components/mahasiswa/DashboardStats';
 import ProposalNotifications from '../components/mahasiswa/ProposalNotifications';
 
@@ -19,24 +19,13 @@ const StudentDashboard = () => {
     };
 
     return (
-        <div className="flex h-screen w-full bg-background-light text-[#0d141b] font-display overflow-hidden">
-            <Sidebar
-                devControls={
-                    <div className="flex flex-wrap gap-1">
-                        <button onClick={() => simulateAdminAction('upload_required')} className="px-1 border bg-white">Reset</button>
-                        <button onClick={() => simulateAdminAction('pending_verification')} className="px-1 border bg-white">Verif</button>
-                        <button onClick={() => simulateAdminAction('revision')} className="px-1 border bg-white">Revisi</button>
-                        <button onClick={() => simulateAdminAction('approved')} className="px-1 border bg-white">Approve</button>
-                    </div>
-                }
-            />
-
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
-                <MobileHeader title="Dashboard Riset" />
+        <>
+                <MobileHeader title="Dashboard Magang" />
+                <TopHeader title="Dashboard Magang" subtitle={`Selamat datang ${user?.name || ''}`} />
 
                 <main className="flex-1 overflow-y-auto bg-[#f6f7f8] p-3 lg:p-4">
                     <div className="w-full max-w-7xl mx-auto flex flex-col gap-4 h-full">
-                        <div className="flex flex-row items-center justify-between gap-2 px-1 shrink-0">
+                        <div className="flex flex-row items-center justify-between gap-2 px-1 shrink-0 lg:hidden">
                             <div className="flex flex-col">
                                 <h1 className="text-xl font-bold text-[#0d141b]">Selamat Datang, {user?.name}!</h1>
                                 <p className="text-xs text-[#4c739a] hidden sm:block">Ringkasan kemajuan magang Anda.</p>
@@ -79,8 +68,7 @@ const StudentDashboard = () => {
                         )}
                     </div>
                 </main>
-            </div>
-        </div>
+        </>
     );
 };
 

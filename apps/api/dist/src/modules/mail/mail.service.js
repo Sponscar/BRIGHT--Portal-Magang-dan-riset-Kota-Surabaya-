@@ -16,7 +16,7 @@ exports.MailService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const resend_1 = require("resend");
-const mail_module_1 = require("./mail.module");
+const mail_constants_1 = require("./mail.constants");
 let MailService = class MailService {
     resend;
     configService;
@@ -54,7 +54,7 @@ let MailService = class MailService {
 exports.MailService = MailService;
 exports.MailService = MailService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)(mail_module_1.RESEND_CLIENT)),
+    __param(0, (0, common_1.Inject)(mail_constants_1.RESEND_CLIENT)),
     __metadata("design:paramtypes", [resend_1.Resend,
         config_1.ConfigService])
 ], MailService);

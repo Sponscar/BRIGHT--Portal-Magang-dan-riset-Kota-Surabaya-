@@ -300,8 +300,95 @@ body {
   animation: paper-tear-right 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-/* SweetAlert2 Modern & Responsive Customizations */
-div:where(.swal2-container) div:where(.swal2-popup) {
+/* Modern Page & Modal Animations */
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes backdrop-fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tab-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tab-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-tab-slide-left {
+  animation: tab-slide-left 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-tab-slide-right {
+  animation: tab-slide-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal-zoom {
+  animation: modal-zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-backdrop-fade {
+  animation: backdrop-fade-in 0.3s ease-out forwards;
+}
+
+/* SweetAlert2 Modern & Responsive Customizations for Validator */
+div:where(.swal2-container) {
+  z-index: 100 !important;
+  /* Extremely high z-index to cover everything including sidebars */
+}
+
+div:where(.swal2-container).swal2-backdrop-show,
+div:where(.swal2-container).swal2-noanimation {
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+div:where(.swal2-container) div.validator-popup {
   width: 24rem !important;
   border-radius: 1.25rem !important;
   padding: 1.5rem 1rem !important;
@@ -310,7 +397,7 @@ div:where(.swal2-container) div:where(.swal2-popup) {
   font-family: inherit !important;
 }
 
-div:where(.swal2-container) .swal2-title {
+div:where(.swal2-container) div.validator-popup .swal2-title {
   font-size: 1.25rem !important;
   color: #0f172a !important;
   font-weight: 700 !important;
@@ -318,19 +405,19 @@ div:where(.swal2-container) .swal2-title {
   margin-top: 0.5rem !important;
 }
 
-div:where(.swal2-container) .swal2-html-container {
+div:where(.swal2-container) div.validator-popup .swal2-html-container {
   font-size: 0.875rem !important;
   color: #475569 !important;
   margin: 0.5rem 1rem 1.5rem !important;
 }
 
-div:where(.swal2-container) .swal2-actions {
+div:where(.swal2-container) div.validator-popup .swal2-actions {
   gap: 0.75rem !important;
   margin-top: 0 !important;
 }
 
-div:where(.swal2-container) .swal2-styled.swal2-confirm,
-div:where(.swal2-container) .swal2-styled.swal2-cancel {
+div:where(.swal2-container) div.validator-popup .swal2-styled.swal2-confirm,
+div:where(.swal2-container) div.validator-popup .swal2-styled.swal2-cancel {
   border-radius: 0.75rem !important;
   font-weight: 600 !important;
   font-size: 0.875rem !important;
@@ -339,25 +426,158 @@ div:where(.swal2-container) .swal2-styled.swal2-cancel {
   box-shadow: none !important;
 }
 
-div:where(.swal2-container) .swal2-styled.swal2-confirm:hover {
+div:where(.swal2-container) div.validator-popup .swal2-styled.swal2-confirm:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
 }
 
-div:where(.swal2-container) .swal2-icon {
-  width: 3.5rem !important;
-  height: 3.5rem !important;
-  margin: 1rem auto 0.5rem !important;
-  border-width: 3px !important;
-}
-
-div:where(.swal2-container) .swal2-icon .swal2-icon-content {
-  font-size: 2.25rem !important;
+div:where(.swal2-container) div.validator-popup .swal2-icon {
+  margin: 0.5rem auto 0.5rem !important;
+  transform: scale(0.75);
 }
 
 @media (max-width: 640px) {
-  div:where(.swal2-container) div:where(.swal2-popup) {
+  div:where(.swal2-container) div.validator-popup {
     width: 20rem !important;
     padding: 1.25rem 1rem !important;
   }
+}
+
+/* SweetAlert2 Modern & Responsive Customizations for Small Toast */
+div:where(.swal2-container).absolute-toast-container {
+  position: absolute !important;
+  top: -34px !important;
+  /* Move up to align with the green line */
+  left: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  padding: 0 !important;
+  width: auto !important;
+  pointer-events: none !important;
+  z-index: 100 !important;
+  justify-content: flex-start !important;
+}
+
+div:where(.swal2-container).absolute-toast-container>div {
+  margin: 0 !important;
+  /* Remove sweetalert auto margins for top-start */
+}
+
+div:where(.swal2-container) div.validator-toast {
+  width: auto !important;
+  max-width: 100% !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 9999px !important;
+  /* Fully rounded pill shape */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  border: 1px solid #f87171 !important;
+  background-color: #fef2f2 !important;
+  /* Light red tint for warning */
+}
+
+div:where(.swal2-container) div.validator-toast .swal2-title {
+  font-size: 0.75rem !important;
+  /* Smaller text */
+  margin: 0 !important;
+  color: #991b1b !important;
+  font-weight: 500 !important;
+}
+
+div:where(.swal2-container) div.validator-toast .swal2-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+  min-width: 1rem !important;
+  margin: 0 0.35rem 0 0 !important;
+  border-width: 1.5px !important;
+  color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+div:where(.swal2-container) div.validator-toast .swal2-icon .swal2-icon-content {
+  font-size: 0.75rem !important;
+}
+
+/* Ensure the progress bar matches the warning theme */
+div:where(.swal2-container) div.validator-toast .swal2-timer-progress-bar {
+  background-color: #ef4444 !important;
+}
+
+@keyframes slideLeftEnter {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRightEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-left {
+  animation: slideLeftEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideRightEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modal Enter Animations */
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalContentIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-overlay-enter {
+  animation: modalOverlayIn 0.3s ease-out forwards;
+}
+
+.modal-content-enter {
+  animation: modalContentIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modal Exit Animations */
+@keyframes modalOverlayOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modalContentOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(16px);
+  }
+}
+
+.modal-overlay-exit {
+  animation: modalOverlayOut 0.25s ease-in forwards;
+}
+
+.modal-content-exit {
+  animation: modalContentOut 0.25s ease-in forwards;
 }

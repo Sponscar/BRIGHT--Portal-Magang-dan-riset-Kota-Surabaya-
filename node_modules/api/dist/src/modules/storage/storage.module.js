@@ -39,12 +39,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StorageModule = exports.MINIO_CLIENT = void 0;
+exports.StorageModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const Minio = __importStar(require("minio"));
 const storage_service_1 = require("./storage.service");
-exports.MINIO_CLIENT = 'MINIO_CLIENT';
+const storage_constants_1 = require("./storage.constants");
 const BUCKETS = [
     'profile-images',
     'dokumen',
@@ -60,7 +60,7 @@ exports.StorageModule = StorageModule = __decorate([
     (0, common_1.Module)({
         providers: [
             {
-                provide: exports.MINIO_CLIENT,
+                provide: storage_constants_1.MINIO_CLIENT,
                 inject: [config_1.ConfigService],
                 useFactory: async (configService) => {
                     const client = new Minio.Client({

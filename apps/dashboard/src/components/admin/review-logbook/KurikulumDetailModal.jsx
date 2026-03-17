@@ -1,10 +1,12 @@
 import React from 'react';
+import ModalPortal from '../ModalPortal';
 
 const KurikulumDetailModal = ({ isOpen, student, onClose }) => {
     if (!isOpen || !student) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <ModalPortal>
+        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-primary px-6 py-4 flex items-center justify-between">
@@ -75,6 +77,7 @@ const KurikulumDetailModal = ({ isOpen, student, onClose }) => {
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

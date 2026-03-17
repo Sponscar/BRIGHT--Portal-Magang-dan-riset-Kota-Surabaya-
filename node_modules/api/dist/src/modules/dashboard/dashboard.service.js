@@ -26,25 +26,38 @@ let DashboardService = class DashboardService {
             fork.count(entities_1.Mahasiswa, { status: entities_1.MahasiswaStatus.ACTIVE }),
             fork.count(entities_1.Mahasiswa, { status: entities_1.MahasiswaStatus.COMPLETED }),
         ]);
-        const [totalLogbook, pendingDokumen, totalSertifikat, pendingLaporan] = await Promise.all([
+        const [totalLogbook, pendingDokumen, totalSertifikat, pendingLaporan, totalPenilaian] = await Promise.all([
             fork.count(entities_1.Logbook, { deletedAt: null }),
             fork.count(entities_1.Dokumen, { status: entities_1.DocumentStatus.PENDING }),
             fork.count(entities_1.Sertifikat, {}),
             fork.count(entities_1.LaporanAkhir, { status: entities_1.LaporanStatus.PENDING }),
+            fork.count(entities_1.Penilaian, {}),
         ]);
-        const recentMahasiswa = await fork.find(entities_1.Mahasiswa, {}, { populate: ['user'], orderBy: { createdAt: 'DESC' }, limit: 10 });
-        return { totalMahasiswa, pendingMahasiswa, activeMahasiswa, completedMahasiswa, totalLogbook, pendingDokumen, totalSertifikat, pendingLaporan, recentMahasiswa };
+        const dinilai = await fork.count(entities_1.NilaiAkhir, {});
+        const recentMahasiswa = await fork.find(entities_1.Mahasiswa, {}, {
+            populate: ['user', 'tusiBrida'],
+            orderBy: { createdAt: 'DESC' },
+            limit: 10,
+        });
+        return {
+            totalMahasiswa, pendingMahasiswa, activeMahasiswa, completedMahasiswa,
+            totalLogbook, pendingDokumen, totalSertifikat, pendingLaporan,
+            totalPenilaian, totalDinilai: dinilai,
+            recentMahasiswa,
+        };
     }
     async getStudentDashboard(userId) {
         const fork = this.em.fork();
         const mahasiswa = await fork.findOneOrFail(entities_1.Mahasiswa, { user: { id: userId } }, { populate: ['tusiBrida'] });
-        const [totalLogbook, totalPresensi, penilaian, sertifikat] = await Promise.all([
+        const [totalLogbook, totalPresensi, penilaian, sertifikat, kurikulum, nilaiAkhir] = await Promise.all([
             fork.count(entities_1.Logbook, { mahasiswa, deletedAt: null }),
             fork.count(entities_1.Presensi, { mahasiswa }),
             fork.find(entities_1.Penilaian, { mahasiswa }, { populate: ['nilaiList', 'nilaiList.kriteria'] }),
             fork.find(entities_1.Sertifikat, { mahasiswa }),
+            fork.find(entities_1.KurikulumMagang, { mahasiswa }),
+            fork.findOne(entities_1.NilaiAkhir, { mahasiswa }),
         ]);
-        return { mahasiswa, totalLogbook, totalPresensi, penilaian, sertifikat };
+        return { mahasiswa, totalLogbook, totalPresensi, penilaian, sertifikat, kurikulum, nilaiAkhir };
     }
 };
 exports.DashboardService = DashboardService;

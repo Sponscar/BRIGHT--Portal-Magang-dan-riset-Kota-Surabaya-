@@ -67,7 +67,7 @@ const Hero = () => {
                                     <div className="absolute top-[0%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-20">
                                         <Link to="/feedback#profile" className="flex flex-col items-center group transition-all duration-300 hover:-translate-y-2 relative">
                                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-md rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.1)] flex items-center justify-center border border-white/30 group-hover:border-white group-hover:bg-white transition-all duration-300 group-hover:scale-110 relative overflow-hidden z-20">
-                                                <span className="material-symbols-outlined text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:rotate-12">info</span>
+                                                <span className="material-symbols-outlined notranslate text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:rotate-12">info</span>
                                             </div>
                                             <div className="absolute top-full mt-2 text-center bg-white/95 px-3 py-1 rounded-lg backdrop-blur-sm shadow-md border border-slate-100 min-w-max z-10 opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
                                                 <span className="block text-[10px] sm:text-xs font-bold text-[#2563eb]">Apa itu BRIGHT</span>
@@ -79,7 +79,7 @@ const Hero = () => {
                                     <div className="absolute top-[85%] left-[90%] -translate-x-1/2 -translate-y-1/2 z-20">
                                         <Link to="/feedback#rating" className="flex flex-col items-center group transition-all duration-300 hover:-translate-y-2 hover:translate-x-2 relative">
                                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-md rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.1)] flex items-center justify-center border border-white/30 group-hover:border-white group-hover:bg-white transition-all duration-300 group-hover:scale-110 relative overflow-hidden z-20">
-                                                <span className="material-symbols-outlined text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:rotate-12">star_rate</span>
+                                                <span className="material-symbols-outlined notranslate text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:rotate-12">star_rate</span>
                                             </div>
                                             <div className="absolute top-1/2 right-full mr-2 -translate-y-1/2 text-center bg-white/95 px-3 py-1 rounded-lg backdrop-blur-sm shadow-md border border-slate-100 min-w-max z-10 opacity-0 group-hover:opacity-100 translate-x-[10px] group-hover:translate-x-0 transition-all duration-300 pointer-events-none">
                                                 <span className="block text-[10px] sm:text-xs font-bold text-[#2563eb]">Rating</span>
@@ -91,7 +91,7 @@ const Hero = () => {
                                     <div className="absolute top-[85%] left-[10%] -translate-x-1/2 -translate-y-1/2 z-20">
                                         <Link to="/feedback#result" className="flex flex-col items-center group transition-all duration-300 hover:-translate-y-2 hover:-translate-x-2 relative">
                                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-md rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.1)] flex items-center justify-center border border-white/30 group-hover:border-white group-hover:bg-white transition-all duration-300 group-hover:scale-110 relative overflow-hidden z-20">
-                                                <span className="material-symbols-outlined text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:scale-110">bar_chart</span>
+                                                <span className="material-symbols-outlined notranslate text-white group-hover:text-[#2563eb] text-xl sm:text-3xl relative z-10 transition-transform group-hover:scale-110">bar_chart</span>
                                             </div>
                                             <div className="absolute top-1/2 left-full ml-2 -translate-y-1/2 text-center bg-white/95 px-3 py-1 rounded-lg backdrop-blur-sm shadow-md border border-slate-100 min-w-max z-10 opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 pointer-events-none">
                                                 <span className="block text-[10px] sm:text-xs font-bold text-[#2563eb]">Result</span>

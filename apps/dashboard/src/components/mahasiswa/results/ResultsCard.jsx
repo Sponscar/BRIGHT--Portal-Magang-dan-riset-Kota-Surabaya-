@@ -84,7 +84,7 @@ const ResultsCard = ({ uploadedReport, onFileChange, onRemoveFile, onSubmit, onC
                     <button
                         type="button"
                         onClick={onSubmit}
-                        className="px-5 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-[#d41111] transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
+                        className="px-5 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-blue-600 transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
                     >
                         <span className="material-symbols-outlined notranslate text-[16px]">save</span>
                         Simpan Laporan

@@ -3,6 +3,7 @@ import { User } from './user.entity';
 export declare class Sertifikat {
     id: string;
     mahasiswa: Mahasiswa;
+    nomorSertifikat: string;
     studentName: string;
     startDate: Date;
     endDate: Date;

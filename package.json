@@ -6,9 +6,10 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=dashboard\" \"npm run dev --workspace=home-page\"",
+    "dev": "concurrently -n dashboard,homepage,api -c blue,green,yellow \"npm run dev --workspace=dashboard\" \"npm run dev --workspace=home-page\" \"npm run start:dev --workspace=api\"",
     "dev:dashboard": "npm run dev --workspace=dashboard",
-    "dev:homepage": "npm run dev --workspace=home-page"
+    "dev:homepage": "npm run dev --workspace=home-page",
+    "dev:api": "npm run start:dev --workspace=api"
   },
   "devDependencies": {
     "concurrently": "^9.0.0"

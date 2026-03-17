@@ -100,7 +100,10 @@ const StudentVerification = () => {
                 icon: 'warning',
                 title: 'Peringatan Validasi',
                 text: message,
-                confirmButtonColor: '#f59e0b'
+                confirmButtonColor: '#f59e0b',
+                customClass: {
+                    popup: 'validator-popup'
+                }
             });
         };
 
@@ -122,6 +125,19 @@ const StudentVerification = () => {
     const handleSubmitAction = () => {
         setStudents(prev => prev.map(s => s.id === selectedStudent.id ? { ...s, status: actionType === 'approve' ? 'approved' : actionType, team: actionType === 'approve' ? getTeamSummary(s.id) : null } : s));
         setIsModalOpen(false);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Tersimpan',
+            text: `Data mahasiswa telah berhasil diproses.`,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            backdrop: `
+              rgba(0,0,0,0.4)
+              backdrop-filter: blur(4px)
+            `,
+            customClass: { popup: 'validator-popup' }
+        });
     };
 
     // --- FILTER ---
@@ -164,22 +180,24 @@ const StudentVerification = () => {
                     </div>
 
                     {/* Table */}
-                    <VerificationTable
-                        students={filteredStudents} adminData={adminData}
-                        teamSelections={teamSelections} teamDropdownOpen={teamDropdownOpen} teamOptions={teamOptions}
-                        enablerSubOptions={enablerSubOptions} risetSubOptions={risetSubOptions}
-                        inovasiSubOptions={inovasiSubOptions}
-                        pengelolaankebunrayamangroveSubOptions={pengelolaankebunrayamangroveSubOptions}
-                        kesekretariatanSubOptions={kesekretariatanSubOptions}
-                        onTeamToggle={handleTeamToggle} onRisetTypeToggle={handleRisetTypeToggle}
-                        onEnablerTypeToggle={handleEnablerTypeToggle} onInovasiTypeToggle={handleInovasiTypeToggle}
-                        onPengelolaanKebunRayaTypeToggle={handlePengelolaanKebunRayaTypeToggle}
-                        onKesekretariatanTypeToggle={handleKesekretariatanTypeToggle}
-                        onLainnyaTextChange={handleLainnyaTextChange}
-                        onToggleTeamDropdown={toggleTeamDropdown} onAction={handleAction}
-                        onViewAdmin={(admin) => { setSelectedAdminDetail(admin); setIsAdminDetailOpen(true); }}
-                        getStatusBadge={getStatusBadge}
-                    />
+                    <div key={`${filterStatus}-${searchQuery}`} className="animate-page-enter">
+                        <VerificationTable
+                            students={filteredStudents} adminData={adminData}
+                            teamSelections={teamSelections} teamDropdownOpen={teamDropdownOpen} teamOptions={teamOptions}
+                            enablerSubOptions={enablerSubOptions} risetSubOptions={risetSubOptions}
+                            inovasiSubOptions={inovasiSubOptions}
+                            pengelolaankebunrayamangroveSubOptions={pengelolaankebunrayamangroveSubOptions}
+                            kesekretariatanSubOptions={kesekretariatanSubOptions}
+                            onTeamToggle={handleTeamToggle} onRisetTypeToggle={handleRisetTypeToggle}
+                            onEnablerTypeToggle={handleEnablerTypeToggle} onInovasiTypeToggle={handleInovasiTypeToggle}
+                            onPengelolaanKebunRayaTypeToggle={handlePengelolaanKebunRayaTypeToggle}
+                            onKesekretariatanTypeToggle={handleKesekretariatanTypeToggle}
+                            onLainnyaTextChange={handleLainnyaTextChange}
+                            onToggleTeamDropdown={toggleTeamDropdown} onAction={handleAction}
+                            onViewAdmin={(admin) => { setSelectedAdminDetail(admin); setIsAdminDetailOpen(true); }}
+                            getStatusBadge={getStatusBadge}
+                        />
+                    </div>
                 </div>
             </main>
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import AdminHeader from '../../components/admin/AdminHeader';
 import TeamFormModal from '../../components/admin/teams/TeamFormModal';
 import TeamCard from '../../components/admin/teams/TeamCard';
@@ -20,11 +21,44 @@ const TeamManagement = () => {
     const handleSave = (e) => {
         e.preventDefault();
         const newTeamData = { ...formData, id: currentTeam ? currentTeam.id : Date.now().toString(), responsibilities: formData.responsibilities.split('\n').filter(item => item.trim() !== ''), requirements: formData.requirements.split('\n').filter(item => item.trim() !== '') };
-        if (currentTeam) { setTeams(teams.map(t => t.id === currentTeam.id ? newTeamData : t)); } else { setTeams([...teams, newTeamData]); }
+        
+        if (currentTeam) { 
+            setTeams(teams.map(t => t.id === currentTeam.id ? newTeamData : t)); 
+        } else { 
+            setTeams([...teams, newTeamData]); 
+        }
+        
         setIsModalOpen(false);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Tersimpan',
+            text: 'Data tim telah berhasil diperbarui.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: { popup: 'validator-popup' },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
+        });
     };
 
-    const toggleStatus = (id) => { setTeams(teams.map(t => t.id === id ? { ...t, is_active: !t.is_active } : t)); };
+    const toggleStatus = (id) => { 
+        const team = teams.find(t => t.id === id);
+        const newStatus = !team.is_active;
+
+        setTeams(teams.map(t => t.id === id ? { ...t, is_active: newStatus } : t)); 
+
+        Swal.fire({
+            icon: 'success',
+            title: newStatus ? 'Tim Diaktifkan' : 'Tim Dinonaktifkan',
+            text: `Tim ${team.name} telah berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}.`,
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: { popup: 'validator-popup' },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
+        });
+    };
 
     return (
         <>
@@ -36,7 +70,7 @@ const TeamManagement = () => {
             </AdminHeader>
 
             <main className="flex-1 overflow-y-auto p-4 lg:p-8">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-page-enter" key={teams.filter(t => t.is_active).length + teams.length}>
                     {teams.map((team) => (
                         <TeamCard key={team.id} team={team} onEdit={openEditModal} onToggleStatus={toggleStatus} />
                     ))}

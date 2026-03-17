@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Sidebar from '../../components/mahasiswa/Sidebar';
 import MobileHeader from '../../components/mahasiswa/MobileHeader';
 import TeamInfo from '../../components/mahasiswa/teams/TeamInfo';
 import TeamResponsibilities from '../../components/mahasiswa/teams/TeamResponsibilities';
@@ -120,27 +119,22 @@ const TeamDetail = () => {
 
     if (loading) {
         return (
-            <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-                <Sidebar />
-                <div className="flex h-full flex-1 flex-col overflow-hidden">
-                    <MobileHeader title="Memuat..." />
-                    <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
+            <>
+                <MobileHeader title="Memuat..." />
+                <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
                         <div className="max-w-4xl mx-auto flex items-center justify-center h-64">
                             <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
                         </div>
-                    </main>
-                </div>
-            </div>
+                </main>
+            </>
         );
     }
 
     if (error || !team) {
         return (
-            <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-                <Sidebar />
-                <div className="flex h-full flex-1 flex-col overflow-hidden">
-                    <MobileHeader title="Error" />
-                    <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
+            <>
+                <MobileHeader title="Error" />
+                <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
                         <div className="max-w-4xl mx-auto">
                             <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-8 text-center">
                                 <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -150,18 +144,15 @@ const TeamDetail = () => {
                                 <p className="text-gray-500">Silakan coba lagi atau hubungi administrator.</p>
                             </div>
                         </div>
-                    </main>
-                </div>
-            </div>
+                </main>
+            </>
         );
     }
 
     return (
-        <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-            <Sidebar />
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
-                <MobileHeader title={`Tim ${team.name}`} />
-                <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
+        <>
+            <MobileHeader title={`Tim ${team.name}`} />
+            <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
                     <div className="max-w-4xl mx-auto space-y-6">
                         {/* Team Info Component */}
                         <TeamInfo team={team} />
@@ -187,9 +178,8 @@ const TeamDetail = () => {
                             </div>
                         </div>
                     </div>
-                </main>
-            </div>
-        </div>
+            </main>
+        </>
     );
 };
 

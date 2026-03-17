@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Sidebar from '../components/mahasiswa/Sidebar';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import ResultsCard from '../components/mahasiswa/results/ResultsCard';
 import CertificateCard from '../components/mahasiswa/results/CertificateCard';
 import PerformanceAssessment from '../components/mahasiswa/results/PerformanceAssessment';
@@ -69,7 +69,13 @@ const Results = () => {
             icon: 'success',
             title: 'Tersimpan!',
             text: 'Penilaian diri sendiri berhasil disimpan.',
-            confirmButtonColor: '#2563eb'
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: {
+                popup: 'validator-popup'
+            },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
         });
     };
 
@@ -80,7 +86,13 @@ const Results = () => {
             icon: 'success',
             title: 'Tersimpan!',
             text: 'Penilaian teman berhasil disimpan.',
-            confirmButtonColor: '#2563eb'
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: {
+                popup: 'validator-popup'
+            },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
         });
     };
 
@@ -92,7 +104,11 @@ const Results = () => {
                     icon: 'error',
                     title: 'Format Tidak Didukung',
                     text: 'Gunakan file dengan format PDF.',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -101,7 +117,11 @@ const Results = () => {
                     icon: 'error',
                     title: 'Ukuran Terlalu Besar',
                     text: 'Ukuran file maksimal 5MB.',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -119,7 +139,11 @@ const Results = () => {
                 icon: 'warning',
                 title: 'File Belum Diunggah',
                 text: 'Silakan unggah laporan akhir terlebih dahulu.',
-                confirmButtonColor: '#2563eb'
+                confirmButtonColor: '#f59e0b',
+                customClass: {
+                    popup: 'validator-popup'
+                },
+                backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
             });
             return;
         }
@@ -127,7 +151,13 @@ const Results = () => {
             icon: 'success',
             title: 'Berhasil',
             text: 'Laporan akhir berhasil disimpan (simulasi).',
-            confirmButtonColor: '#2563eb'
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: {
+                popup: 'validator-popup'
+            },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
         });
     };
 
@@ -136,16 +166,14 @@ const Results = () => {
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#f8f6f6] text-[#1b0d0d] font-display overflow-hidden">
-            <Sidebar />
-
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
+        <>
                 <MobileHeader title="Hasil & Sertifikat" />
+                <TopHeader title="Hasil & Sertifikat" subtitle="Review penilaian magang dan unduh sertifikat kelulusan Anda secara resmi." />
 
                 <main className="flex-1 overflow-y-auto bg-[#f8f6f6] p-4 lg:p-8">
                     <div className="w-full max-w-6xl mx-auto space-y-6 pb-10">
-                        {/* Header */}
-                        <div className="mb-6">
+                        {/* Header (Mobile Only) */}
+                        <div className="mb-6 lg:hidden">
                             <h1 className="text-2xl font-bold text-gray-900 leading-tight">Hasil & Sertifikat</h1>
                             <p className="text-sm text-gray-500 mt-1">Review penilaian magang dan unduh sertifikat kelulusan Anda secara resmi.</p>
                         </div>
@@ -204,8 +232,7 @@ const Results = () => {
                         </footer>
                     </div>
                 </main>
-            </div>
-        </div>
+        </>
     );
 };
 

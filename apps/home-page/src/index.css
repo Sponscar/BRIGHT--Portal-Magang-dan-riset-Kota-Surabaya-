@@ -86,13 +86,15 @@
 
   /* Hero Components */
   .hero-section {
-    @apply relative overflow-hidden py-12 sm:py-20 lg:py-24;
+    @apply relative overflow-hidden min-h-screen flex items-center;
+    padding-top: 5rem;
+    padding-bottom: 3rem;
   }
 
   .hero-bg-gradient {
     @apply absolute inset-0;
     z-index: 0;
-    background: linear-gradient(to bottom right, #1e3a8a, #5a5a5a);
+    background: linear-gradient(to bottom right, #1e3a8a, #2d4a9a);
   }
 
   .hero-bg-gradient::before {
@@ -102,12 +104,12 @@
     background-image: url('/balkot.jpg');
     background-size: cover;
     background-position: center;
-    opacity: 0.15;
+    opacity: 0.35;
     mix-blend-mode: overlay;
   }
 
   .hero-container {
-    @apply mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 relative z-10;
+    @apply mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 relative z-10 w-full;
   }
 
   .hero-grid {

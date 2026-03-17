@@ -1,9 +1,23 @@
+import { useState } from 'react';
+import ModalPortal from '../ModalPortal';
+
 const DeleteActivityModal = ({ isOpen, activityToDelete, onClose, onConfirm }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!isOpen || !activityToDelete) return null;
 
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 text-center">
                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span className="material-symbols-outlined notranslate text-3xl text-blue-600">warning</span>
@@ -14,8 +28,8 @@ const DeleteActivityModal = ({ isOpen, activityToDelete, onClose, onConfirm }) =
                     </p>
                     <div className="flex justify-center gap-3">
                         <button
-                            onClick={onClose}
-                            className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+                            onClick={handleClose}
+                            className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
                         >
                             Batal
                         </button>
@@ -29,6 +43,7 @@ const DeleteActivityModal = ({ isOpen, activityToDelete, onClose, onConfirm }) =
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

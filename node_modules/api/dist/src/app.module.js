@@ -30,11 +30,15 @@ const penilaian_module_1 = require("./modules/penilaian/penilaian.module");
 const sertifikat_module_1 = require("./modules/sertifikat/sertifikat.module");
 const laporan_akhir_module_1 = require("./modules/laporan-akhir/laporan-akhir.module");
 const dashboard_module_1 = require("./modules/dashboard/dashboard.module");
+const kurikulum_magang_module_1 = require("./modules/kurikulum-magang/kurikulum-magang.module");
+const perguruan_tinggi_module_1 = require("./modules/perguruan-tinggi/perguruan-tinggi.module");
+const feedback_module_1 = require("./modules/feedback/feedback.module");
 const entities = [
     entities_1.User, entities_1.OtpToken, entities_1.Mahasiswa, entities_1.TusiBrida, entities_1.Dokumen, entities_1.Administrasi,
     entities_1.JenisAktivitas, entities_1.MataKuliahKonversi, entities_1.MahasiswaMataKuliah, entities_1.Logbook,
     entities_1.Jurnal, entities_1.Presensi, entities_1.KriteriaPenilaian, entities_1.Penilaian, entities_1.NilaiPenilaian,
-    entities_1.NilaiAkhir, entities_1.Sertifikat, entities_1.LaporanAkhir, entities_1.PerguruanTinggi,
+    entities_1.NilaiAkhir, entities_1.Sertifikat, entities_1.LaporanAkhir, entities_1.PerguruanTinggi, entities_1.KurikulumMagang,
+    entities_1.Feedback,
 ];
 let AppModule = class AppModule {
 };
@@ -76,6 +80,9 @@ exports.AppModule = AppModule = __decorate([
             sertifikat_module_1.SertifikatModule,
             laporan_akhir_module_1.LaporanAkhirModule,
             dashboard_module_1.DashboardModule,
+            kurikulum_magang_module_1.KurikulumMagangModule,
+            perguruan_tinggi_module_1.PerguruanTinggiModule,
+            feedback_module_1.FeedbackModule,
         ],
         providers: [
             {

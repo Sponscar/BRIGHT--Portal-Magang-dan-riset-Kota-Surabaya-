@@ -17,7 +17,11 @@ const DocumentUploadCard = ({ id, icon, title, description, file, onFileChange }
                     icon: 'error',
                     title: 'Format Tidak Didukung',
                     text: 'Hanya file PDF yang diperbolehkan.',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -26,7 +30,11 @@ const DocumentUploadCard = ({ id, icon, title, description, file, onFileChange }
                     icon: 'error',
                     title: 'Ukuran Terlalu Besar',
                     text: 'Ukuran file maksimal 2MB.',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }

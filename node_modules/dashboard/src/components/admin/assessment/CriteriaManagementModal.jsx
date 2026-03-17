@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import ModalPortal from '../ModalPortal';
+
 const CriteriaManagementModal = ({
     isOpen,
     criteria,
@@ -11,7 +14,18 @@ const CriteriaManagementModal = ({
     onDelete,
     onCancelEdit
 }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!isOpen) return null;
+
+    const handleClose = () => {
+        if (!canSave) return;
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
 
     const behaviorBobot = getBobotByCategory('behavior');
     const performanceBobot = getBobotByCategory('performance');
@@ -20,14 +34,15 @@ const CriteriaManagementModal = ({
     const canSave = !isBehaviorOver && !isPerformanceOver;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
                     <div>
                         <h3 className="text-xl font-bold text-slate-900">Kelola Kriteria Penilaian</h3>
                         <p className="text-sm text-slate-500 mt-0.5">Tambah, ubah, atau hapus kriteria penilaian.</p>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined notranslate">close</span>
                     </button>
                 </div>
@@ -98,14 +113,14 @@ const CriteriaManagementModal = ({
                                         <button
                                             type="button"
                                             onClick={onCancelEdit}
-                                            className="px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                                            className="px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-500 transition-all duration-300 hover:bg-slate-50 hover:text-slate-800 hover:-translate-y-0.5 active:scale-95"
                                         >
                                             Batal
                                         </button>
                                     )}
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary-hover transition-colors shadow-md shadow-primary/20"
+                                        className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold transition-all duration-300 hover:bg-blue-600 hover:shadow-[0_4px_10px_rgba(59,130,246,0.4)] hover:-translate-y-0.5 active:scale-95"
                                     >
                                         {editingCriteria ? 'Simpan' : 'Tambah'}
                                     </button>
@@ -155,11 +170,11 @@ const CriteriaManagementModal = ({
                     )}
                     <div className="ml-auto">
                         <button
-                            onClick={onClose}
+                            onClick={handleClose}
                             disabled={!canSave}
-                            className={`px-6 py-2 rounded-xl text-sm font-bold transition-colors ${
+                            className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 focus:outline-none ${
                                 canSave
-                                    ? 'bg-slate-800 text-white hover:bg-slate-900'
+                                    ? 'bg-slate-800 text-white hover:bg-slate-900 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95'
                                     : 'bg-slate-300 text-slate-500 cursor-not-allowed'
                             }`}
                         >
@@ -169,6 +184,7 @@ const CriteriaManagementModal = ({
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

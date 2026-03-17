@@ -7,6 +7,7 @@ export declare enum AssessorType {
     PEER = "peer",
     KOORDINATOR = "koordinator",
     SEKRETARIS = "sekretaris",
+    KEPALA_BRIDA = "kepala_brida",
     ADMIN = "admin"
 }
 export declare enum PenilaianComponent {

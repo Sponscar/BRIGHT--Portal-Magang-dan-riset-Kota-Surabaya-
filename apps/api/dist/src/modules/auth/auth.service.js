@@ -90,6 +90,7 @@ let AuthService = class AuthService {
         mahasiswa.uniKecamatan = dto.uniKecamatan;
         mahasiswa.nim = dto.nim;
         mahasiswa.internshipType = dto.internshipType;
+        mahasiswa.perangkatDaerah = dto.perangkatDaerah;
         mahasiswa.status = entities_1.MahasiswaStatus.PENDING;
         const otpCode = this.generateOtp();
         const otp = new entities_1.OtpToken();

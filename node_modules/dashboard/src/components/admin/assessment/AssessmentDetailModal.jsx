@@ -1,15 +1,29 @@
+import { useState } from 'react';
+import ModalPortal from '../ModalPortal';
+
 const AssessmentDetailModal = ({ assessment, criteria, onClose, getScoreColor, getScoreLabel, formatDate }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!assessment) return null;
 
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
                     <div>
                         <h3 className="text-xl font-bold text-slate-900">Detail Penilaian</h3>
                         <p className="text-sm text-slate-500 mt-0.5">{assessment.studentName} — {assessment.university}</p>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined notranslate">close</span>
                     </button>
                 </div>
@@ -76,14 +90,15 @@ const AssessmentDetailModal = ({ assessment, criteria, onClose, getScoreColor, g
                 </div>
                 <div className="p-6 border-t border-slate-100 flex justify-end bg-slate-50/50">
                     <button
-                        onClick={onClose}
-                        className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+                        onClick={handleClose}
+                        className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-all duration-300 shadow-[0_4px_10px_rgba(59,130,246,0.3)] hover:shadow-[0_6px_15px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 active:scale-95"
                     >
                         Tutup
                     </button>
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as Minio from 'minio';
 import { v4 } from 'uuid';
-import { MINIO_CLIENT } from './storage.module';
+import { MINIO_CLIENT } from './storage.constants';
 
 @Injectable()
 export class StorageService {

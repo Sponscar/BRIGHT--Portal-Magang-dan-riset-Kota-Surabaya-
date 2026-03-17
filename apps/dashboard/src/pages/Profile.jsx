@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Sidebar from '../components/mahasiswa/Sidebar';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import { useAuth } from '../context/AuthContext';
 import ProfileCard from '../components/mahasiswa/profile/ProfileCard';
 import ProfileForm from '../components/mahasiswa/profile/ProfileForm';
@@ -52,7 +52,11 @@ const Profile = () => {
                     icon: 'error',
                     title: 'Ukuran File Terlalu Besar',
                     text: 'Ukuran file foto profil maksimal 2MB',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -126,30 +130,34 @@ const Profile = () => {
             localStorage.setItem('brida_latest_registration', JSON.stringify(updatedReg));
         }
 
+        console.log('Profile updated payload:', updatedUser);
+
         Swal.fire({
             icon: 'success',
-            title: 'Berhasil!',
+            title: 'Tersimpan!',
             text: 'Profil berhasil diperbarui.',
-            confirmButtonColor: '#2563eb'
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: { popup: 'validator-popup' },
+            backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
         });
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-            <Sidebar />
-
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
+        <>
                 <MobileHeader title="Profil Saya" />
+                <TopHeader title="Profil Saya" subtitle="Kelola informasi pribadi dan data akademik Anda." />
 
                 <main className="flex-1 overflow-y-auto bg-[#fafafa] p-4 lg:p-8">
                     <div className="w-full max-w-4xl mx-auto space-y-6 pb-10">
-                        {/* Header */}
-                        <div className="mb-2">
-                            <h1 className="text-2xl font-bold text-[#1b0d0d]">Profil Saya</h1>
-                            <p className="text-sm text-[#9a4c4c] mt-1">Kelola informasi pribadi dan data akademik Anda.</p>
+                        {/* Page Header (Mobile Only) */}
+                        <div className="border-b border-[#f3e7e7] pb-6 lg:hidden">
+                            <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#1b0d0d]">Profil Saya</h2>
+                            <p className="text-[#9a4c4c] text-sm font-medium mt-1">Kelola informasi pribadi dan data akademik Anda.</p>
                         </div>
 
-                        {/* Profile Card */}
+                        {/* Profile Content */}
                         <div className="bg-white rounded-xl shadow-sm border border-[#f3e7e7] p-6 lg:p-8">
                             <div className="flex flex-col md:flex-row gap-8 items-start">
                                 {/* Left Column: Avatar & Status using Component */}
@@ -172,8 +180,7 @@ const Profile = () => {
                         </div>
                     </div>
                 </main >
-            </div >
-        </div >
+        </>
     );
 };
 

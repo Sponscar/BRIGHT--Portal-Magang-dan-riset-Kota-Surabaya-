@@ -20,6 +20,7 @@ var AssessorType;
     AssessorType["PEER"] = "peer";
     AssessorType["KOORDINATOR"] = "koordinator";
     AssessorType["SEKRETARIS"] = "sekretaris";
+    AssessorType["KEPALA_BRIDA"] = "kepala_brida";
     AssessorType["ADMIN"] = "admin";
 })(AssessorType || (exports.AssessorType = AssessorType = {}));
 var PenilaianComponent;

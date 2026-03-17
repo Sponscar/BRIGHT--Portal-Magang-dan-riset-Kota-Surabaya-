@@ -29,18 +29,32 @@ let SertifikatService = class SertifikatService {
         sertifikat.endDate = new Date(data.endDate);
         sertifikat.issuedBy = issuedBy;
         sertifikat.tanggalTerbit = new Date();
+        const shortId = sertifikat.id.split('-')[0].toUpperCase();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        sertifikat.nomorSertifikat = `BRIDA-CERT-${shortId}-${random}`;
         fork.persist(sertifikat);
         await fork.flush();
         return sertifikat;
     }
-    async findAll() { return this.em.fork().find(entities_1.Sertifikat, {}, { populate: ['mahasiswa', 'mahasiswa.user', 'issuedBy'], orderBy: { tanggalTerbit: 'DESC' } }); }
+    async findAll() {
+        return this.em.fork().find(entities_1.Sertifikat, {}, {
+            populate: ['mahasiswa', 'mahasiswa.user', 'issuedBy'],
+            orderBy: { tanggalTerbit: 'DESC' },
+        });
+    }
     async findById(id) {
-        const s = await this.em.fork().findOne(entities_1.Sertifikat, { id }, { populate: ['mahasiswa', 'mahasiswa.user', 'issuedBy'] });
+        const s = await this.em.fork().findOne(entities_1.Sertifikat, { id }, {
+            populate: ['mahasiswa', 'mahasiswa.user', 'issuedBy'],
+        });
         if (!s)
             throw new common_1.NotFoundException('Sertifikat tidak ditemukan');
         return s;
     }
-    async findByUser(userId) { return this.em.fork().find(entities_1.Sertifikat, { mahasiswa: { user: { id: userId } } }, { populate: ['issuedBy'] }); }
+    async findByUser(userId) {
+        return this.em.fork().find(entities_1.Sertifikat, {
+            mahasiswa: { user: { id: userId } },
+        }, { populate: ['issuedBy'] });
+    }
 };
 exports.SertifikatService = SertifikatService;
 exports.SertifikatService = SertifikatService = __decorate([

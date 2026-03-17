@@ -1,14 +1,24 @@
 import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import ModalPortal from '../ModalPortal';
 import CertificateTemplate from './CertificateTemplate';
 import Swal from 'sweetalert2';
 
 const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
     const certificateRef = useRef(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
     if (!isOpen || !certificate) return null;
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
 
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
@@ -122,11 +132,12 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col p-6">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col p-6 ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-slate-900">Preview Sertifikat: {certificate.studentName}</h3>
-                    <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 shadow-sm transition-colors">
+                    <button onClick={handleClose} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 shadow-sm transition-colors">
                         <span className="material-symbols-outlined notranslate leading-none">close</span>
                     </button>
                 </div>
@@ -149,8 +160,8 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
 
                 <div className="mt-8 flex justify-end gap-3">
                     <button
-                        onClick={onClose}
-                        className="px-6 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                        onClick={handleClose}
+                        className="px-6 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
                     >
                         Tutup
                     </button>
@@ -172,6 +183,7 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
                 </p>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

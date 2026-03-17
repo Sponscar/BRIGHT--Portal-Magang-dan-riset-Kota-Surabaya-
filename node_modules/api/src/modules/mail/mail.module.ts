@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 import { MailService } from './mail.service';
-
-export const RESEND_CLIENT = 'RESEND_CLIENT';
+import { RESEND_CLIENT } from './mail.constants';
 
 @Module({
     providers: [

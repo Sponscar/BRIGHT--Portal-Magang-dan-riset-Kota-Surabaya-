@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import ModalPortal from '../ModalPortal';
+
 const getExpectedResultLabel = (value) => {
     const map = {
         laporan_akhir: 'Laporan Akhir',
@@ -9,11 +12,22 @@ const getExpectedResultLabel = (value) => {
 };
 
 const AdminDetailModal = ({ isOpen, adminDetail, onClose }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!isOpen || !adminDetail) return null;
 
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20">
@@ -24,7 +38,7 @@ const AdminDetailModal = ({ isOpen, adminDetail, onClose }) => {
                             <p className="text-xs text-slate-500">{adminDetail.studentName} — {adminDetail.university}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined notranslate">close</span>
                     </button>
                 </div>
@@ -116,14 +130,15 @@ const AdminDetailModal = ({ isOpen, adminDetail, onClose }) => {
 
                 <div className="p-4 border-t border-slate-100 flex justify-end bg-slate-50/50 shrink-0">
                     <button
-                        onClick={onClose}
-                        className="px-6 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-hover transition-colors shadow-sm"
+                        onClick={handleClose}
+                        className="px-6 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-[0_4px_10px_rgba(59,130,246,0.3)] hover:shadow-[0_6px_15px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 active:scale-95"
                     >
                         Tutup
                     </button>
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

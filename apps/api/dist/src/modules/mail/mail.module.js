@@ -6,12 +6,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MailModule = exports.RESEND_CLIENT = void 0;
+exports.MailModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const resend_1 = require("resend");
 const mail_service_1 = require("./mail.service");
-exports.RESEND_CLIENT = 'RESEND_CLIENT';
+const mail_constants_1 = require("./mail.constants");
 let MailModule = class MailModule {
 };
 exports.MailModule = MailModule;
@@ -19,7 +19,7 @@ exports.MailModule = MailModule = __decorate([
     (0, common_1.Module)({
         providers: [
             {
-                provide: exports.RESEND_CLIENT,
+                provide: mail_constants_1.RESEND_CLIENT,
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {
                     return new resend_1.Resend(configService.get('RESEND_API_KEY'));

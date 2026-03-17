@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import ModalPortal from '../ModalPortal';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -10,11 +12,22 @@ L.Icon.Default.mergeOptions({
 });
 
 const LogbookDetailModal = ({ isOpen, entry, getStatusBadge, onClose, onAction }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!isOpen || !entry) return null;
 
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900">Detail Logbook</h3>
@@ -24,7 +37,7 @@ const LogbookDetailModal = ({ isOpen, entry, getStatusBadge, onClose, onAction }
                             <p className="text-sm text-slate-500">Logbook Saya</p>
                         )}
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined notranslate">close</span>
                     </button>
                 </div>
@@ -179,27 +192,27 @@ const LogbookDetailModal = ({ isOpen, entry, getStatusBadge, onClose, onAction }
                             <>
                                 <button
                                     onClick={() => {
-                                        onClose();
-                                        onAction(entry, 'reject');
+                                        handleClose();
+                                        setTimeout(() => onAction(entry, 'reject'), 260);
                                     }}
-                                    className="px-4 py-2 border border-blue-200 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
+                                    className="px-4 py-2 border border-blue-200 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-50 transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
                                 >
                                     Tolak
                                 </button>
                                 <button
                                     onClick={() => {
-                                        onClose();
-                                        onAction(entry, 'approve');
+                                        handleClose();
+                                        setTimeout(() => onAction(entry, 'approve'), 260);
                                     }}
-                                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+                                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-300 shadow-sm shadow-emerald-200 hover:-translate-y-0.5 active:scale-95"
                                 >
                                     Setujui Logbook
                                 </button>
                             </>
                         )}
                         <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+                            onClick={handleClose}
+                            className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
                         >
                             Tutup
                         </button>
@@ -207,6 +220,7 @@ const LogbookDetailModal = ({ isOpen, entry, getStatusBadge, onClose, onAction }
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

@@ -11,7 +11,9 @@ export declare class DashboardController {
         pendingDokumen: number;
         totalSertifikat: number;
         pendingLaporan: number;
-        recentMahasiswa: import("@mikro-orm/core").Loaded<import("../../entities").Mahasiswa, "user", import("@mikro-orm/core").PopulatePath.ALL, never>[];
+        totalPenilaian: number;
+        totalDinilai: number;
+        recentMahasiswa: import("@mikro-orm/core").Loaded<import("../../entities").Mahasiswa, "user" | "tusiBrida", import("@mikro-orm/core").PopulatePath.ALL, never>[];
     }>;
     getStudent(uid: string): Promise<{
         mahasiswa: import("@mikro-orm/core").Loaded<import("../../entities").Mahasiswa, "tusiBrida", "*", never>;
@@ -19,5 +21,7 @@ export declare class DashboardController {
         totalPresensi: number;
         penilaian: import("@mikro-orm/core").Loaded<import("../../entities").Penilaian, "nilaiList" | "nilaiList.kriteria", import("@mikro-orm/core").PopulatePath.ALL, never>[];
         sertifikat: import("@mikro-orm/core").Loaded<import("../../entities").Sertifikat, never, import("@mikro-orm/core").PopulatePath.ALL, never>[];
+        kurikulum: import("@mikro-orm/core").Loaded<import("../../entities").KurikulumMagang, never, import("@mikro-orm/core").PopulatePath.ALL, never>[];
+        nilaiAkhir: import("@mikro-orm/core").Loaded<import("../../entities").NilaiAkhir, never, "*", never> | null;
     }>;
 }

@@ -49,7 +49,7 @@ exports.StorageService = void 0;
 const common_1 = require("@nestjs/common");
 const Minio = __importStar(require("minio"));
 const uuid_1 = require("uuid");
-const storage_module_1 = require("./storage.module");
+const storage_constants_1 = require("./storage.constants");
 let StorageService = class StorageService {
     minioClient;
     constructor(minioClient) {
@@ -75,7 +75,7 @@ let StorageService = class StorageService {
 exports.StorageService = StorageService;
 exports.StorageService = StorageService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)(storage_module_1.MINIO_CLIENT)),
+    __param(0, (0, common_1.Inject)(storage_constants_1.MINIO_CLIENT)),
     __metadata("design:paramtypes", [Minio.Client])
 ], StorageService);
 //# sourceMappingURL=storage.service.js.map

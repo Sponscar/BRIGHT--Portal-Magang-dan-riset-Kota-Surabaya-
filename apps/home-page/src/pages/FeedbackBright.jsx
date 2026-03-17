@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import AgreementModal from '../components/AgreementModal';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:3001/api';
 
 const FeedbackBright = () => {
     const [isScrolled, setIsScrolled] = useState(false);

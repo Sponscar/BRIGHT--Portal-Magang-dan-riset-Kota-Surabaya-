@@ -82,7 +82,7 @@ const LogbookReviewTab = ({
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody key={`${filterStatus}-${searchQuery}`} className="divide-y divide-slate-100 animate-page-enter">
                         {filteredEntries.map((entry) => (
                             <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-4 px-6 bg-white">
@@ -94,8 +94,7 @@ const LogbookReviewTab = ({
                                 <td className="py-4 px-6 bg-white">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-sm font-medium text-slate-700">{entry.date}</span>
-                                        <span className={`text-[10px] w-fit px-2 py-0.5 rounded-full font-medium ${entry.type === 'Laporan Harian' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
-                                            }`}>
+                                        <span className={`text-[10px] w-fit px-2 py-0.5 rounded-full font-medium bg-blue-50 text-blue-600`}>
                                             {entry.type}
                                         </span>
                                     </div>
@@ -104,7 +103,7 @@ const LogbookReviewTab = ({
                                     {entry.category ? (
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                             ${entry.category === 'Peningkatan Kompetensi SDM' ? 'bg-blue-100 text-blue-800' :
-                                                entry.category === 'Kolaborasi' ? 'bg-purple-100 text-purple-800' :
+                                                entry.category === 'Kolaborasi' ? 'bg-blue-100 text-blue-800' :
                                                     'bg-amber-100 text-amber-800'}`}>
                                             {entry.category}
                                         </span>

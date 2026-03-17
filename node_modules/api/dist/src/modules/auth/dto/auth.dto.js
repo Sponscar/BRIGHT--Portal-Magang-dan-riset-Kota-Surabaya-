@@ -32,6 +32,7 @@ class RegisterDto {
     uniKecamatan;
     nim;
     internshipType;
+    perangkatDaerah;
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
@@ -128,6 +129,11 @@ __decorate([
     (0, class_validator_1.IsEnum)(entities_1.InternshipType),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "internshipType", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "perangkatDaerah", void 0);
 class LoginDto {
     email;
     password;

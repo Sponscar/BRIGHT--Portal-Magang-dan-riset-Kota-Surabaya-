@@ -27,7 +27,11 @@ const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSub
                 icon: 'warning',
                 title: 'Data Belum Lengkap',
                 text: 'Harap isi semua nilai kriteria.',
-                confirmButtonColor: '#2563eb'
+                confirmButtonColor: '#f59e0b',
+                customClass: {
+                    popup: 'validator-popup'
+                },
+                backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
             });
             return; 
         }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Sidebar from '../components/mahasiswa/Sidebar';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import DocumentTimeline from '../components/mahasiswa/DocumentTimeline';
 import DocumentUploadSection from '../components/mahasiswa/DocumentUploadSection';
 import AdministrationForm from '../components/mahasiswa/AdministrationForm';
@@ -19,15 +19,13 @@ const Documents = () => {
     };
 
     return (
-        <div className="flex h-screen w-full bg-background-light text-[#0d141b] font-display overflow-hidden">
-            <Sidebar />
-
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
+        <>
                 <MobileHeader title="Dokumen Magang" />
+                <TopHeader title="Dokumen Magang" subtitle="Lengkapi dokumen magang untuk diverifikasi." />
 
                 <main className="flex-1 overflow-y-auto bg-[#f6f7f8] p-4 lg:p-8">
                     <div className="w-full max-w-7xl mx-auto flex flex-col gap-8 pb-10">
-                        <div className="flex flex-col gap-1 px-1">
+                        <div className="flex flex-col gap-1 px-1 lg:hidden">
                             <h1 className="text-2xl font-bold text-[#0d141b]">Lengkapi Dokumen Magang</h1>
                             <p className="text-sm text-[#4c739a] font-medium max-w-3xl">Untuk melanjutkan proses pengajuan, silahkan unggah dokumen persyaratan berikut. Pastikan dokumen dalam format PDF dan tidak melebihi ukuran maksimal.</p>
                         </div>
@@ -54,8 +52,7 @@ const Documents = () => {
                         </div>
                     </div>
                 </main>
-            </div>
-        </div>
+        </>
     );
 };
 

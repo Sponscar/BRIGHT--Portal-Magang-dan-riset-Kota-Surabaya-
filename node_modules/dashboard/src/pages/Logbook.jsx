@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import Sidebar from '../components/mahasiswa/Sidebar';
+import { useState, useRef } from 'react';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import LogbookTable from '../components/mahasiswa/logbook/LogbookTable';
 import LogbookForm from '../components/mahasiswa/logbook/LogbookForm';
 import LogbookModal from '../components/mahasiswa/logbook/LogbookModal';
 import LogbookPreview from '../components/mahasiswa/logbook/LogbookPreview';
 import KurikulumMagangForm from '../components/mahasiswa/logbook/KurikulumMagangForm';
 import KurikulumMagangTable from '../components/mahasiswa/logbook/KurikulumMagangTable';
+import Swal from 'sweetalert2';
+import { useSidebar } from '../context/SidebarContext';
 
 const Logbook = () => {
+    const { setIsSidebarBlurred } = useSidebar();
     const [entries, setEntries] = useState([
         {
             id: 1,
@@ -75,6 +78,7 @@ const Logbook = () => {
         setEntryType(type);
         setEditingEntry(null);
         setIsModalOpen(true);
+        setIsSidebarBlurred(true);
     };
 
     const handleFormSubmit = (formData, uploadedFile) => {
@@ -124,12 +128,24 @@ const Logbook = () => {
             setEntries(prev => [newEntry, ...prev]);
         }
         closeModal();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: editingEntry ? 'Logbook berhasil diperbarui.' : 'Logbook berhasil ditambahkan.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: { popup: 'validator-popup' },
+            backdrop: `rgba(0,0,0,0.4)`
+        });
     };
 
 
     const handleDelete = (id) => {
         setEntryToDelete(id);
         setIsDeleteModalOpen(true);
+        setIsSidebarBlurred(true);
     };
 
     const confirmDelete = () => {
@@ -137,24 +153,28 @@ const Logbook = () => {
             setEntries(prev => prev.filter(entry => entry.id !== entryToDelete));
             setIsDeleteModalOpen(false);
             setEntryToDelete(null);
+            setIsSidebarBlurred(false);
         }
     };
 
     const cancelDelete = () => {
         setIsDeleteModalOpen(false);
         setEntryToDelete(null);
+        setIsSidebarBlurred(false);
     };
 
     const handleEdit = (entry) => {
         setEditingEntry(entry);
         setEntryType(entry.type);
         setIsModalOpen(true);
+        setIsSidebarBlurred(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingEntry(null);
         setEntryType('Laporan Harian');
+        setIsSidebarBlurred(false);
     };
 
     const getStatusBadge = (status) => {
@@ -177,16 +197,14 @@ const Logbook = () => {
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-            <Sidebar />
-
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
+        <>
                 <MobileHeader title="Logbook" />
+                <TopHeader title="Logbook" subtitle="Catat dan kelola kegiatan magang harian Anda di sini." />
 
                 <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
                     <div className="w-full max-w-6xl mx-auto space-y-8">
-                        {/* Page Header */}
-                        <div className="border-b border-[#f3e7e7] pb-6">
+                        {/* Page Header (Desktop hidden since TopHeader handles it now) */}
+                        <div className="border-b border-[#f3e7e7] pb-6 lg:hidden">
                             <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#1b0d0d]">Logbook</h2>
                             <p className="text-[#9a4c4c] text-sm font-medium mt-1">Catat dan kelola kegiatan magang harian Anda di sini.</p>
                         </div>
@@ -270,12 +288,19 @@ const Logbook = () => {
                         </div>
 
                         {/* Conditional Content */}
+                        <div
+                            key={activeLogbookTab}
+                            className={activeLogbookTab === 'kurikulum' ? 'animate-tab-slide-right' : 'animate-tab-slide-left'}
+                        >
                         {activeLogbookTab === 'logbook' ? (
                             <LogbookTable
                                 entries={entries}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
-                                onPreview={() => setIsPreviewOpen(true)}
+                                onPreview={() => {
+                                    setIsPreviewOpen(true);
+                                    setIsSidebarBlurred(true);
+                                }}
                             />
                         ) : (
                             <div className="space-y-6">
@@ -295,14 +320,15 @@ const Logbook = () => {
                                 />
                             </div>
                         )}
+                        </div>
                     </div>
                 </main>
-            </div>
 
             {/* Modal using Component */}
             <LogbookModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
+                onCloseStart={() => setIsSidebarBlurred(false)}
                 title={editingEntry ? `Edit ${entryType}` : `Form ${entryType}`}
             >
                 <LogbookForm
@@ -315,8 +341,11 @@ const Logbook = () => {
 
             <LogbookPreview
                 isOpen={isPreviewOpen}
+                onClose={() => {
+                    setIsPreviewOpen(false);
+                    setIsSidebarBlurred(false);
+                }}
                 entries={entries}
-                onClose={() => setIsPreviewOpen(false)}
             />
 
             {/* Delete Confirmation Modal */}
@@ -355,7 +384,7 @@ const Logbook = () => {
                     font-variation-settings: 'FILL' 1;
                 }
             `}</style>
-        </div>
+        </>
     );
 };
 

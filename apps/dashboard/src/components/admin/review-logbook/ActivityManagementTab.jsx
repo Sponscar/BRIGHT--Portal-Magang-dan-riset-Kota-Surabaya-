@@ -12,7 +12,7 @@ const ActivityTable = ({ title, description, category, activityTypes, onAdd, onE
                 </div>
                 <button
                     onClick={() => onAdd(category)}
-                    className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-[#d41111] transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
                 >
                     <span className="material-symbols-outlined notranslate text-[20px]">add</span>
                     Tambah Aktivitas
@@ -101,7 +101,17 @@ const CATEGORY_CONFIG = {
 
 const ActivityManagementTab = ({ activityTypes, onAdd, onEdit, onDelete }) => {
     const [selectedFilter, setSelectedFilter] = useState('enabler');
+    const [animationClass, setAnimationClass] = useState('animate-page-enter');
     const tables = CATEGORY_CONFIG[selectedFilter] || [];
+
+    const handleTabChange = (newFilterId) => {
+        if (newFilterId === selectedFilter) return;
+        const currentIndex = FILTER_TABS.findIndex(f => f.id === selectedFilter);
+        const newIndex = FILTER_TABS.findIndex(f => f.id === newFilterId);
+        
+        setAnimationClass(`animate-slide-${newIndex > currentIndex ? 'left' : 'right'}`);
+        setSelectedFilter(newFilterId);
+    };
 
     return (
         <div className="space-y-6">
@@ -110,9 +120,9 @@ const ActivityManagementTab = ({ activityTypes, onAdd, onEdit, onDelete }) => {
                 {FILTER_TABS.map(filter => (
                     <button
                         key={filter.id}
-                        onClick={() => setSelectedFilter(filter.id)}
+                        onClick={() => handleTabChange(filter.id)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedFilter === filter.id
-                            ? 'bg-primary text-white shadow-lg shadow-blue-200'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
                             : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                             }`}
                     >
@@ -122,7 +132,7 @@ const ActivityManagementTab = ({ activityTypes, onAdd, onEdit, onDelete }) => {
             </div>
 
             {/* Activity Tables */}
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div key={selectedFilter} className={`space-y-8 ${animationClass}`}>
                 {tables.map(config => (
                     <ActivityTable
                         key={config.category}

@@ -18,7 +18,7 @@ const CTA = () => {
                 <div className="cta-content">
                     <h2 className="cta-title">Siap Berkontribusi?</h2>
                     <p className="cta-description">
-                        Jadilah bagian dari solusi. Daftarkan proposal magang Anda sekarang dan berkontribusi untuk Kota Surabaya.
+                        Jadilah bagian dari solusi. Daftarkan proposal magang dan riset Anda sekarang dan berkontribusi untuk Kota Surabaya.
                     </p>
                     <button
                         onClick={() => setIsModalOpen(true)}

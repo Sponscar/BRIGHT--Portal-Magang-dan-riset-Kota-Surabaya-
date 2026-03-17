@@ -17,3 +17,5 @@ export { NilaiAkhir } from './nilai-akhir.entity';
 export { Sertifikat } from './sertifikat.entity';
 export { LaporanAkhir, LaporanStatus } from './laporan-akhir.entity';
 export { PerguruanTinggi } from './perguruan-tinggi.entity';
+export { KurikulumMagang } from './kurikulum-magang.entity';
+export { Feedback } from './feedback.entity';

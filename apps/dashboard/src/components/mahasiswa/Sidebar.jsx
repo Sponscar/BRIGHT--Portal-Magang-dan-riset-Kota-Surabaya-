@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useSidebar } from '../../context/SidebarContext';
 
 const Sidebar = ({ devControls }) => {
     const { user, logout } = useAuth();
+    const { isSidebarBlurred } = useSidebar();
     const navigate = useNavigate();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
@@ -31,7 +33,7 @@ const Sidebar = ({ devControls }) => {
 
     return (
         <>
-            <aside className="hidden w-64 flex-col border-r border-blue-800 bg-primary lg:flex justify-between relative overflow-hidden">
+            <aside className={`hidden w-64 flex-col border-r border-blue-800 bg-primary lg:flex justify-between relative overflow-hidden transition-all duration-300 ${isSidebarBlurred ? 'blur-[4px] pointer-events-none' : ''}`}>
                 {/* Elegant Background Motif - Batik Kawung */}
                 <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                     <div
@@ -105,7 +107,7 @@ const Sidebar = ({ devControls }) => {
                                     {({ isActive }) => (
                                         <>
                                             <span className={getIconClass({ isActive })}>groups</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Tim BRIDA</span>
+                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Tim Lokus</span>
                                         </>
                                     )}
                                 </NavLink>
@@ -143,20 +145,20 @@ const Sidebar = ({ devControls }) => {
                         </ul>
                     </nav>
                 </div>
-                <div className="px-3 pb-6 mt-auto mb-12 relative z-10">
+                <div className="mt-auto relative z-10">
                     {devControls && (
-                        <div className="mb-4 p-3 bg-white/10 rounded-xl border border-white/20 text-white text-xs backdrop-blur-sm shadow-sm">
+                        <div className="mx-4 mb-4 p-3 bg-white/10 rounded-xl border border-white/20 text-white text-xs backdrop-blur-sm shadow-sm">
                             <p className="font-bold mb-2 opacity-90 border-b border-white/20 pb-1">Dev Controls (Demo):</p>
                             <div className="opacity-90">{devControls}</div>
                         </div>
                     )}
-                    <div className="bg-white/10 rounded-2xl border border-white/20 p-4 shadow-sm backdrop-blur-sm mt-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="h-11 w-11 rounded-full border-2 border-white bg-white shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+                    <div className="border-t border-white/10 bg-black/10 transition-colors hover:bg-black/20 p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="h-10 w-10 rounded-full border border-white/50 bg-white/10 shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
                                 {localStorage.getItem('user_profile_image') ? (
                                     <img src={localStorage.getItem('user_profile_image')} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
-                                    <span className="material-symbols-outlined notranslate text-primary text-[24px]">person</span>
+                                    <span className="material-symbols-outlined notranslate text-white text-[20px]">person</span>
                                 )}
                             </div>
                             <div className="flex flex-col min-w-0">
@@ -164,9 +166,9 @@ const Sidebar = ({ devControls }) => {
                                 <p className="text-[11px] text-white/70 truncate">{user?.email || 'nana.a@student.com'}</p>
                             </div>
                         </div>
-                        <button onClick={handleLogout} className="group flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 py-2.5 text-white transition-all hover:bg-white hover:text-blue-600 hover:shadow-md">
-                            <span className="material-symbols-outlined notranslate text-[20px] group-hover:scale-110 transition-transform">logout</span>
-                            <span className="text-sm font-bold">Keluar</span>
+                        <button onClick={handleLogout} className="group flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 py-2 text-white transition-all hover:bg-white hover:text-blue-600 hover:shadow-md">
+                            <span className="material-symbols-outlined notranslate text-[18px] group-hover:scale-110 transition-transform">logout</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Keluar</span>
                         </button>
                     </div>
                 </div>
@@ -174,8 +176,8 @@ const Sidebar = ({ devControls }) => {
 
             {/* Logout Confirmation Modal */}
             {isLogoutModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-backdrop-fade">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-modal-zoom">
                         <div className="p-6 text-center">
                             <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <span className="material-symbols-outlined notranslate text-blue-500 text-3xl">logout</span>

@@ -9,4 +9,5 @@ export declare class KriteriaPenilaianService {
     delete(id: string): Promise<{
         message: string;
     }>;
+    private validateBobot;
 }

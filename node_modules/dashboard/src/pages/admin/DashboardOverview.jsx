@@ -10,10 +10,10 @@ const DashboardOverview = () => {
 
     // Mock data
     const stats = [
-        { label: 'Total Pendaftar', value: 156, icon: 'groups', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-        { label: 'Menunggu Verifikasi', value: 23, icon: 'hourglass_top', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-        { label: 'Diterima', value: 98, icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-        { label: 'Ditolak', value: 35, icon: 'cancel', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+        { label: 'Total Pendaftar', value: 156, icon: 'groups', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', darkText: 'text-blue-900' },
+        { label: 'Menunggu Verifikasi', value: 23, icon: 'hourglass_top', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200', darkText: 'text-amber-900' },
+        { label: 'Diterima', value: 98, icon: 'check_circle', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200', darkText: 'text-emerald-900' },
+        { label: 'Ditolak', value: 35, icon: 'cancel', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200', darkText: 'text-red-900' },
     ];
 
     const recentApplications = [

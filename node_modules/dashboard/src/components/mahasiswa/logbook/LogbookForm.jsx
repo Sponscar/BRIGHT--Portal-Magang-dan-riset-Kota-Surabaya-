@@ -34,6 +34,7 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
     const [isCustomAktivitas, setIsCustomAktivitas] = useState(false);
     const [customAktivitas, setCustomAktivitas] = useState('');
     const [uploadedFile, setUploadedFile] = useState(null);
+    const [errors, setErrors] = useState({}); // State for validation errors
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -97,28 +98,52 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
     }, [initialData, entryType]);
 
     const handleCategoryChange = (e) => {
-        setSelectedCategory(e.target.value);
-        setFormData(prev => ({ ...prev, jenisKegiatan: '' }));
-        setIsCustomAktivitas(false);
-        setCustomAktivitas('');
-    };
+        const newCategory = e.target.value;
+        setSelectedCategory(newCategory);
+        
+        // Clear error for category
+        if (errors.kategori) {
+            setErrors(prev => ({ ...prev, kategori: '' }));
+        }
 
+        // Reset jenisKegiatan if category changes and it's not custom
+        if (!isCustomAktivitas) {
+            setFormData(prev => ({ ...prev, jenisKegiatan: '' }));
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Clear error for this field when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+
         if (name === 'jenisKegiatan') {
             if (value === 'Lainnya') {
                 setIsCustomAktivitas(true);
-                setFormData(prev => ({ ...prev, [name]: '' }));
+                setFormData(prev => ({ ...prev, jenisKegiatan: customAktivitas }));
             } else {
                 setIsCustomAktivitas(false);
-                setFormData(prev => ({ ...prev, [name]: value }));
+                setCustomAktivitas('');
+                setFormData(prev => ({ ...prev, jenisKegiatan: value }));
             }
-        } else if (name === 'customAktivitas') {
-            setCustomAktivitas(value);
-            setFormData(prev => ({ ...prev, jenisKegiatan: value }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleCustomAktivitasChange = (e) => {
+        const val = e.target.value;
+        setCustomAktivitas(val);
+        setFormData(prev => ({ ...prev, jenisKegiatan: val }));
+        
+        // Clear error for custom aktivitas
+        if (errors.customAktivitas) {
+            setErrors(prev => ({ ...prev, customAktivitas: '' }));
+        }
+        if (errors.jenisKegiatan) {
+             setErrors(prev => ({ ...prev, jenisKegiatan: '' }));
         }
     };
 
@@ -140,7 +165,11 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                     text: isJournal
                         ? 'Hanya format PDF yang didukung untuk Jurnal.'
                         : 'Format file tidak didukung. Gunakan PNG, JPG, atau PDF.',
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -150,7 +179,11 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                     icon: 'error',
                     title: 'Ukuran Terlalu Besar',
                     text: `Ukuran file terlalu besar. Maksimal ${isJournal ? '5MB' : '2MB'}.`,
-                    confirmButtonColor: '#2563eb'
+                    confirmButtonColor: '#ef4444',
+                    customClass: {
+                        popup: 'validator-popup'
+                    },
+                    backdrop: `rgba(0,0,0,0.4) backdrop-filter: blur(4px)`
                 });
                 return;
             }
@@ -183,8 +216,89 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // 1. Common Fields Validation
+        if (!formData.tanggal) newErrors.tanggal = 'Tanggal wajib diisi.';
+        if (!formData.uraian || !formData.uraian.trim()) newErrors.uraian = entryType === 'Laporan Harian' ? 'Keterangan urain kegiatan wajib diisi.' : 'Judul jurnal wajib diisi.';
+
+        // 2. Laporan Harian Specific Validation
+        if (entryType === 'Laporan Harian') {
+            if (!formData.jamMulai) newErrors.jamMulai = 'Jam mulai wajib diisi.';
+            if (!formData.jamSelesai) newErrors.jamSelesai = 'Jam selesai wajib diisi.';
+            
+            // Validate time range if both exist
+            if (formData.jamMulai && formData.jamSelesai) {
+                 const start = new Date(`1970-01-01T${formData.jamMulai}:00`);
+                 const end = new Date(`1970-01-01T${formData.jamSelesai}:00`);
+                 if (end <= start) {
+                     newErrors.jamSelesai = 'Jam selesai harus lebih besar dari jam mulai.';
+                 }
+            }
+
+            if (!selectedCategory) newErrors.kategori = 'Pilih jenis penugasan.';
+            
+            if (isCustomAktivitas) {
+                if (!customAktivitas || !customAktivitas.trim()) {
+                    newErrors.customAktivitas = 'Jenis aktivitas lainnya wajib diisi.';
+                }
+            } else {
+                if (!formData.jenisKegiatan) newErrors.jenisKegiatan = 'Pilih jenis aktivitas.';
+            }
+
+            if (!formData.pembelajaran || !formData.pembelajaran.trim()) newErrors.pembelajaran = 'Output kegiatan wajib diisi.';
+        }
+
+        // 3. Dokumen Teknis Specific Validation
+        if (entryType === 'Dokumen Teknis') {
+             if (!formData.jenisKegiatan) newErrors.jenisKegiatan = 'Pilih jenis dokumen.';
+        }
+
+        setErrors(newErrors);
+
+        // Auto-scroll to first error
+        if (Object.keys(newErrors).length > 0) {
+            const firstErrorField = Object.keys(newErrors)[0];
+            // map internal state names to DOM ids where they differ
+            const elementIdMap = {
+                 kategori: 'kategori',
+                 tanggal: 'tanggal',
+                 jamMulai: 'jamMulai',
+                 jamSelesai: 'jamSelesai',
+                 jenisKegiatan: 'jenisKegiatan',
+                 customAktivitas: 'customAktivitasInput',
+                 uraian: 'uraian',
+                 pembelajaran: 'pembelajaran'
+            };
+            
+            const elementId = elementIdMap[firstErrorField] || firstErrorField;
+            const element = document.getElementById(elementId);
+            
+            if (element) {
+                // Smooth scroll with a slight offset for header visibility
+                const headerOffset = 100; // adjust based on modal header height
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                // Assuming the scrollable container is the closest parent with overflow-y-auto, 
+                // or just falling back to element.scrollIntoView if we can't easily find it
+                // For modal popups, sometimes scrollIntoView is safer:
+                element.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmitInternal = (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         const total = calculateTotalHours(formData.jamMulai, formData.jamSelesai);
         const submittedData = {
             ...formData,
@@ -205,10 +319,17 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         name="tanggal"
                         value={formData.tanggal}
                         onChange={handleInputChange}
-                        required
                         disabled={viewMode}
-                        className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                            errors.tanggal ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                        }`}
                     />
+                    {errors.tanggal && (
+                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                            {errors.tanggal}
+                        </p>
+                    )}
                 </div>
                 {entryType === 'Laporan Harian' && (
                     <>
@@ -220,7 +341,9 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                 value={selectedCategory}
                                 onChange={handleCategoryChange}
                                 disabled={viewMode}
-                                className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                    errors.kategori ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                }`}
                             >
                                 <option value="">Pilih Penugasan</option>
                                 {activityCategories.map(cat => (
@@ -231,6 +354,12 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                     </optgroup>
                                 ))}
                             </select>
+                            {errors.kategori && (
+                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                    {errors.kategori}
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jenisKegiatan">Jenis Aktivitas</label>
@@ -239,32 +368,51 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                 name="jenisKegiatan"
                                 value={isCustomAktivitas ? 'Lainnya' : formData.jenisKegiatan}
                                 onChange={handleInputChange}
-                                required={!isCustomAktivitas}
                                 disabled={viewMode || !selectedCategory}
-                                className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                    errors.jenisKegiatan ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                }`}
                             >
-                                <option value="">Pilih Kegiatan</option>
+                                <option value="" disabled>Pilih Aktivitas</option>
                                 {initialActivityTypes
                                     .filter(act => act.category === selectedCategory)
                                     .map(act => (
                                         <option key={act.id} value={act.name}>{act.name}</option>
                                     ))
                                 }
-                                <option value="Lainnya">Lainnya</option>
+                                <option value="Lainnya">Lainnya... (Tulis Sendiri)</option>
                             </select>
-                            {isCustomAktivitas && (
-                                <input
-                                    type="text"
-                                    name="customAktivitas"
-                                    value={customAktivitas}
-                                    onChange={handleInputChange}
-                                    placeholder="Tuliskan jenis aktivitas..."
-                                    required
-                                    disabled={viewMode}
-                                    className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 mt-2 disabled:bg-slate-50 disabled:text-slate-500"
-                                />
+                            {errors.jenisKegiatan && (
+                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                    {errors.jenisKegiatan}
+                                </p>
                             )}
                         </div>
+
+                        {/* Custom Input for 'Lainnya' */}
+                        {isCustomAktivitas && (
+                            <div className="flex flex-col gap-1.5 animate-in slide-in-from-top-1 fade-in duration-200">
+                                <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="customAktivitasInput">Tulis Jenis Aktivitas <span className="text-red-500">*</span></label>
+                                <input
+                                    type="text"
+                                    id="customAktivitasInput"
+                                    value={customAktivitas}
+                                    onChange={handleCustomAktivitasChange}
+                                    disabled={viewMode}
+                                    placeholder="Contoh: Mengatur Database Server"
+                                    className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                        errors.customAktivitas ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                    }`}
+                                />
+                                {errors.customAktivitas && (
+                                    <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                        <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                        {errors.customAktivitas}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </>
                 )}
                 {entryType === 'Laporan Harian' && (
@@ -277,10 +425,17 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                 name="jamMulai"
                                 value={formData.jamMulai}
                                 onChange={handleInputChange}
-                                required
                                 disabled={viewMode}
-                                className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                    errors.jamMulai ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                }`}
                             />
+                            {errors.jamMulai && (
+                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                    {errors.jamMulai}
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jamSelesai">Jam Selesai</label>
@@ -290,10 +445,17 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                 name="jamSelesai"
                                 value={formData.jamSelesai}
                                 onChange={handleInputChange}
-                                required
                                 disabled={viewMode}
-                                className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                    errors.jamSelesai ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                }`}
                             />
+                            {errors.jamSelesai && (
+                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                    {errors.jamSelesai}
+                                </p>
+                            )}
                         </div>
                     </>
                 )}
@@ -307,7 +469,7 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                     const total = calculateTotalHours(formData.jamMulai, formData.jamSelesai);
                                     if (!total) return <span className="text-slate-400 italic">Isi jam mulai & selesai</span>;
                                     return (
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-600/10 text-blue-600 text-xs font-bold rounded-full">
                                             <span className="material-symbols-outlined notranslate text-[14px]">schedule</span>
                                             {total.hours > 0 ? `${total.hours} jam` : ''}{total.hours > 0 && total.minutes > 0 ? ' ' : ''}{total.minutes > 0 ? `${total.minutes} menit` : ''}{total.hours === 0 && total.minutes === 0 ? '0 menit' : ''}
                                         </span>
@@ -348,7 +510,7 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                                     value={formData.mataKuliahKonversi}
                                     onChange={handleInputChange}
                                     disabled={viewMode}
-                                    className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                                    className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 px-3 disabled:bg-slate-50 disabled:text-slate-500"
                                 >
                                     <option value="">Pilih Mata Kuliah</option>
                                     {mataKuliahOptions.map(mk => (
@@ -375,12 +537,13 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         name="uraian"
                         value={formData.uraian}
                         onChange={handleInputChange}
-                        placeholder="Deskripsikan kegiatan yang Anda lakukan hari ini secara detail..."
-                        rows={4}
-                        required
                         disabled={viewMode}
-                        className="w-full text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary resize-none p-3 disabled:bg-slate-50 disabled:text-slate-500"
-                    />
+                        rows="4"
+                        placeholder="Deskripsikan urain dan keterangan kegiatan yang anda lakukan secara detail."
+                        className={`w-full text-sm p-4 rounded-xl border-2 bg-white text-slate-800 placeholder-slate-400 shadow-sm focus:ring-2 focus:ring-blue-600/20 hover:border-slate-300 transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500 ${
+                            errors.uraian ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400' : 'border-slate-200 focus:border-blue-600'
+                        }`}
+                    ></textarea>
                 ) : (
                     <input
                         type="text"
@@ -389,10 +552,17 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         value={formData.uraian}
                         onChange={handleInputChange}
                         placeholder="Masukkan judul jurnal..."
-                        required
                         disabled={viewMode}
-                        className="w-full h-10 text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary px-3 disabled:bg-slate-50 disabled:text-slate-500"
+                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                            errors.uraian ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                        }`}
                     />
+                )}
+                {errors.uraian && (
+                    <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-top-1">
+                        <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                        {errors.uraian}
+                    </p>
                 )}
             </div>
 
@@ -408,10 +578,17 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         onChange={handleInputChange}
                         placeholder="Jelaskan apa saja yang Anda pelajari atau pahami dari kegiatan hari ini..."
                         rows={3}
-                        required
                         disabled={viewMode}
-                        className="w-full text-sm rounded-lg border-[#e0d0d0] bg-white text-[#1b0d0d] shadow-sm focus:border-primary focus:ring-1 focus:ring-primary resize-none p-3 disabled:bg-slate-50 disabled:text-slate-500"
+                        className={`w-full text-sm p-4 rounded-xl border-2 bg-white text-slate-800 placeholder-slate-400 shadow-sm focus:ring-2 focus:ring-blue-600/20 hover:border-slate-300 transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500 ${
+                            errors.pembelajaran ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400' : 'border-slate-200 focus:border-blue-600'
+                        }`}
                     />
+                    {errors.pembelajaran && (
+                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-top-1">
+                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                            {errors.pembelajaran}
+                        </p>
+                    )}
                 </div>
             )}
 
@@ -433,9 +610,9 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         className={`mt-0.5 flex justify-center rounded-lg border-2 border-dashed border-[#e0d0d0] px-6 py-8 hover:bg-gray-50/50 hover:border-primary/50 transition-colors bg-white group ${viewMode ? 'cursor-default' : 'cursor-pointer'}`}
                     >
                         <div className="text-center">
-                            <span className={`material-symbols-outlined notranslate mx-auto text-gray-300 ${!viewMode && 'group-hover:text-primary'} transition-colors text-4xl mb-2`}>cloud_upload</span>
+                            <span className={`material-symbols-outlined notranslate mx-auto text-gray-300 ${!viewMode && 'group-hover:text-blue-600'} transition-colors text-4xl mb-2`}>cloud_upload</span>
                             <div className="flex text-sm leading-6 text-gray-600 justify-center">
-                                <span className={`relative rounded-md font-bold text-primary ${!viewMode && 'hover:text-blue-700 cursor-pointer'}`}>Upload a file</span>
+                                <span className={`relative rounded-md font-bold text-blue-600 ${!viewMode && 'hover:text-blue-700 cursor-pointer'}`}>Upload a file</span>
                                 <p className="pl-1">or drag and drop</p>
                             </div>
                             <p className="text-[11px] leading-5 text-gray-500">
@@ -447,7 +624,7 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                     <div className="mt-0.5 rounded-lg border border-[#e0d0d0] bg-white p-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-primary">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                                     <span className="material-symbols-outlined notranslate text-[24px]">{getFileIcon(uploadedFile)}</span>
                                 </div>
                                 <div>
@@ -490,7 +667,7 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                         </button>
                         <button
                             type="submit"
-                            className="px-5 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-[#d41111] transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
+                            className="px-5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-200/50 flex items-center gap-2"
                         >
                             <span className="material-symbols-outlined notranslate text-[16px]">save</span>
                             {initialData ? 'Update Logbook' : 'Simpan Logbook'}

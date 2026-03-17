@@ -1,10 +1,12 @@
 import React from 'react';
+import ModalPortal from '../ModalPortal';
 
 const ValidationAlertModal = ({ isOpen, message, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4`}>
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
                 {/* Header */}
                 <div className="bg-amber-500 px-6 py-4 flex flex-col items-center justify-center gap-2">
@@ -32,6 +34,7 @@ const ValidationAlertModal = ({ isOpen, message, onClose }) => {
                 </div>
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

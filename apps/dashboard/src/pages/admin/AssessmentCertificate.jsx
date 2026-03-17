@@ -37,8 +37,19 @@ const AssessmentCertificate = () => {
     ];
 
     // State
+    const MAIN_TABS = ['penilaian', 'sertifikat'];
     const [activeTab, setActiveTab] = useState('penilaian');
+    const [animationClass, setAnimationClass] = useState('animate-page-enter');
     const [searchTerm, setSearchTerm] = useState('');
+
+    const handleTabChange = (newTab) => {
+        if (newTab === activeTab) return;
+        const currentIndex = MAIN_TABS.indexOf(activeTab);
+        const newIndex = MAIN_TABS.indexOf(newTab);
+        setAnimationClass(`animate-slide-${newIndex > currentIndex ? 'left' : 'right'}`);
+        setActiveTab(newTab);
+        setSearchTerm('');
+    };
 
     // --- PENILAIAN STATE ---
     // Mock: Setiap assessment = penilaian seorang staff (perilaku + kinerja)
@@ -240,7 +251,14 @@ const AssessmentCertificate = () => {
                     title: 'Terhapus!',
                     text: 'Kriteria berhasil dihapus.',
                     icon: 'success',
-                    confirmButtonColor: '#2563eb'
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    backdrop: `
+                      rgba(0,0,0,0.4)
+                      backdrop-filter: blur(4px)
+                    `,
+                    customClass: { popup: 'validator-popup' }
                 });
             }
         });
@@ -331,11 +349,11 @@ const AssessmentCertificate = () => {
                     {/* Tabs */}
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-                            <button onClick={() => { setActiveTab('penilaian'); setSearchTerm(''); }}
+                            <button onClick={() => handleTabChange('penilaian')}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'penilaian' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                                 Penilaian
                             </button>
-                            <button onClick={() => { setActiveTab('sertifikat'); setSearchTerm(''); }}
+                            <button onClick={() => handleTabChange('sertifikat')}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'sertifikat' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                                 Sertifikat
                             </button>
@@ -343,14 +361,14 @@ const AssessmentCertificate = () => {
                         <div className="flex gap-2">
                             {activeTab === 'penilaian' && (
                                 <button onClick={openCriteriaModal}
-                                    className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all hover:text-primary"
+                                    className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-50 hover:text-primary hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 active:scale-95"
                                     title="Kelola Kriteria Penilaian">
-                                    <span className="material-symbols-outlined notranslate text-[20px]">settings</span>
+                                    <span className="material-symbols-outlined notranslate text-[20px] transition-transform group-hover:rotate-90">settings</span>
                                     <span className="hidden sm:inline">Kelola Kriteria</span>
                                 </button>
                             )}
                             <button onClick={activeTab === 'penilaian' ? openAssessmentModal : openCertModal}
-                                className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                                className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:-translate-y-0.5 active:scale-95">
                                 <span className="material-symbols-outlined notranslate text-[20px]">{activeTab === 'penilaian' ? 'rate_review' : 'workspace_premium'}</span>
                                 {activeTab === 'penilaian' ? 'Beri Penilaian' : 'Terbitkan Sertifikat'}
                             </button>
@@ -360,25 +378,25 @@ const AssessmentCertificate = () => {
                     {/* Stats Cards - Penilaian Tab */}
                     {activeTab === 'penilaian' && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                                 <p className="text-xs font-medium text-slate-500 uppercase">Total Penilaian</p>
                                 <p className="text-2xl font-bold text-slate-900 mt-1">{assessmentStats.total}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                                 <p className="text-xs font-medium text-emerald-600 uppercase">A — Sangat Baik (≥86)</p>
                                 <p className="text-2xl font-bold text-emerald-700 mt-1">{assessmentStats.excellent}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                                 <p className="text-xs font-medium text-blue-600 uppercase">B — Baik (71-85)</p>
                                 <p className="text-2xl font-bold text-blue-700 mt-1">{assessmentStats.good}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                                 <p className="text-xs font-medium text-amber-600 uppercase">C — Cukup (51-70)</p>
                                 <p className="text-2xl font-bold text-amber-700 mt-1">{assessmentStats.sufficient}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <p className="text-xs font-medium text-blue-600 uppercase">D — Perlu Perbaikan (&lt;51)</p>
-                                <p className="text-2xl font-bold text-blue-700 mt-1">{assessmentStats.poor}</p>
+                            <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                                <p className="text-xs font-medium text-rose-600 uppercase">D — Perlu Perbaikan (&lt;51)</p>
+                                <p className="text-2xl font-bold text-rose-700 mt-1">{assessmentStats.poor}</p>
                             </div>
                         </div>
                     )}
@@ -403,19 +421,21 @@ const AssessmentCertificate = () => {
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined notranslate text-[20px]">search</span>
                             <input type="text"
                                 placeholder={activeTab === 'penilaian' ? 'Cari nama atau universitas...' : 'Cari nama atau nomor sertifikat...'}
-                                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                                value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setAnimationClass('animate-page-enter'); }}
                                 className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
                             />
                         </div>
                     </div>
 
                     {/* Tables */}
-                    {activeTab === 'penilaian' && (
-                        <AssessmentTable assessments={filteredAssessments} onViewDetail={setViewDetail} formatDate={formatDate} getScoreColor={getScoreColor} getScoreLabel={getScoreLabel} />
-                    )}
-                    {activeTab === 'sertifikat' && (
-                        <CertificateTable certificates={filteredCertificates} formatDate={formatDate} formatFileSize={formatFileSize} onPreview={handlePreviewCert} />
-                    )}
+                    <div key={`${activeTab}-${searchTerm}`} className={animationClass}>
+                        {activeTab === 'penilaian' && (
+                            <AssessmentTable assessments={filteredAssessments} onViewDetail={setViewDetail} formatDate={formatDate} getScoreColor={getScoreColor} getScoreLabel={getScoreLabel} />
+                        )}
+                        {activeTab === 'sertifikat' && (
+                            <CertificateTable certificates={filteredCertificates} formatDate={formatDate} formatFileSize={formatFileSize} onPreview={handlePreviewCert} />
+                        )}
+                    </div>
                 </div>
 
                 {/* Modals */}

@@ -35,6 +35,7 @@ export declare class Mahasiswa {
     internshipType?: InternshipType;
     internshipDuration?: string;
     conversionType?: string;
+    perangkatDaerah?: string;
     profileImageUrl?: string;
     status: MahasiswaStatus;
     tusiBrida?: TusiBrida;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import Sidebar from '../components/mahasiswa/Sidebar';
 import MobileHeader from '../components/mahasiswa/MobileHeader';
+import TopHeader from '../components/mahasiswa/TopHeader';
 import AttendanceHistoryTable from '../components/mahasiswa/attendance/AttendanceHistoryTable';
 import PermissionHistoryTable from '../components/mahasiswa/attendance/PermissionHistoryTable';
 import PermissionModal from '../components/mahasiswa/attendance/PermissionModal';
@@ -42,14 +42,13 @@ const Attendance = () => {
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#fafafa] text-[#1b0d0d] font-display overflow-hidden">
-            <Sidebar />
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
+        <>
                 <MobileHeader title="Presensi" />
+                <TopHeader title="Presensi" subtitle="Catat kehadiran harian Anda atau ajukan izin jika berhalangan." />
                 <main className="flex-1 overflow-y-auto bg-[#fafafa] p-6 lg:p-8">
                     <div className="w-full max-w-6xl mx-auto space-y-8">
-                        {/* Page Header */}
-                        <div className="border-b border-[#f3e7e7] pb-6">
+                        {/* Page Header (Desktop hidden since TopHeader handles it now, kept for mobile if needed or removed) */}
+                        <div className="border-b border-[#f3e7e7] pb-6 lg:hidden">
                             <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#1b0d0d]">Presensi</h2>
                             <p className="text-[#9a4c4c] text-sm font-medium mt-1">Catat kehadiran harian Anda atau ajukan izin jika berhalangan.</p>
                         </div>
@@ -90,8 +89,7 @@ const Attendance = () => {
                 <PermissionModal isOpen={showPermissionModal} permissionType={permissionType} permissionDescription={permissionDescription} permissionLink={permissionLink}
                     onTypeChange={setPermissionType} onDescriptionChange={setPermissionDescription} onLinkChange={setPermissionLink}
                     onClose={() => setShowPermissionModal(false)} onSubmit={handlePermissionSubmit} />
-            </div>
-        </div>
+        </>
     );
 };
 

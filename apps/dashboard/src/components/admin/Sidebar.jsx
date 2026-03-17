@@ -31,7 +31,7 @@ const Sidebar = () => {
 
     return (
         <>
-            <aside className="hidden w-64 flex-col border-r border-blue-800 bg-primary lg:flex justify-between h-screen sticky top-0 relative overflow-hidden">
+            <aside className="hidden w-64 flex-col border-r border-blue-800 bg-primary lg:flex justify-between relative overflow-hidden">
                 {/* Elegant Background Motif - Batik Kawung */}
                 <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                     <div
@@ -87,7 +87,7 @@ const Sidebar = () => {
                                     {({ isActive }) => (
                                         <>
                                             <span className={getIconClass({ isActive })}>groups</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Data Tim BRIDA</span>
+                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Data Tim Lokus</span>
                                         </>
                                     )}
                                 </NavLink>
@@ -136,20 +136,20 @@ const Sidebar = () => {
                         </ul>
                     </nav>
                 </div>
-                <div className="px-3 pb-6 mt-auto mb-12 relative z-10">
-                    <div className="bg-white/10 rounded-2xl border border-white/20 p-4 shadow-sm backdrop-blur-sm mt-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="h-11 w-11 rounded-full border-2 border-white bg-white shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
-                                <span className="material-symbols-outlined notranslate text-primary text-[24px]">admin_panel_settings</span>
+                <div className="mt-auto relative z-10 border-t border-white/10 bg-black/10 transition-colors hover:bg-black/20">
+                    <div className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="h-10 w-10 rounded-full border border-white/50 bg-white/10 shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+                                <span className="material-symbols-outlined notranslate text-white text-[20px]">admin_panel_settings</span>
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <p className="text-sm font-bold text-white truncate">{user?.name || 'Admin'}</p>
                                 <p className="text-[11px] text-white/70 truncate">{user?.email || 'admin@brida.surabaya.go.id'}</p>
                             </div>
                         </div>
-                        <button onClick={handleLogout} className="group flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 py-2.5 text-white transition-all hover:bg-white hover:text-blue-600 hover:shadow-md">
-                            <span className="material-symbols-outlined notranslate text-[20px] group-hover:scale-110 transition-transform">logout</span>
-                            <span className="text-sm font-bold">Keluar</span>
+                        <button onClick={handleLogout} className="group flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 py-2 text-white transition-all hover:bg-white hover:text-blue-600 hover:shadow-md">
+                            <span className="material-symbols-outlined notranslate text-[18px] group-hover:scale-110 transition-transform">logout</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Keluar</span>
                         </button>
                     </div>
                 </div>
@@ -157,7 +157,7 @@ const Sidebar = () => {
 
             {/* Logout Confirmation Modal */}
             {isLogoutModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="p-6 text-center">
                             <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">

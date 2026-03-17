@@ -87,6 +87,23 @@ const AdministrationForm = ({ onSubmit }) => {
             newErrors.declaration = 'Anda harus menyetujui pernyataan ini.';
         }
         setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorField = Object.keys(newErrors)[0];
+                const element = document.getElementById(firstErrorField);
+                if (element) {
+                    const headerOffset = 100;
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - headerOffset;
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            }, 50);
+        }
+
         return Object.keys(newErrors).length === 0;
     };
 
@@ -145,7 +162,7 @@ const AdministrationForm = ({ onSubmit }) => {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
                     {/* 1. Surat Balasan Resmi */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2" id="needsReplyLetter">
                         <label className="text-sm font-bold text-slate-800">
                             Apakah kampus Anda membutuhkan surat balasan resmi dari BRIDA?
                             <span className="text-blue-500 ml-0.5">*</span>
@@ -175,7 +192,7 @@ const AdministrationForm = ({ onSubmit }) => {
                             ))}
                         </div>
                         {errors.needsReplyLetter && (
-                            <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                            <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                 <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                 {errors.needsReplyLetter}
                             </p>
@@ -183,7 +200,7 @@ const AdministrationForm = ({ onSubmit }) => {
                     </div>
 
                     {/* 2. Deskripsi Proposal */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2" id="proposalDescription">
                         <label className="text-sm font-bold text-slate-800">
                             Deskripsi Singkat Proposal Anda
                             <span className="text-blue-500 ml-0.5">*</span>
@@ -193,7 +210,7 @@ const AdministrationForm = ({ onSubmit }) => {
                             rows={6}
                             placeholder="Tuliskan deskripsi singkat mengenai proposal magang Anda..."
                             className={`w-full px-4 py-3 border-2 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 outline-none resize-y transition-colors ${errors.proposalDescription
-                                ? 'border-blue-300 focus:border-blue-400 bg-blue-50/30'
+                                ? 'border-rose-300 focus:border-rose-400 bg-rose-50/30'
                                 : 'border-slate-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/10'
                                 }`}
                             value={formData.proposalDescription}
@@ -201,7 +218,7 @@ const AdministrationForm = ({ onSubmit }) => {
                         />
                         <div className="flex items-center justify-between">
                             {errors.proposalDescription ? (
-                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                                <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                     <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                     {errors.proposalDescription}
                                 </p>
@@ -216,7 +233,7 @@ const AdministrationForm = ({ onSubmit }) => {
                     </div>
 
                     {/* 3. Topik yang Dibahas */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2" id="topic">
                         <label className="text-sm font-bold text-slate-800">
                             Topik yang Dibahas
                             <span className="text-blue-500 ml-0.5">*</span>
@@ -226,14 +243,14 @@ const AdministrationForm = ({ onSubmit }) => {
                             rows={4}
                             placeholder="Contoh: Pengembangan sistem informasi berbasis web untuk pengelolaan data magang, meliputi desain UI/UX, implementasi backend, dan pengujian..."
                             className={`w-full px-4 py-3 border-2 rounded-xl text-sm text-slate-700 placeholder:text-slate-300 outline-none resize-y transition-colors ${errors.topic
-                                ? 'border-blue-300 focus:border-blue-400 bg-blue-50/30'
+                                ? 'border-rose-300 focus:border-rose-400 bg-rose-50/30'
                                 : 'border-slate-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/10'
                                 }`}
                             value={formData.topic}
                             onChange={(e) => handleChange('topic', e.target.value)}
                         />
                         {errors.topic && (
-                            <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                            <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                 <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                 {errors.topic}
                             </p>
@@ -241,7 +258,7 @@ const AdministrationForm = ({ onSubmit }) => {
                     </div>
 
                     {/* 4. Hasil yang Diharapkan */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2" id="expectedResults">
                         <label className="text-sm font-bold text-slate-800">
                             Hasil yang Diharapkan
                             <span className="text-blue-500 ml-0.5">*</span>
@@ -282,7 +299,7 @@ const AdministrationForm = ({ onSubmit }) => {
                             ))}
                         </div>
                         {errors.expectedResults && (
-                            <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                            <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                 <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                 {errors.expectedResults}
                             </p>
@@ -292,7 +309,7 @@ const AdministrationForm = ({ onSubmit }) => {
                     {/* 5. Mata Kuliah Konversi - Pertanyaan & Dropdown */}
                     <div className="flex flex-col gap-4">
                         {/* Pertanyaan Konversi */}
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2" id="hasCourseConversion">
                             <label className="text-sm font-bold text-slate-800">
                                 Apakah ada Mata Kuliah yang Dikonversi Terkait dengan Magang BRIDA?
                                 <span className="text-blue-500 ml-0.5">*</span>
@@ -322,7 +339,7 @@ const AdministrationForm = ({ onSubmit }) => {
                                 ))}
                             </div>
                             {errors.hasCourseConversion && (
-                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                                <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                     <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                     {errors.hasCourseConversion}
                                 </p>
@@ -331,7 +348,7 @@ const AdministrationForm = ({ onSubmit }) => {
 
                         {/* Dropdown (Hanya muncul jika 'Iya') */}
                         {formData.hasCourseConversion === 'Iya' && (
-                            <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-4 duration-300" id="courseConversion">
                                 <label className="text-sm font-bold text-slate-800">
                                     Mata Kuliah yang Akan Dikonversi
                                     <span className="text-blue-500 ml-0.5">*</span>
@@ -361,7 +378,7 @@ const AdministrationForm = ({ onSubmit }) => {
 
                                 {/* Add new course input */}
                                 <div className={`flex items-center gap-2 px-4 py-3 border-2 rounded-xl transition-colors ${errors.courseConversion
-                                    ? 'border-blue-300 bg-blue-50/30'
+                                    ? 'border-rose-300 bg-rose-50/30'
                                     : 'border-slate-200 hover:border-slate-300 bg-white'
                                     }`}>
                                     <span className="material-symbols-outlined notranslate text-[18px] text-primary">add_circle</span>
@@ -389,7 +406,7 @@ const AdministrationForm = ({ onSubmit }) => {
                                 </div>
 
                                 {errors.courseConversion && (
-                                    <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                                    <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                         <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                         {errors.courseConversion}
                                     </p>
@@ -399,11 +416,11 @@ const AdministrationForm = ({ onSubmit }) => {
                     </div>
 
                     {/* 6. Pernyataan */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2" id="declaration">
                         <div className={`p-5 rounded-xl border-2 transition-all ${formData.declaration
                             ? 'border-emerald-300 bg-emerald-50/50'
                             : errors.declaration
-                                ? 'border-blue-300 bg-blue-50/30'
+                                ? 'border-rose-300 bg-rose-50/30'
                                 : 'border-slate-200 bg-slate-50/50'
                             }`}>
                             <label className="flex items-start gap-3 cursor-pointer">
@@ -422,7 +439,7 @@ const AdministrationForm = ({ onSubmit }) => {
                             </label>
                         </div>
                         {errors.declaration && (
-                            <p className="text-xs text-blue-500 font-medium flex items-center gap-1">
+                            <p className="text-xs text-rose-500 font-medium flex items-center gap-1">
                                 <span className="material-symbols-outlined notranslate text-[14px]">error</span>
                                 {errors.declaration}
                             </p>

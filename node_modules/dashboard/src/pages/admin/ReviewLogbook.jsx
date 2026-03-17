@@ -9,6 +9,7 @@ import ActivityModal from '../../components/admin/review-logbook/ActivityModal';
 import DeleteActivityModal from '../../components/admin/review-logbook/DeleteActivityModal';
 import KurikulumReviewTab from '../../components/admin/review-logbook/KurikulumReviewTab';
 import KurikulumDetailModal from '../../components/admin/review-logbook/KurikulumDetailModal';
+import Swal from 'sweetalert2';
 
 const ReviewLogbook = () => {
     // Mock Data for Logbook Entries
@@ -132,6 +133,19 @@ const ReviewLogbook = () => {
             return entry;
         }));
         setIsModalOpen(false);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: `Logbook telah berhasil diproses.`,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            backdrop: `
+              rgba(0,0,0,0.4)
+              backdrop-filter: blur(4px)
+            `,
+            customClass: { popup: 'validator-popup' }
+        });
     };
 
     const getStatusBadge = (status) => {
@@ -152,7 +166,18 @@ const ReviewLogbook = () => {
         );
     };
 
+    const MAIN_TABS = ['review', 'activities', 'kurikulum'];
     const [activeTab, setActiveTab] = useState('review');
+    const [mainSlideDirection, setMainSlideDirection] = useState('left');
+
+    const handleMainTabChange = (newTab) => {
+        if (newTab === activeTab) return;
+        const currentIndex = MAIN_TABS.indexOf(activeTab);
+        const newIndex = MAIN_TABS.indexOf(newTab);
+        
+        setMainSlideDirection(newIndex > currentIndex ? 'left' : 'right');
+        setActiveTab(newTab);
+    };
 
     // Activity Types Management
     const [activityTypes, setActivityTypes] = useState(initialActivityTypes);
@@ -177,6 +202,19 @@ const ReviewLogbook = () => {
         setCurrentActivity({ name: '', description: '' });
         setEditingActivityId(null);
         setCurrentCategory('sdm');
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Tersimpan',
+            text: `Data aktivitas berhasil disimpan.`,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            backdrop: `
+              rgba(0,0,0,0.4)
+              backdrop-filter: blur(4px)
+            `,
+            customClass: { popup: 'validator-popup' }
+        });
     };
 
     const handleEditActivity = (activity) => {
@@ -199,6 +237,19 @@ const ReviewLogbook = () => {
             setActivityTypes(prev => prev.filter(type => type.id !== activityToDelete.id));
             setIsDeleteModalOpen(false);
             setActivityToDelete(null);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Dihapus',
+                text: `Data aktivitas berhasil dihapus.`,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                backdrop: `
+                  rgba(0,0,0,0.4)
+                  backdrop-filter: blur(4px)
+                `,
+                customClass: { popup: 'validator-popup' }
+            });
         }
     };
 
@@ -235,7 +286,7 @@ const ReviewLogbook = () => {
                     <div className="border-b border-slate-200 mb-6">
                         <nav className="-mb-px flex space-x-8">
                             <button
-                                onClick={() => setActiveTab('review')}
+                                onClick={() => handleMainTabChange('review')}
                                 className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'review'
                                     ? 'border-primary text-primary'
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -244,7 +295,7 @@ const ReviewLogbook = () => {
                                 Review Logbook
                             </button>
                             <button
-                                onClick={() => setActiveTab('activities')}
+                                onClick={() => handleMainTabChange('activities')}
                                 className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'activities'
                                     ? 'border-primary text-primary'
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -253,7 +304,7 @@ const ReviewLogbook = () => {
                                 Kelola Jenis Aktivitas
                             </button>
                             <button
-                                onClick={() => setActiveTab('kurikulum')}
+                                onClick={() => handleMainTabChange('kurikulum')}
                                 className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'kurikulum'
                                     ? 'border-primary text-primary'
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -264,34 +315,36 @@ const ReviewLogbook = () => {
                         </nav>
                     </div>
 
-                    {activeTab === 'review' ? (
-                        <LogbookReviewTab
-                            entries={entries}
-                            filteredEntries={filteredEntries}
-                            searchQuery={searchQuery}
-                            setSearchQuery={setSearchQuery}
-                            filterStatus={filterStatus}
-                            setFilterStatus={setFilterStatus}
-                            getStatusBadge={getStatusBadge}
-                            onViewDetail={handleViewDetail}
-                            onAction={handleAction}
-                        />
-                    ) : activeTab === 'activities' ? (
-                        <ActivityManagementTab
-                            activityTypes={activityTypes}
-                            onAdd={openAddActivityModal}
-                            onEdit={handleEditActivity}
-                            onDelete={handleDeleteActivity}
-                        />
-                    ) : (
-                        <KurikulumReviewTab
-                            students={kurikulumStudents}
-                            onViewDetail={(student) => {
-                                setSelectedKurikulumStudent(student);
-                                setIsKurikulumDetailOpen(true);
-                            }}
-                        />
-                    )}
+                    <div key={activeTab} className={activeTab === 'review' ? 'animate-page-enter' : `animate-slide-${mainSlideDirection}`}>
+                        {activeTab === 'review' ? (
+                            <LogbookReviewTab
+                                entries={entries}
+                                filteredEntries={filteredEntries}
+                                searchQuery={searchQuery}
+                                setSearchQuery={setSearchQuery}
+                                filterStatus={filterStatus}
+                                setFilterStatus={setFilterStatus}
+                                getStatusBadge={getStatusBadge}
+                                onViewDetail={handleViewDetail}
+                                onAction={handleAction}
+                            />
+                        ) : activeTab === 'activities' ? (
+                            <ActivityManagementTab
+                                activityTypes={activityTypes}
+                                onAdd={openAddActivityModal}
+                                onEdit={handleEditActivity}
+                                onDelete={handleDeleteActivity}
+                            />
+                        ) : (
+                            <KurikulumReviewTab
+                                students={kurikulumStudents}
+                                onViewDetail={(student) => {
+                                    setSelectedKurikulumStudent(student);
+                                    setIsKurikulumDetailOpen(true);
+                                }}
+                            />
+                        )}
+                    </div>
                 </div>
             </main>
 

@@ -3,10 +3,10 @@ import RecentRegistrationTable from '../../components/admin/dashboard/RecentRegi
 
 const AdminDashboard = () => {
     const stats = [
-        { label: 'Total Pendaftar', value: 156, icon: 'groups', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-        { label: 'Menunggu Verifikasi', value: 23, icon: 'hourglass_top', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-        { label: 'Diterima', value: 98, icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-        { label: 'Ditolak', value: 35, icon: 'cancel', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+        { label: 'Total Pendaftar', value: 156, icon: 'groups', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', neon: 'shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)]' },
+        { label: 'Menunggu Verifikasi', value: 23, icon: 'hourglass_top', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', neon: 'shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]' },
+        { label: 'Diterima', value: 98, icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', neon: 'shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]' },
+        { label: 'Ditolak', value: 35, icon: 'cancel', color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200', neon: 'shadow-[0_0_15px_rgba(225,29,72,0.2)] hover:shadow-[0_0_25px_rgba(225,29,72,0.5)]' },
     ];
 
     const recentApplications = [
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {stats.map((stat, index) => (
-                                <div key={index} className={`bg-white rounded-2xl p-6 shadow-sm border ${stat.border} hover:shadow-md transition-shadow relative overflow-hidden group`}>
+                                <div key={index} className={`bg-white rounded-2xl p-6 border ${stat.border} ${stat.neon} transition-all duration-300 relative overflow-hidden group hover:-translate-y-1`}>
                                     <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${stat.color}`}>
                                         <span className="material-symbols-outlined notranslate text-6xl">{stat.icon}</span>
                                     </div>

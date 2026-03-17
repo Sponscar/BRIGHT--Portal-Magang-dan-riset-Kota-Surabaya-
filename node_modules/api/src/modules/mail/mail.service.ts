@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import { RESEND_CLIENT } from './mail.module';
+import { RESEND_CLIENT } from './mail.constants';
 
 @Injectable()
 export class MailService {

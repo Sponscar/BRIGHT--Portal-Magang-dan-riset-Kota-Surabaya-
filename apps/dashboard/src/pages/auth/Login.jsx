@@ -1,21 +1,37 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState({});
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setError('');
+        
+        const newErrors = {};
+        if (!email) newErrors.email = 'Email wajib diisi.';
+        if (!password) newErrors.password = 'Kata Sandi wajib diisi.';
 
-        if (!email || !password) {
-            setError('Email dan Kata Sandi harus diisi');
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            const firstErrorField = Object.keys(newErrors)[0];
+            const element = document.getElementById(firstErrorField);
+            if (element) {
+                const headerOffset = 100;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
             return;
         }
 
@@ -77,7 +93,7 @@ const Login = () => {
                 <div className="relative z-20 flex-1 flex flex-col items-start pt-4 lg:pt-12">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
                         <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                        <span className="text-white/90 text-xs font-medium tracking-wide uppercase">Brida Riset and Internship Growth & Holisting Training</span>
+                        <span className="text-white/90 text-xs font-medium tracking-wide uppercase">Brida Internship Growth & Holisting Training</span>
                     </div>
                     <h1 className="text-4xl lg:text-5xl font-bold text-white leading-[1.15] mb-6">
                         Mendorong Riset dan Inovasi Berdampak<br />
@@ -115,12 +131,6 @@ const Login = () => {
                             </p>
                         </div>
 
-                        {error && (
-                            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                                {error}
-                            </div>
-                        )}
-
                         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                             <div className="space-y-1.5">
                                 <label className="text-sm font-semibold text-[#1b140d]" htmlFor="email">Email</label>
@@ -129,14 +139,25 @@ const Login = () => {
                                         <span className="material-symbols-outlined notranslate text-[20px]">mail</span>
                                     </div>
                                     <input
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        className={`w-full pl-11 pr-4 py-3 border rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none transition-all ${
+                                            errors.email ? 'border-rose-300 bg-rose-50/30 focus:border-rose-400 focus:ring-1 focus:ring-rose-400' : 'bg-gray-50 border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                                        }`}
                                         id="email"
                                         placeholder="nama@instansi.com"
                                         type="email"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                                        }}
                                     />
                                 </div>
+                                {errors.email && (
+                                    <p className="text-xs text-rose-500 font-medium flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-top-1">
+                                        <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                        {errors.email}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-1.5">
@@ -146,12 +167,17 @@ const Login = () => {
                                         <span className="material-symbols-outlined notranslate text-[20px]">lock</span>
                                     </div>
                                     <input
-                                        className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        className={`w-full pl-11 pr-11 py-3 border rounded-xl text-sm text-[#1b140d] placeholder-gray-400 focus:outline-none transition-all ${
+                                            errors.password ? 'border-rose-300 bg-rose-50/30 focus:border-rose-400 focus:ring-1 focus:ring-rose-400' : 'bg-gray-50 border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                                        }`}
                                         id="password"
                                         placeholder="••••••••"
                                         type={showPassword ? "text" : "password"}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
+                                        }}
                                     />
                                     <button
                                         type="button"
@@ -163,6 +189,12 @@ const Login = () => {
                                         </span>
                                     </button>
                                 </div>
+                                {errors.password && (
+                                    <p className="text-xs text-rose-500 font-medium flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-top-1">
+                                        <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                        {errors.password}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex items-center justify-between">

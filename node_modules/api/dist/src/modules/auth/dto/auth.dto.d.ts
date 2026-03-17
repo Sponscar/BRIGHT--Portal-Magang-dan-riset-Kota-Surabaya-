@@ -19,6 +19,7 @@ export declare class RegisterDto {
     uniKecamatan?: string;
     nim?: string;
     internshipType?: InternshipType;
+    perangkatDaerah?: string;
 }
 export declare class LoginDto {
     email: string;

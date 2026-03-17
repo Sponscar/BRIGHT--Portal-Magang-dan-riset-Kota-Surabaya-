@@ -1,68 +1,37 @@
-const RekapMahasiswaTable = ({ students, filterMode }) => {
+const RekapMahasiswaTable = ({ students, visibleColumns }) => {
     if (!students || students.length === 0) {
         return (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
                 <span className="material-symbols-outlined notranslate text-[48px] text-slate-300 mb-3 block">search_off</span>
                 <p className="text-slate-500 font-medium">Tidak ada data mahasiswa ditemukan.</p>
-                <p className="text-slate-400 text-sm mt-1">Coba ubah filter atau kata kunci pencarian Anda.</p>
+                <p className="text-slate-400 text-sm mt-1">Coba ubah kata kunci pencarian Anda.</p>
             </div>
         );
     }
 
-    // Define columns based on filter mode
-    const columnConfig = {
-        semua: [
-            { key: 'no', label: 'No' },
-            { key: 'fullName', label: 'Nama Lengkap' },
-            { key: 'nik', label: 'NIK' },
-            { key: 'nim', label: 'NIM' },
-            { key: 'university', label: 'Perguruan Tinggi' },
-            { key: 'major', label: 'Prodi' },
-            { key: 'team', label: 'Tim' },
-            { key: 'internshipType', label: 'Jenis Pengajuan' },
-            { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
-            { key: 'dosenPhone', label: 'No. HP Dosen' },
-            { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
-            { key: 'email', label: 'Email' },
-            { key: 'phone', label: 'No. HP' },
-            { key: 'whatsapp', label: 'WhatsApp' },
-            { key: 'year', label: 'Tahun' },
-        ],
-        perguruan_tinggi: [
-            { key: 'no', label: 'No' },
-            { key: 'fullName', label: 'Nama' },
-            { key: 'university', label: 'Perguruan Tinggi' },
-            { key: 'nim', label: 'NIM' },
-            { key: 'major', label: 'Prodi' },
-            { key: 'email', label: 'Email' },
-            { key: 'phone', label: 'No. HP' },
-            { key: 'whatsapp', label: 'WhatsApp' },
-        ],
-        jenis_pengajuan: [
-            { key: 'no', label: 'No' },
-            { key: 'fullName', label: 'Nama' },
-            { key: 'nik', label: 'NIK' },
-            { key: 'team', label: 'Tim' },
-            { key: 'internshipType', label: 'Jenis Pengajuan' },
-            { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
-            { key: 'dosenPhone', label: 'No. HP Dosen' },
-            { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
-            { key: 'email', label: 'Email' },
-            { key: 'phone', label: 'No. HP' },
-            { key: 'whatsapp', label: 'WhatsApp' },
-        ],
-        tahun: [
-            { key: 'no', label: 'No' },
-            { key: 'fullName', label: 'Nama' },
-            { key: 'nik', label: 'NIK' },
-            { key: 'email', label: 'Email' },
-            { key: 'phone', label: 'No. HP' },
-            { key: 'whatsapp', label: 'WhatsApp' },
-            { key: 'year', label: 'Tahun' },
-        ],
-    };
+    // Master list of all available columns
+    const AVAILABLE_COLUMNS = [
+        { key: 'nik', label: 'NIK' },
+        { key: 'nim', label: 'NIM' },
+        { key: 'university', label: 'Perguruan Tinggi' },
+        { key: 'major', label: 'Prodi' },
+        { key: 'team', label: 'Tim' },
+        { key: 'internshipType', label: 'Jenis Pengajuan' },
+        { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
+        { key: 'dosenPhone', label: 'No. HP Dosen' },
+        { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
+        { key: 'email', label: 'Email' },
+        { key: 'phone', label: 'No. HP' },
+        { key: 'whatsapp', label: 'WhatsApp' },
+        { key: 'year', label: 'Tahun' },
+    ];
 
-    const columns = columnConfig[filterMode] || columnConfig.semua;
+    // Always show No and Nama Lengkap, then append only the visible columns
+    const columns = [
+        { key: 'no', label: 'No' },
+        { key: 'fullName', label: 'Nama Lengkap' },
+        ...AVAILABLE_COLUMNS.filter(col => visibleColumns.includes(col.key))
+    ];
 
     const renderCell = (col, student, index) => {
         if (col.key === 'no') return <td key={col.key} className="px-4 py-3 text-slate-500 font-medium">{index + 1}</td>;
@@ -123,25 +92,36 @@ const RekapMahasiswaTable = ({ students, filterMode }) => {
     );
 };
 
+export const REKAP_AVAILABLE_COLUMNS = [
+    { key: 'nik', label: 'NIK' },
+    { key: 'nim', label: 'NIM' },
+    { key: 'university', label: 'Perguruan Tinggi' },
+    { key: 'major', label: 'Prodi' },
+    { key: 'team', label: 'Tim Kerja' },
+    { key: 'internshipType', label: 'Jenis Pengajuan' },
+    { key: 'dosenPembimbing', label: 'Dosen Pembimbing' },
+    { key: 'dosenPhone', label: 'No HP Dosen' },
+    { key: 'dosenWhatsapp', label: 'WhatsApp Dosen' },
+    { key: 'email', label: 'Email' },
+    { key: 'phone', label: 'No HP' },
+    { key: 'whatsapp', label: 'WhatsApp' },
+    { key: 'year', label: 'Tahun' },
+];
+
 // Export column config for CSV export
-export const getRekapColumns = (filterMode) => {
-    const map = {
-        semua: ['No', 'Nama Lengkap', 'NIK', 'NIM', 'Perguruan Tinggi', 'Prodi', 'Tim', 'Jenis Pengajuan', 'Dosen Pembimbing', 'No HP Dosen', 'WhatsApp Dosen', 'Email', 'No HP', 'WhatsApp', 'Tahun'],
-        perguruan_tinggi: ['No', 'Nama', 'Perguruan Tinggi', 'NIM', 'Prodi', 'Email', 'No HP', 'WhatsApp'],
-        jenis_pengajuan: ['No', 'Nama', 'NIK', 'Tim', 'Jenis Pengajuan', 'Dosen Pembimbing', 'No HP Dosen', 'WhatsApp Dosen', 'Email', 'No HP', 'WhatsApp'],
-        tahun: ['No', 'Nama', 'NIK', 'Email', 'No HP', 'WhatsApp', 'Tahun'],
-    };
-    return map[filterMode] || map.semua;
+export const getRekapColumns = (visibleColumns) => {
+    return [
+        'No', 
+        'Nama Lengkap', 
+        ...REKAP_AVAILABLE_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => col.label)
+    ];
 };
 
-export const getRekapRowKeys = (filterMode) => {
-    const map = {
-        semua: ['fullName', 'nik', 'nim', 'university', 'major', 'team', 'internshipType', 'dosenPembimbing', 'dosenPhone', 'dosenWhatsapp', 'email', 'phone', 'whatsapp', 'year'],
-        perguruan_tinggi: ['fullName', 'university', 'nim', 'major', 'email', 'phone', 'whatsapp'],
-        jenis_pengajuan: ['fullName', 'nik', 'team', 'internshipType', 'dosenPembimbing', 'dosenPhone', 'dosenWhatsapp', 'email', 'phone', 'whatsapp'],
-        tahun: ['fullName', 'nik', 'email', 'phone', 'whatsapp', 'year'],
-    };
-    return map[filterMode] || map.semua;
+export const getRekapRowKeys = (visibleColumns) => {
+    return [
+        'fullName',
+        ...REKAP_AVAILABLE_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => col.key)
+    ];
 };
 
 export default RekapMahasiswaTable;

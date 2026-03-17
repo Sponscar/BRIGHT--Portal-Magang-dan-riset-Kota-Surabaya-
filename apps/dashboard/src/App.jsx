@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CourseConversionProvider } from './context/CourseConversionContext';
 import Login from './pages/auth/Login';
 import AdminLayout from './pages/admin/AdminLayout';
+import StudentLayout from './pages/StudentLayout';
 import DashboardOverview from './pages/admin/DashboardOverview';
 import StudentVerification from './pages/admin/StudentVerification';
 import StudentManagement from './pages/admin/StudentManagement';
@@ -97,39 +98,17 @@ function App() {
             </Route>
             <Route path="/student" element={
               <ProtectedRoute allowedRole="student">
-                <StudentDashboard />
+                <StudentLayout />
               </ProtectedRoute>
-            } />
-            <Route path="/student/documents" element={
-              <ProtectedRoute allowedRole="student">
-                <Documents />
-              </ProtectedRoute>
-            } />
-            <Route path="/student/logbook" element={
-              <ProtectedRoute allowedRole="student">
-                <Logbook />
-              </ProtectedRoute>
-            } />
-            <Route path="/student/results" element={
-              <ProtectedRoute allowedRole="student">
-                <Results />
-              </ProtectedRoute>
-            } />
-            <Route path="/student/profile" element={
-              <ProtectedRoute allowedRole="student">
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/student/team/:teamSlug" element={
-              <ProtectedRoute allowedRole="student">
-                <TeamDetail />
-              </ProtectedRoute>
-            } />
-            <Route path="/student/attendance" element={
-              <ProtectedRoute allowedRole="student">
-                <Attendance />
-              </ProtectedRoute>
-            } />
+            }>
+              <Route index element={<StudentDashboard />} />
+              <Route path="documents" element={<Documents />} />
+              <Route path="logbook" element={<Logbook />} />
+              <Route path="results" element={<Results />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="team/:teamSlug" element={<TeamDetail />} />
+              <Route path="attendance" element={<Attendance />} />
+            </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

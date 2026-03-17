@@ -51,6 +51,7 @@ let Mahasiswa = class Mahasiswa {
     internshipType;
     internshipDuration;
     conversionType;
+    perangkatDaerah;
     profileImageUrl;
     status = MahasiswaStatus.PENDING;
     tusiBrida;
@@ -148,6 +149,10 @@ __decorate([
     (0, core_1.Property)({ length: 50, nullable: true }),
     __metadata("design:type", String)
 ], Mahasiswa.prototype, "conversionType", void 0);
+__decorate([
+    (0, core_1.Property)({ length: 500, nullable: true }),
+    __metadata("design:type", String)
+], Mahasiswa.prototype, "perangkatDaerah", void 0);
 __decorate([
     (0, core_1.Property)({ length: 500, nullable: true }),
     __metadata("design:type", String)

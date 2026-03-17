@@ -17,6 +17,7 @@ const user_entity_1 = require("./user.entity");
 let Sertifikat = class Sertifikat {
     id = (0, uuid_1.v4)();
     mahasiswa;
+    nomorSertifikat;
     studentName;
     startDate;
     endDate;
@@ -33,6 +34,10 @@ __decorate([
     (0, core_1.ManyToOne)(() => mahasiswa_entity_1.Mahasiswa, { fieldName: 'mahasiswa_id' }),
     __metadata("design:type", mahasiswa_entity_1.Mahasiswa)
 ], Sertifikat.prototype, "mahasiswa", void 0);
+__decorate([
+    (0, core_1.Property)({ length: 100, unique: true }),
+    __metadata("design:type", String)
+], Sertifikat.prototype, "nomorSertifikat", void 0);
 __decorate([
     (0, core_1.Property)({ length: 255 }),
     __metadata("design:type", String)

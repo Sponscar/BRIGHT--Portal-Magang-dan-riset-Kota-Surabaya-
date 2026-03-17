@@ -33,7 +33,7 @@ const LogbookTable = ({ entries, onEdit, onDelete, onPreview }) => {
                 {onPreview && (
                     <button
                         onClick={onPreview}
-                        className="px-4 py-2.5 bg-gradient-to-r from-primary to-blue-700 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+                        className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
                     >
                         <span className="material-symbols-outlined notranslate text-[18px]">preview</span>
                         Preview & Download
@@ -45,14 +45,14 @@ const LogbookTable = ({ entries, onEdit, onDelete, onPreview }) => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50 border-b border-[#f3e7e7]">
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary w-16">No</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary w-40">Tanggal</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary w-48">Tipe Laporan</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary">Jenis Penugasan</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary">Jenis Aktivitas</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary w-48">Lokasi</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary w-32">Status</th>
-                                <th className="px-6 py-4 text-xs uppercase font-medium text-primary text-center w-32">Aksi</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 w-16">No</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 w-40">Tanggal</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 w-48">Tipe Laporan</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600">Jenis Penugasan</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600">Jenis Aktivitas</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 w-48">Lokasi</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 w-32">Status</th>
+                                <th className="px-6 py-4 text-xs uppercase font-medium text-blue-600 text-center w-32">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f3e7e7]">
@@ -95,7 +95,7 @@ const LogbookTable = ({ entries, onEdit, onDelete, onPreview }) => {
                                             {entry.status !== 'approved' && (
                                                 <button
                                                     onClick={() => onDelete(entry.id)}
-                                                    className="p-1.5 text-primary hover:text-blue-700 transition-colors"
+                                                    className="p-1.5 text-blue-600 hover:text-blue-700 transition-colors"
                                                     title="Delete"
                                                 >
                                                     <span className="material-symbols-outlined notranslate text-[20px]">delete</span>

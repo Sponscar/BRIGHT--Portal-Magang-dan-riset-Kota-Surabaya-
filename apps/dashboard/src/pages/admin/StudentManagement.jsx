@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import AdminHeader from '../../components/admin/AdminHeader';
 import StudentManagementTable from '../../components/admin/student/StudentManagementTable';
-import RekapMahasiswaTable, { getRekapColumns, getRekapRowKeys } from '../../components/admin/student/RekapMahasiswaTable';
+import RekapMahasiswaTable, { getRekapColumns, getRekapRowKeys, REKAP_AVAILABLE_COLUMNS } from '../../components/admin/student/RekapMahasiswaTable';
+import { useRef, useEffect } from 'react';
 
 const StudentManagement = () => {
     // Mock Data — Presensi & Izin
@@ -29,22 +30,58 @@ const StudentManagement = () => {
         { id: 8, fullName: 'Nadia Putri', nik: '3578012345670008', nim: '108011008', university: 'Universitas Ciputra Surabaya', major: 'Manajemen Bisnis', team: 'Riset', internshipType: 'Magang', email: 'nadia.p@mail.com', phone: '081234567897', whatsapp: '081234567897', year: '2025' },
     ]);
 
+    const TABS = ['presensi', 'izin', 'rekap'];
     const [activeTab, setActiveTab] = useState('presensi');
+    const [slideDirection, setSlideDirection] = useState('left');
+
+    const handleTabChange = (newTab) => {
+        if (newTab === activeTab) return;
+        const currentIndex = TABS.indexOf(activeTab);
+        const newIndex = TABS.indexOf(newTab);
+        setSlideDirection(newIndex > currentIndex ? 'left' : 'right');
+        setActiveTab(newTab);
+        setFilter('all');
+    };
     const [filter, setFilter] = useState('all');
     const [selectedDate, setSelectedDate] = useState('2026-02-11');
     const [selectedPermDate, setSelectedPermDate] = useState('');
 
     // --- Rekap Mahasiswa State ---
+    // --- Rekap Mahasiswa State ---
     const [rekapSearch, setRekapSearch] = useState('');
-    const [rekapFilterMode, setRekapFilterMode] = useState('semua');
+    const [visibleColumns, setVisibleColumns] = useState(REKAP_AVAILABLE_COLUMNS.map(c => c.key));
+    const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
+    const columnMenuRef = useRef(null);
 
-    // Filtered rekap data (search only — column visibility is handled by the table component)
+    // Close column menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (columnMenuRef.current && !columnMenuRef.current.contains(event.target)) {
+                setIsColumnMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const toggleColumn = (key) => {
+        setVisibleColumns(prev => 
+            prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+        );
+    };
+
+    // Filtered rekap data (search only within visible columns)
     const filteredRekap = rekapStudents.filter(s => {
         if (rekapSearch === '') return true;
         const q = rekapSearch.toLowerCase();
-        return [s.fullName, s.university, s.major, s.team, s.email, s.nik, s.nim, s.internshipType, s.phone, s.whatsapp].some(
-            field => field?.toLowerCase().includes(q)
-        );
+        
+        // Always search fullName, plus any currently visible columns
+        const searchableFields = ['fullName', ...visibleColumns];
+        
+        return searchableFields.some(field => {
+            const val = s[field];
+            return val && String(val).toLowerCase().includes(q);
+        });
     });
 
     // Filters — Presensi & Izin
@@ -76,11 +113,11 @@ const StudentManagement = () => {
             const rows = filteredPermissions.map((p, i) => [i + 1, p.studentName, p.university, p.date, p.type, p.description, p.proofLink, p.status === 'approved' ? 'Disetujui' : p.status === 'rejected' ? 'Ditolak' : 'Menunggu']);
             downloadCSV(headers, rows, `Data_Izin.csv`);
         } else if (activeTab === 'rekap') {
-            const headers = getRekapColumns(rekapFilterMode);
-            const keys = getRekapRowKeys(rekapFilterMode);
+        } else if (activeTab === 'rekap') {
+            const headers = getRekapColumns(visibleColumns);
+            const keys = getRekapRowKeys(visibleColumns);
             const rows = filteredRekap.map((s, i) => [i + 1, ...keys.map(k => s[k] || '-')]);
-            const filterLabel = rekapFilterMode === 'semua' ? 'Semua' : rekapFilterMode === 'perguruan_tinggi' ? 'PerguruanTinggi' : rekapFilterMode === 'jenis_magang' ? 'JenisMagang' : 'Tahun';
-            downloadCSV(headers, rows, `Rekap_Mahasiswa_${filterLabel}.csv`);
+            downloadCSV(headers, rows, `Rekap_Mahasiswa_Custom.csv`);
         }
     };
 
@@ -101,39 +138,74 @@ const StudentManagement = () => {
                 <div className="max-w-7xl mx-auto space-y-6">
                     {/* Tabs */}
                     <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-                        <button onClick={() => { setActiveTab('presensi'); setFilter('all'); }}
+                        <button onClick={() => handleTabChange('presensi')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'presensi' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                             Presensi Harian
                         </button>
-                        <button onClick={() => { setActiveTab('izin'); setFilter('all'); }}
+                        <button onClick={() => handleTabChange('izin')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'izin' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                             Pengajuan Izin
                         </button>
-                        <button onClick={() => { setActiveTab('rekap'); setFilter('all'); }}
+                        <button onClick={() => handleTabChange('rekap')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'rekap' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                             Rekap Mahasiswa
                         </button>
                     </div>
 
+                    <div key={activeTab} className={`animate-slide-${slideDirection}`}>
                     {/* ==================== REKAP MAHASISWA TAB ==================== */}
                     {activeTab === 'rekap' && (
                         <>
                             {/* Search, Filter Dropdown & Export */}
                             <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1">
-                                    {/* Single Filter Dropdown */}
-                                    <div className="relative">
-                                        <select
-                                            value={rekapFilterMode}
-                                            onChange={e => setRekapFilterMode(e.target.value)}
-                                            className="pl-10 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm appearance-none cursor-pointer min-w-[180px]"
+                                    {/* Column Visibility Toggle */}
+                                    <div className="relative" ref={columnMenuRef}>
+                                        <button 
+                                            onClick={() => setIsColumnMenuOpen(!isColumnMenuOpen)}
+                                            className="flex items-center gap-2 pl-4 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm hover:bg-slate-50 transition-colors"
                                         >
-                                            <option value="semua">Semua</option>
-                                            <option value="perguruan_tinggi">Perguruan Tinggi</option>
-                                            <option value="jenis_pengajuan">Jenis Pengajuan</option>
-                                            <option value="tahun">Tahun</option>
-                                        </select>
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined notranslate text-[20px] text-slate-400 pointer-events-none">filter_list</span>
+                                            <span className="material-symbols-outlined notranslate text-[20px] text-slate-500">view_column_2</span>
+                                            <span>Pilih Kolom ({visibleColumns.length})</span>
+                                            <span className={`material-symbols-outlined notranslate text-[18px] text-slate-400 transition-transform ${isColumnMenuOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                                        </button>
+
+                                        {isColumnMenuOpen && (
+                                            <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
+                                                <div className="p-2 border-b border-slate-100 flex justify-between items-center mb-1">
+                                                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tampilkan Kolom</span>
+                                                    <button onClick={() => setVisibleColumns(REKAP_AVAILABLE_COLUMNS.map(c => c.key))} className="text-xs text-primary font-medium hover:underline">Semua</button>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    {/* Fixed Columns */}
+                                                    <label className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 cursor-not-allowed border border-slate-100 opacity-60">
+                                                        <div className="w-4 h-4 rounded border flex items-center justify-center bg-slate-300 border-slate-300">
+                                                            <span className="material-symbols-outlined notranslate text-[12px] text-white">check</span>
+                                                        </div>
+                                                        <span className="text-sm font-medium text-slate-600 line-clamp-1">No & Nama</span>
+                                                    </label>
+                                                    
+                                                    {/* Optional Columns */}
+                                                    {REKAP_AVAILABLE_COLUMNS.map(col => {
+                                                        const isChecked = visibleColumns.includes(col.key);
+                                                        return (
+                                                            <label key={col.key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors group">
+                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? 'bg-primary border-primary' : 'border-slate-300 group-hover:border-primary'}`}>
+                                                                    {isChecked && <span className="material-symbols-outlined notranslate text-[12px] text-white font-bold">check</span>}
+                                                                </div>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="hidden"
+                                                                    checked={isChecked}
+                                                                    onChange={() => toggleColumn(col.key)}
+                                                                />
+                                                                <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 select-none line-clamp-1">{col.label}</span>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Search */}
@@ -155,7 +227,9 @@ const StudentManagement = () => {
                             </div>
 
                             {/* Table */}
-                            <RekapMahasiswaTable students={filteredRekap} filterMode={rekapFilterMode} />
+                            <div>
+                                <RekapMahasiswaTable students={filteredRekap} visibleColumns={visibleColumns} />
+                            </div>
                         </>
                     )}
 
@@ -195,14 +269,17 @@ const StudentManagement = () => {
                             </div>
 
                             {/* Table */}
-                            <StudentManagementTable
-                                activeTab={activeTab} filteredStudents={filteredStudents} filteredPermissions={filteredPermissions}
-                                selectedDate={selectedDate} getLogForDate={getLogForDate} formatDateDisplay={formatDateDisplay}
-                                getAttendanceColor={getAttendanceColor} getPermissionColor={getPermissionColor}
-                                handleAction={handleAction} handlePermissionAction={handlePermissionAction}
-                            />
+                            <div key={`${activeTab}-${filter}-${selectedDate}-${selectedPermDate}`} className="animate-tab-slide-right">
+                                <StudentManagementTable
+                                    activeTab={activeTab} filteredStudents={filteredStudents} filteredPermissions={filteredPermissions}
+                                    selectedDate={selectedDate} getLogForDate={getLogForDate} formatDateDisplay={formatDateDisplay}
+                                    getAttendanceColor={getAttendanceColor} getPermissionColor={getPermissionColor}
+                                    handleAction={handleAction} handlePermissionAction={handlePermissionAction}
+                                />
+                            </div>
                         </>
                     )}
+                    </div>
                 </div>
             </main>
         </>

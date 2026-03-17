@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import CertificateTemplate from './CertificateTemplate';
 import Swal from 'sweetalert2';
+import ModalPortal from '../ModalPortal';
 
 const CertificateGenerateModal = ({
     isOpen, onClose,
@@ -11,6 +12,7 @@ const CertificateGenerateModal = ({
     const certificateRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const dropdownRef = useRef(null);
 
     // Close dropdown when clicking outside
@@ -25,6 +27,14 @@ const CertificateGenerateModal = ({
     }, []);
 
     if (!isOpen) return null;
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
 
     // Get selected student data for preview
     const selectedStudent = studentList.find(s => s.id === certForm.mahasiswa_id);
@@ -80,14 +90,15 @@ const CertificateGenerateModal = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col md:flex-row max-h-[90vh]">
+        <ModalPortal>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
 
                 {/* Left Side: Form */}
                 <div className="w-full md:w-1/3 p-6 border-r border-slate-100 flex flex-col overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-bold text-slate-900">Terbitkan Sertifikat</h3>
-                        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors md:hidden">
+                        <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors md:hidden">
                             <span className="material-symbols-outlined notranslate">close</span>
                         </button>
                     </div>
@@ -199,8 +210,8 @@ const CertificateGenerateModal = ({
                             Terbitkan Sertifikat
                         </button>
                         <button
-                            type="button" onClick={onClose}
-                            className="w-full py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                            type="button" onClick={handleClose}
+                            className="w-full py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
                         >
                             Batal
                         </button>
@@ -210,7 +221,7 @@ const CertificateGenerateModal = ({
                 {/* Right Side: Live Preview */}
                 <div className="w-full md:w-2/3 bg-slate-100 p-6 flex flex-col items-center justify-center relative overflow-hidden">
                     <div className="absolute top-4 right-4 hidden md:block">
-                        <button onClick={onClose} className="p-2 bg-white rounded-full text-slate-400 hover:text-slate-600 shadow-sm transition-colors">
+                        <button onClick={handleClose} className="p-2 bg-white rounded-full text-slate-400 hover:text-slate-600 shadow-sm transition-colors">
                             <span className="material-symbols-outlined notranslate leading-none">close</span>
                         </button>
                     </div>
@@ -241,6 +252,7 @@ const CertificateGenerateModal = ({
 
             </div>
         </div>
+        </ModalPortal>
     );
 };
 

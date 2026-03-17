@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
 import { StorageService } from './storage.service';
-
-export const MINIO_CLIENT = 'MINIO_CLIENT';
+import { MINIO_CLIENT } from './storage.constants';
 
 const BUCKETS = [
     'profile-images',

@@ -18,7 +18,18 @@ const STAFF_ASSESSOR_ROLES = [
     entities_1.UserRole.SEKRETARIATAN,
     entities_1.UserRole.KOORDINATOR_RISET,
     entities_1.UserRole.KOORDINATOR_INOVASI,
+    entities_1.UserRole.KEPALA_BRIDA,
 ];
+const PERILAKU_WEIGHT = {
+    [entities_1.AssessorType.SELF]: 0.10,
+    [entities_1.AssessorType.PEER]: 0.15,
+    [entities_1.AssessorType.KOORDINATOR]: 0.25,
+    [entities_1.AssessorType.KEPALA_BRIDA]: 0.25,
+    [entities_1.AssessorType.ADMIN]: 0.25,
+};
+function likertToScale100(likertScore) {
+    return likertScore * 20;
+}
 function getGrade(score) {
     if (score >= 86)
         return 'A';
@@ -35,6 +46,8 @@ function mapRoleToAssessorType(role) {
         return entities_1.AssessorType.SEKRETARIS;
     if (role === entities_1.UserRole.KOORDINATOR_RISET || role === entities_1.UserRole.KOORDINATOR_INOVASI)
         return entities_1.AssessorType.KOORDINATOR;
+    if (role === entities_1.UserRole.KEPALA_BRIDA)
+        return entities_1.AssessorType.KEPALA_BRIDA;
     throw new common_1.ForbiddenException('Role tidak memiliki akses menilai');
 }
 let PenilaianService = class PenilaianService {
@@ -119,7 +132,7 @@ let PenilaianService = class PenilaianService {
         }, { populate: ['nilaiList'] });
         const perilakuScoresByType = {};
         for (const p of perilakuList) {
-            const scores = p.nilaiList.getItems().map(n => Number(n.score));
+            const scores = p.nilaiList.getItems().map(n => likertToScale100(Number(n.score)));
             if (scores.length > 0) {
                 const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
                 if (!perilakuScoresByType[p.assessorType])
@@ -130,18 +143,32 @@ let PenilaianService = class PenilaianService {
         const getTypeAvg = (type) => {
             const vals = perilakuScoresByType[type];
             if (!vals || vals.length === 0)
-                return 0;
+                return null;
             return vals.reduce((sum, v) => sum + v, 0) / vals.length;
         };
-        const selfAvg = getTypeAvg(entities_1.AssessorType.SELF);
-        const peerAvg = getTypeAvg(entities_1.AssessorType.PEER);
-        const koordinatorAvg = getTypeAvg(entities_1.AssessorType.KOORDINATOR);
-        const adminScores = [
-            ...(perilakuScoresByType[entities_1.AssessorType.ADMIN] || []),
+        const koordinatorScores = [
+            ...(perilakuScoresByType[entities_1.AssessorType.KOORDINATOR] || []),
             ...(perilakuScoresByType[entities_1.AssessorType.SEKRETARIS] || []),
         ];
-        const adminAvg = adminScores.length > 0 ? adminScores.reduce((s, v) => s + v, 0) / adminScores.length : 0;
-        const rataPerilaku = (selfAvg + peerAvg + koordinatorAvg + adminAvg) / 4;
+        const koordinatorAvg = koordinatorScores.length > 0
+            ? koordinatorScores.reduce((s, v) => s + v, 0) / koordinatorScores.length
+            : null;
+        const assessorBuckets = [
+            { type: entities_1.AssessorType.SELF, avg: getTypeAvg(entities_1.AssessorType.SELF), weight: PERILAKU_WEIGHT[entities_1.AssessorType.SELF] },
+            { type: entities_1.AssessorType.PEER, avg: getTypeAvg(entities_1.AssessorType.PEER), weight: PERILAKU_WEIGHT[entities_1.AssessorType.PEER] },
+            { type: 'koordinator_bucket', avg: koordinatorAvg, weight: PERILAKU_WEIGHT[entities_1.AssessorType.KOORDINATOR] },
+            { type: entities_1.AssessorType.KEPALA_BRIDA, avg: getTypeAvg(entities_1.AssessorType.KEPALA_BRIDA), weight: PERILAKU_WEIGHT[entities_1.AssessorType.KEPALA_BRIDA] },
+            { type: entities_1.AssessorType.ADMIN, avg: getTypeAvg(entities_1.AssessorType.ADMIN), weight: PERILAKU_WEIGHT[entities_1.AssessorType.ADMIN] },
+        ];
+        const activeBuckets = assessorBuckets.filter(b => b.avg !== null);
+        const totalActiveWeight = activeBuckets.reduce((sum, b) => sum + b.weight, 0);
+        let rataPerilaku = 0;
+        if (totalActiveWeight > 0) {
+            rataPerilaku = activeBuckets.reduce((sum, b) => {
+                const normalizedWeight = b.weight / totalActiveWeight;
+                return sum + (b.avg * normalizedWeight);
+            }, 0);
+        }
         const nilaiPerilakuFinal = rataPerilaku * 0.4;
         const kinerjaList = await fork.find(entities_1.Penilaian, {
             mahasiswa: { id: mahasiswaId },
@@ -275,13 +302,16 @@ let PenilaianService = class PenilaianService {
         let count = 0;
         for (const s of data.scores) {
             const kriteria = await fork.findOneOrFail(entities_1.KriteriaPenilaian, { id: s.kriteriaId });
+            if (s.score < 1 || s.score > 5) {
+                throw new common_1.BadRequestException(`Skor harus antara 1-5, diterima: ${s.score}`);
+            }
             const nilai = new entities_1.NilaiPenilaian();
             nilai.penilaian = penilaian;
             nilai.kriteria = kriteria;
             nilai.score = s.score;
             nilai.keterangan = s.keterangan;
             fork.persist(nilai);
-            totalScore += s.score;
+            totalScore += likertToScale100(s.score);
             count++;
         }
         penilaian.finalScore = count > 0 ? Number((totalScore / count).toFixed(2)) : 0;

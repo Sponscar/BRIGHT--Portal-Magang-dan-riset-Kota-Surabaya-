@@ -1,12 +1,24 @@
+import { useState } from 'react';
+
 const PermissionModal = ({ isOpen, permissionType, permissionDescription, permissionLink, onTypeChange, onDescriptionChange, onLinkChange, onClose, onSubmit }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
     if (!isOpen) return null;
 
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsClosing(false);
+            onClose();
+        }, 250);
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 ${isClosing ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}>
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <h3 className="text-lg font-bold text-slate-900">Ajukan Izin</h3>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined notranslate">close</span>
                     </button>
                 </div>
@@ -38,8 +50,8 @@ const PermissionModal = ({ isOpen, permissionType, permissionDescription, permis
                         </div>
                     </div>
                     <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
-                        <button type="button" onClick={onClose} className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">Batal</button>
-                        <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-[#d41111] transition-colors shadow-lg shadow-blue-200">Kirim Pengajuan</button>
+                        <button type="button" onClick={handleClose} className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:-translate-y-0.5 active:scale-95">Batal</button>
+                        <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium transition-all duration-300 shadow-[0_4px_10px_rgba(59,130,246,0.3)] hover:shadow-[0_6px_15px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 active:scale-95">Kirim Pengajuan</button>
                     </div>
                 </form>
             </div>
