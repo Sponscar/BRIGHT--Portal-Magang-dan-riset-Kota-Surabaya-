@@ -24,7 +24,7 @@ const Header = () => {
             <div className="header-inner">
                 <div className="header-content">
                     <div className="header-logo-container">
-                        <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-slate-200 px-3 py-1.5 rounded-lg">
+                        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg">
                             <img src="/logo1.png" alt="Logo 1" className="h-10 w-auto object-contain" />
                             <img src="/logo.png" alt="BRIGHT Logo" className="h-10 w-auto object-contain" />
                         </div>

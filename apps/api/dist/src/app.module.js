@@ -33,6 +33,7 @@ const dashboard_module_1 = require("./modules/dashboard/dashboard.module");
 const kurikulum_magang_module_1 = require("./modules/kurikulum-magang/kurikulum-magang.module");
 const perguruan_tinggi_module_1 = require("./modules/perguruan-tinggi/perguruan-tinggi.module");
 const feedback_module_1 = require("./modules/feedback/feedback.module");
+const notification_module_1 = require("./modules/notification/notification.module");
 const entities = [
     entities_1.User, entities_1.OtpToken, entities_1.Mahasiswa, entities_1.TusiBrida, entities_1.Dokumen, entities_1.Administrasi,
     entities_1.JenisAktivitas, entities_1.MataKuliahKonversi, entities_1.MahasiswaMataKuliah, entities_1.Logbook,
@@ -83,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
             kurikulum_magang_module_1.KurikulumMagangModule,
             perguruan_tinggi_module_1.PerguruanTinggiModule,
             feedback_module_1.FeedbackModule,
+            notification_module_1.NotificationModule,
         ],
         providers: [
             {

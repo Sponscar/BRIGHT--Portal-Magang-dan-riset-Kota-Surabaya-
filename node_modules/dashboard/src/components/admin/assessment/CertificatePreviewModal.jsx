@@ -153,6 +153,11 @@ const CertificatePreviewModal = ({ isOpen, onClose, certificate }) => {
                                 certificateId={certificate.nomor_sertifikat}
                                 startDate={certificate.tanggal_mulai}
                                 endDate={certificate.tanggal_selesai}
+                                nilaiAkhir={certificate.nilai_akhir}
+                                kepalaName={certificate.kepala_name}
+                                kepalaNip={certificate.kepala_nip}
+                                instansi={certificate.instansi}
+                                jabatanKepala={certificate.jabatan_kepala}
                             />
                         </div>
                     </div>

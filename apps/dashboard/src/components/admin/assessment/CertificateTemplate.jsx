@@ -1,13 +1,27 @@
 import React, { forwardRef } from 'react';
 
-const CertificateTemplate = forwardRef(({ studentName, startDate, endDate, certificateId }, ref) => {
-    const startDateStr = startDate
-        ? new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-        : '...';
-    const endDateStr = endDate
-        ? new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-        : '...';
-    const dateRangeStr = `pada tanggal  ${startDateStr} hingga ${endDateStr}`;
+const CertificateTemplate = forwardRef(({ 
+    studentName, startDate, endDate, certificateId, nilaiAkhir, kepalaName, kepalaNip,
+    instansi = 'Badan Riset dan Inovasi Daerah',
+    jabatanKepala = 'Kepala Badan'
+}, ref) => {
+    
+    // Robust date formatter to bypass any id-ID locale issues on certain browsers
+    const formatTanggalStr = (dateStr) => {
+        if (!dateStr) return '...';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date)) return '...';
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        } catch (e) {
+            return '...';
+        }
+    };
+
+    const startDateStr = formatTanggalStr(startDate);
+    const endDateStr = formatTanggalStr(endDate);
+    const dateRangeStr = `pada tanggal ${startDateStr} hingga ${endDateStr}`;
 
     return (
         <div
@@ -128,9 +142,28 @@ const CertificateTemplate = forwardRef(({ studentName, startDate, endDate, certi
                 lineHeight: '1.7',
                 margin: '0',
             }}>
-                Telah menyelesaikan kegiatan magang di Badan Riset dan Inovasi Daerah
-                {dateRangeStr}
+                Telah menyelesaikan kegiatan magang di {instansi}
+                {` ${dateRangeStr}`}
             </p>
+
+            {/* Nilai Akhir */}
+            {nilaiAkhir && (
+                <p style={{
+                    position: 'absolute',
+                    top: '430px',
+                    left: '0',
+                    right: '0',
+                    zIndex: 1,
+                    fontFamily: '"Poppins", sans-serif',
+                    fontSize: '21px',
+                    fontWeight: 600,
+                    color: '#1a5276',
+                    margin: '0',
+                    textAlign: 'center',
+                }}>
+                    Dengan Nilai Akhir: <span style={{ fontSize: '28px', fontWeight: 700 }}>{nilaiAkhir}</span>
+                </p>
+            )}
 
             {/* "Kepala Badan" */}
             <p style={{
@@ -146,7 +179,7 @@ const CertificateTemplate = forwardRef(({ studentName, startDate, endDate, certi
                 margin: '0',
                 textAlign: 'center',
             }}>
-                Kepala Badan
+                {jabatanKepala || 'Kepala Badan'}
             </p>
 
             {/* TTD & Stamp */}
@@ -179,7 +212,7 @@ const CertificateTemplate = forwardRef(({ studentName, startDate, endDate, certi
                 margin: '0',
                 textAlign: 'center',
             }}>
-                Dr. Agus Imam Sonhaji, S.T, M.MT.
+                {kepalaName || 'Dr. Agus Imam Sonhaji, S.T, M.MT.'}
             </p>
 
             {/* NIP */}
@@ -196,8 +229,23 @@ const CertificateTemplate = forwardRef(({ studentName, startDate, endDate, certi
                 margin: '0',
                 textAlign: 'center',
             }}>
-                197010231996021001
+                {kepalaNip || '197010231996021001'}
             </p>
+
+            {/* QR Code — Bottom Left */}
+            <img
+                src="/assets/qrcode-brida.png"
+                alt="QR Code"
+                style={{
+                    position: 'absolute',
+                    bottom: '45px',
+                    left: '60px',
+                    width: '90px',
+                    height: '90px',
+                    zIndex: 2,
+                    objectFit: 'contain',
+                }}
+            />
         </div>
     );
 });

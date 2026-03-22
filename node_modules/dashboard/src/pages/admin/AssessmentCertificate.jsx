@@ -7,6 +7,9 @@ import AssessmentDetailModal from '../../components/admin/assessment/AssessmentD
 import CertificateTable from '../../components/admin/assessment/CertificateTable';
 import CertificateGenerateModal from '../../components/admin/assessment/CertificateGenerateModal';
 import CertificatePreviewModal from '../../components/admin/assessment/CertificatePreviewModal';
+import SuratKeteranganTable from '../../components/admin/assessment/SuratKeteranganTable';
+import SuratKeteranganGenerateModal from '../../components/admin/assessment/SuratKeteranganGenerateModal';
+import SuratKeteranganPreviewModal from '../../components/admin/assessment/SuratKeteranganPreviewModal';
 import Swal from 'sweetalert2';
 
 const AssessmentCertificate = () => {
@@ -37,7 +40,7 @@ const AssessmentCertificate = () => {
     ];
 
     // State
-    const MAIN_TABS = ['penilaian', 'sertifikat'];
+    const MAIN_TABS = ['penilaian', 'sertifikat', 'surat_keterangan'];
     const [activeTab, setActiveTab] = useState('penilaian');
     const [animationClass, setAnimationClass] = useState('animate-page-enter');
     const [searchTerm, setSearchTerm] = useState('');
@@ -125,10 +128,25 @@ const AssessmentCertificate = () => {
     ]);
 
     const [isCertModalOpen, setIsCertModalOpen] = useState(false);
-    const [certForm, setCertForm] = useState({ mahasiswa_id: '', nomor_sertifikat: '', tanggal_mulai: '', tanggal_selesai: '' });
+    const [certForm, setCertForm] = useState({ mahasiswa_id: '', nomor_sertifikat: '', tanggal_mulai: '', tanggal_selesai: '', nilai_akhir: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '' });
 
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [selectedCertForPreview, setSelectedCertForPreview] = useState(null);
+
+    // --- SURAT KETERANGAN STATE ---
+    const [suratList, setSuratList] = useState([
+        {
+            id: 'sk1', mahasiswa_id: 's1', studentName: 'Siti Aminah', university: 'Universitas Airlangga',
+            major: 'Kesehatan Masyarakat', nim: '0411234001',
+            nomor_surat: '001/BRIDA/SK-MG/2026', perangkat_daerah: 'Dinas Kesehatan',
+            tanggal_mulai: '2026-01-06', tanggal_selesai: '2026-06-06',
+            tanggal_terbit: '2026-06-10', created_at: '2026-06-10'
+        }
+    ]);
+    const [isSuratModalOpen, setIsSuratModalOpen] = useState(false);
+    const [suratForm, setSuratForm] = useState({ mahasiswa_id: '', nomor_surat: '', perangkat_daerah: '', tanggal_mulai: '', tanggal_selesai: '', nim: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '' });
+    const [isSuratPreviewOpen, setIsSuratPreviewOpen] = useState(false);
+    const [selectedSuratForPreview, setSelectedSuratForPreview] = useState(null);
 
     // --- PENILAIAN FUNCTIONS ---
     const openAssessmentModal = () => {
@@ -139,11 +157,13 @@ const AssessmentCertificate = () => {
     const handleScoreChange = (kriteriaId, field, value) => {
         setAssessmentForm(prev => ({
             ...prev,
-            scores: prev.scores.map(s =>
-                s.kriteria_id === kriteriaId
-                    ? { ...s, [field]: field === 'score' ? Math.min(100, Math.max(0, Number(value) || '')) : value }
-                    : s
-            )
+            scores: prev.scores.map(s => {
+                if (s.kriteria_id !== kriteriaId) return s;
+                if (field !== 'score') return { ...s, [field]: value };
+                const crit = criteria.find(c => c.id === kriteriaId);
+                const maxScore = crit?.category === 'behavior' ? 5 : 100;
+                return { ...s, score: Math.min(maxScore, Math.max(0, Number(value) || '')) };
+            })
         }));
     };
 
@@ -157,14 +177,17 @@ const AssessmentCertificate = () => {
         if (totalBobot === 0) return 0;
         const weightedTotal = validScores.reduce((sum, s) => {
             const crit = criteria.find(c => c.id === s.kriteria_id);
-            return sum + (Number(s.score) * (crit?.bobot || 0));
+            // Perilaku: Likert 1-5 ×20, Kinerja: langsung 1-100
+            const score = Number(s.score);
+            const converted = crit?.category === 'behavior' ? score * 20 : score;
+            return sum + (converted * (crit?.bobot || 0));
         }, 0);
         return (weightedTotal / totalBobot).toFixed(2);
     };
 
     const getBobotByCategory = (category) => criteria.filter(c => c.category === category).reduce((sum, c) => sum + (c.bobot || 0), 0);
 
-    const handleSaveAssessment = (e) => {
+    const handleSaveAssessment = async (e) => {
         e.preventDefault();
         const student = studentList.find(s => s.id === assessmentForm.mahasiswa_id);
         if (!student) return;
@@ -178,29 +201,105 @@ const AssessmentCertificate = () => {
             });
             return; 
         }
-        const newAssessment = {
-            id: `a${Date.now()}`, mahasiswa_id: assessmentForm.mahasiswa_id, studentName: student.name,
-            university: student.university, team: student.team, final_score: parseFloat(calculateFinalScore()),
-            feedback: assessmentForm.feedback, assessed_by: 'Admin Utama',
-            created_at: new Date().toISOString().split('T')[0],
-            scores: assessmentForm.scores.map(s => ({ ...s, score: Number(s.score) }))
-        };
-        setAssessments([newAssessment, ...assessments]);
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Data penilaian berhasil disimpan.',
-            confirmButtonColor: '#2563eb'
-        });
-        setIsAssessmentModalOpen(false);
+
+        // Pisahkan skor perilaku dan kinerja
+        const perilakuScores = assessmentForm.scores
+            .filter(s => criteria.find(c => c.id === s.kriteria_id)?.category === 'behavior')
+            .map(s => ({ kriteriaId: s.kriteria_id, score: Number(s.score), keterangan: s.keterangan }));
+        const kinerjaScores = assessmentForm.scores
+            .filter(s => criteria.find(c => c.id === s.kriteria_id)?.category === 'performance')
+            .map(s => ({ kriteriaId: s.kriteria_id, score: Number(s.score), keterangan: s.keterangan }));
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/penilaian/staff-assessment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    mahasiswaId: assessmentForm.mahasiswa_id,
+                    perilaku: { scores: perilakuScores, feedback: assessmentForm.feedback },
+                    kinerja: { scores: kinerjaScores, feedback: assessmentForm.feedback },
+                }),
+            });
+
+            if (!res.ok) {
+                let errMsg = `Gagal menyimpan penilaian (${res.status})`;
+                try {
+                    const errData = await res.json();
+                    errMsg = errData.message || errMsg;
+                } catch { /* response body kosong */ }
+                throw new Error(errMsg);
+            }
+
+            // Simpan ke UI (tanpa final_score — belum dihitung sampai semua assessor menilai)
+            const newAssessment = {
+                id: `a${Date.now()}`, mahasiswa_id: assessmentForm.mahasiswa_id, studentName: student.name,
+                university: student.university, team: student.team, final_score: null,
+                feedback: assessmentForm.feedback, assessed_by: 'Admin Utama',
+                created_at: new Date().toISOString().split('T')[0],
+                scores: assessmentForm.scores.map(s => ({ ...s, score: Number(s.score) }))
+            };
+            setAssessments([newAssessment, ...assessments]);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Penilaian berhasil disimpan. Nilai akhir akan dihitung setelah semua penilai (Self, Peer, Koordinator, Admin) selesai menilai.',
+                confirmButtonColor: '#2563eb'
+            });
+            setIsAssessmentModalOpen(false);
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: err.message || 'Terjadi kesalahan saat menyimpan penilaian.',
+                confirmButtonColor: '#ef4444'
+            });
+        }
     };
 
     // --- SERTIFIKAT FUNCTIONS ---
-    const openCertModal = () => { setCertForm({ mahasiswa_id: '', nomor_sertifikat: '', tanggal_mulai: '', tanggal_selesai: '' }); setIsCertModalOpen(true); };
+    const openCertModal = () => { setCertForm({ mahasiswa_id: '', nomor_sertifikat: '', tanggal_mulai: '', tanggal_selesai: '', nilai_akhir: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '' }); setIsCertModalOpen(true); };
 
     const handlePreviewCert = (cert) => {
         setSelectedCertForPreview(cert);
         setIsPreviewModalOpen(true);
+    };
+
+    // --- SURAT KETERANGAN FUNCTIONS ---
+    const openSuratModal = () => {
+        setSuratForm({ mahasiswa_id: '', nomor_surat: '', perangkat_daerah: '', tanggal_mulai: '', tanggal_selesai: '', nim: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '' });
+        setIsSuratModalOpen(true);
+    };
+
+    const handleSaveSurat = (generatedData) => {
+        const student = studentList.find(s => s.id === generatedData.mahasiswa_id);
+        if (!student) return;
+        const newSurat = {
+            id: `sk${Date.now()}`,
+            mahasiswa_id: generatedData.mahasiswa_id,
+            studentName: student.name,
+            university: student.university,
+            major: student.major,
+            nim: generatedData.nim || student.nim || '-',
+            nomor_surat: generatedData.nomor_surat,
+            perangkat_daerah: generatedData.perangkat_daerah,
+            tanggal_mulai: generatedData.tanggal_mulai,
+            tanggal_selesai: generatedData.tanggal_selesai,
+            tanggal_terbit: generatedData.tanggal_terbit,
+            kepala_name: generatedData.kepala_name || '',
+            kepala_nip: generatedData.kepala_nip || '',
+            instansi: generatedData.instansi || '',
+            jabatan_kepala: generatedData.jabatan_kepala || '',
+            created_at: new Date().toISOString().split('T')[0]
+        };
+        setSuratList([newSurat, ...suratList]);
+        setIsSuratModalOpen(false);
+        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Surat Keterangan berhasil diterbitkan.', confirmButtonColor: '#2563eb', timer: 1500, showConfirmButton: false });
+    };
+
+    const handlePreviewSurat = (surat) => {
+        setSelectedSuratForPreview(surat);
+        setIsSuratPreviewOpen(true);
     };
 
     const formatFileSize = (bytes) => {
@@ -225,6 +324,11 @@ const AssessmentCertificate = () => {
             tanggal_terbit: generatedData.tanggal_terbit,
             tanggal_mulai: generatedData.tanggal_mulai,
             tanggal_selesai: generatedData.tanggal_selesai,
+            nilai_akhir: generatedData.nilai_akhir || '',
+            kepala_name: generatedData.kepala_name || '',
+            kepala_nip: generatedData.kepala_nip || '',
+            instansi: generatedData.instansi || '',
+            jabatan_kepala: generatedData.jabatan_kepala || '',
             created_at: new Date().toISOString().split('T')[0]
         };
         setCertificates([newCert, ...certificates]);
@@ -311,6 +415,9 @@ const AssessmentCertificate = () => {
     const filteredCertificates = certificates.filter(c =>
         c.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || c.nomor_sertifikat.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const filteredSuratList = suratList.filter(sk =>
+        sk.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || sk.nomor_surat.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     // --- HELPERS ---
     const formatDate = (dateString) => {
@@ -357,6 +464,10 @@ const AssessmentCertificate = () => {
                                 className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'sertifikat' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                                 Sertifikat
                             </button>
+                            <button onClick={() => handleTabChange('surat_keterangan')}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'surat_keterangan' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                Surat Keterangan
+                            </button>
                         </div>
                         <div className="flex gap-2">
                             {activeTab === 'penilaian' && (
@@ -367,10 +478,21 @@ const AssessmentCertificate = () => {
                                     <span className="hidden sm:inline">Kelola Kriteria</span>
                                 </button>
                             )}
-                            <button onClick={activeTab === 'penilaian' ? openAssessmentModal : openCertModal}
-                                className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:-translate-y-0.5 active:scale-95">
-                                <span className="material-symbols-outlined notranslate text-[20px]">{activeTab === 'penilaian' ? 'rate_review' : 'workspace_premium'}</span>
-                                {activeTab === 'penilaian' ? 'Beri Penilaian' : 'Terbitkan Sertifikat'}
+                            <button onClick={
+                                activeTab === 'penilaian' ? openAssessmentModal :
+                                activeTab === 'sertifikat' ? openCertModal : openSuratModal
+                            }
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 active:scale-95 ${
+                                    activeTab === 'surat_keterangan'
+                                        ? 'bg-primary text-white hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)]'
+                                        : 'bg-primary text-white hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)]'
+                                }`}>
+                                <span className="material-symbols-outlined notranslate text-[20px]">
+                                    {activeTab === 'penilaian' ? 'rate_review' :
+                                     activeTab === 'sertifikat' ? 'workspace_premium' : 'description'}
+                                </span>
+                                {activeTab === 'penilaian' ? 'Beri Penilaian' :
+                                 activeTab === 'sertifikat' ? 'Terbitkan Sertifikat' : 'Terbitkan Surat'}
                             </button>
                         </div>
                     </div>
@@ -415,12 +537,26 @@ const AssessmentCertificate = () => {
                         </div>
                     )}
 
+                    {/* Stats Cards - Surat Keterangan Tab */}
+                    {activeTab === 'surat_keterangan' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                                <p className="text-xs font-medium text-blue-600 uppercase">Total Surat Diterbitkan</p>
+                                <p className="text-2xl font-bold text-blue-700 mt-1">{suratList.length}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                                <p className="text-xs font-medium text-slate-500 uppercase">Belum Terbit</p>
+                                <p className="text-2xl font-bold text-slate-900 mt-1">{studentList.length - suratList.length}</p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Search */}
                     <div className="flex items-center gap-2">
                         <div className="relative flex-1 sm:max-w-xs">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined notranslate text-[20px]">search</span>
                             <input type="text"
-                                placeholder={activeTab === 'penilaian' ? 'Cari nama atau universitas...' : 'Cari nama atau nomor sertifikat...'}
+                                placeholder={activeTab === 'penilaian' ? 'Cari nama atau universitas...' : activeTab === 'sertifikat' ? 'Cari nama atau nomor sertifikat...' : 'Cari nama atau nomor surat...'}
                                 value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setAnimationClass('animate-page-enter'); }}
                                 className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
                             />
@@ -434,6 +570,9 @@ const AssessmentCertificate = () => {
                         )}
                         {activeTab === 'sertifikat' && (
                             <CertificateTable certificates={filteredCertificates} formatDate={formatDate} formatFileSize={formatFileSize} onPreview={handlePreviewCert} />
+                        )}
+                        {activeTab === 'surat_keterangan' && (
+                            <SuratKeteranganTable suratList={filteredSuratList} formatDate={formatDate} onPreview={handlePreviewSurat} />
                         )}
                     </div>
                 </div>
@@ -462,6 +601,18 @@ const AssessmentCertificate = () => {
                 <CertificatePreviewModal
                     isOpen={isPreviewModalOpen} onClose={() => setIsPreviewModalOpen(false)}
                     certificate={selectedCertForPreview}
+                />
+
+                <SuratKeteranganGenerateModal
+                    isOpen={isSuratModalOpen} onClose={() => setIsSuratModalOpen(false)}
+                    suratForm={suratForm} setSuratForm={setSuratForm}
+                    studentList={studentList} suratList={suratList}
+                    handleSaveSurat={handleSaveSurat}
+                />
+
+                <SuratKeteranganPreviewModal
+                    isOpen={isSuratPreviewOpen} onClose={() => setIsSuratPreviewOpen(false)}
+                    surat={selectedSuratForPreview}
                 />
             </main>
 

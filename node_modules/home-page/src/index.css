@@ -94,7 +94,7 @@
   .hero-bg-gradient {
     @apply absolute inset-0;
     z-index: 0;
-    background: linear-gradient(to bottom right, #1e3a8a, #2d4a9a);
+    background: linear-gradient(to bottom right, #1e3a8a, #3b5998, #64748b);
   }
 
   .hero-bg-gradient::before {

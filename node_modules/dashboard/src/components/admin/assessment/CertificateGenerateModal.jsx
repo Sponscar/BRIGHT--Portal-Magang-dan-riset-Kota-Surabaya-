@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import CertificateTemplate from './CertificateTemplate';
 import Swal from 'sweetalert2';
 import ModalPortal from '../ModalPortal';
+import { perangkatDaerah } from '../../../data/perangkatDaerah';
 
 const CertificateGenerateModal = ({
     isOpen, onClose,
@@ -14,12 +15,17 @@ const CertificateGenerateModal = ({
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const dropdownRef = useRef(null);
+    const [isInstansiDropdownOpen, setIsInstansiDropdownOpen] = useState(false);
+    const instansiRef = useRef(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setIsDropdownOpen(false);
+            }
+            if (instansiRef.current && !instansiRef.current.contains(e.target)) {
+                setIsInstansiDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -46,6 +52,10 @@ const CertificateGenerateModal = ({
     const filteredStudents = availableStudents.filter(s =>
         s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.university.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredInstansi = perangkatDaerah.filter(pd => 
+        pd.toLowerCase().includes((certForm.instansi || '').toLowerCase())
     );
 
     // Dynamic start and end date for the template
@@ -194,6 +204,81 @@ const CertificateGenerateModal = ({
                                 />
                             </div>
                         </div>
+                        <div>
+                            <label className="block text-sm font-bold text-slate-900 mb-1">Nilai Akhir</label>
+                            <input
+                                type="number" min="0" max="100" step="0.01"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                placeholder="Contoh: 85.65"
+                                value={certForm.nilai_akhir || ''}
+                                onChange={(e) => setCertForm({ ...certForm, nilai_akhir: e.target.value })}
+                            />
+                        </div>
+
+                        {/* Instansi/Lembaga Section */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-4 space-y-3">
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Detail Instansi & Pejabat</p>
+                            <div className="relative" ref={instansiRef}>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Instansi</label>
+                                <div className="relative">
+                                    <input type="text"
+                                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white pr-8"
+                                        placeholder="Cari instansi..."
+                                        value={certForm.instansi || ''}
+                                        onChange={(e) => { setCertForm({ ...certForm, instansi: e.target.value }); setIsInstansiDropdownOpen(true); }}
+                                        onFocus={() => setIsInstansiDropdownOpen(true)}
+                                    />
+                                    <span className="material-symbols-outlined notranslate absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">
+                                        {isInstansiDropdownOpen ? 'expand_less' : 'expand_more'}
+                                    </span>
+                                </div>
+                                {isInstansiDropdownOpen && (
+                                    <div className="absolute z-10 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        {filteredInstansi.length > 0 ? filteredInstansi.map((pd, index) => (
+                                            <button key={index} type="button"
+                                                className="w-full text-left px-3 py-2 hover:bg-primary/5 transition-colors text-sm border-b border-slate-50 last:border-b-0 truncate"
+                                                onClick={() => { setCertForm({ ...certForm, instansi: pd }); setIsInstansiDropdownOpen(false); }}>
+                                                {pd}
+                                            </button>
+                                        )) : (
+                                            <div className="px-4 py-3 text-sm text-slate-400 text-center">Tidak ada kecocokan</div>
+                                        )}
+                                        <button type="button"
+                                            className="w-full text-left px-3 py-2 hover:bg-primary/5 transition-colors text-sm border-t border-slate-100 font-semibold text-blue-600 truncate bg-slate-50"
+                                            onClick={() => { setCertForm({ ...certForm, instansi: "Badan Riset dan Inovasi Daerah" }); setIsInstansiDropdownOpen(false); }}>
+                                            Badan Riset dan Inovasi Daerah
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Jabatan Penandatangan</label>
+                                <input type="text"
+                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                    placeholder="Kepala Badan"
+                                    value={certForm.jabatan_kepala || ''}
+                                    onChange={(e) => setCertForm({ ...certForm, jabatan_kepala: e.target.value })}
+                                />
+                            </div>
+                            <div className="pt-2 border-t border-slate-200">
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Pejabat</label>
+                                <input type="text"
+                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                    placeholder="Dr. Agus Imam Sonhaji, S.T, M.MT."
+                                    value={certForm.kepala_name || ''}
+                                    onChange={(e) => setCertForm({ ...certForm, kepala_name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">NIP Pejabat</label>
+                                <input type="text"
+                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                    placeholder="197010231996021001"
+                                    value={certForm.kepala_nip || ''}
+                                    onChange={(e) => setCertForm({ ...certForm, kepala_nip: e.target.value })}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="pt-6 mt-4 border-t border-slate-100 flex flex-col gap-3">
@@ -245,6 +330,11 @@ const CertificateGenerateModal = ({
                                 certificateId={certForm.nomor_sertifikat}
                                 startDate={startDate}
                                 endDate={endDate}
+                                nilaiAkhir={certForm.nilai_akhir}
+                                kepalaName={certForm.kepala_name}
+                                kepalaNip={certForm.kepala_nip}
+                                instansi={certForm.instansi || 'Badan Riset dan Inovasi Daerah'}
+                                jabatanKepala={certForm.jabatan_kepala || 'Kepala Badan'}
                             />
                         </div>
                     </div>

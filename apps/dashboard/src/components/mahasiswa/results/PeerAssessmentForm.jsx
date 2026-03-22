@@ -37,7 +37,7 @@ const PeerAssessmentForm = ({ peers, criteria, onSubmit }) => {
         setScores(prev =>
             prev.map(s =>
                 s.kriteriaId === kriteriaId
-                    ? { ...s, [field]: field === 'score' ? Math.min(100, Math.max(0, Number(value) || '')) : value }
+                    ? { ...s, [field]: field === 'score' ? Math.min(5, Math.max(0, Number(value) || '')) : value }
                     : s
             )
         );
@@ -236,7 +236,7 @@ const PeerAssessmentForm = ({ peers, criteria, onSubmit }) => {
                                         </div>
                                         <div className="col-span-3 sm:col-span-2">
                                             <input
-                                                type="number" min="1" max="100" placeholder="0-100"
+                                                type="number" min="1" max="5" step="1" placeholder="1-5"
                                                 className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-amber-200 focus:border-amber-400 outline-none"
                                                 value={s.score}
                                                 onChange={(e) => handleScoreChange(s.kriteriaId, 'score', e.target.value)}
@@ -265,8 +265,9 @@ const PeerAssessmentForm = ({ peers, criteria, onSubmit }) => {
                                     />
                                 </div>
                                 <div className="flex flex-col items-center justify-center bg-amber-50 rounded-xl border border-amber-200 p-3">
-                                    <span className="text-xs font-medium text-amber-500 uppercase">Rata-rata</span>
+                                    <span className="text-xs font-medium text-amber-500 uppercase">Rata-rata (Likert)</span>
                                     <span className="text-2xl font-bold text-amber-600">{getAvgScore()}</span>
+                                    <span className="text-xs text-amber-400 mt-0.5">= {(getAvgScore() * 20).toFixed(0)} / 100</span>
                                 </div>
                             </div>
 

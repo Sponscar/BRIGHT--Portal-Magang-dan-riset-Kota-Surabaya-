@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { registerUser } from '../../context/AuthContext';
 import universities from '../../data/universities';
 import { provinces, kotaKabupatenJawaTimur, kecamatanKelurahanSurabaya } from '../../data/regions';
 import { perangkatDaerah } from '../../data/perangkatDaerah';
@@ -364,23 +365,38 @@ const Register = () => {
             return;
         }
 
-        console.log('Registering:', formData);
-        const userToSave = {
-            email: formData.email, password: formData.password,
-            name: formData.fullName, nik: formData.nik, phone: formData.phone, whatsapp: formData.whatsapp,
-            provinsi: formData.provinsi, kotaKabupaten: formData.kotaKabupaten,
-            kecamatan: formData.kecamatan, kelurahan: formData.kelurahan,
+        // Simpan ke daftar registered users
+        registerUser({
+            email: formData.email,
+            password: formData.password,
+            name: formData.fullName,
+            fullName: formData.fullName,
+            nik: formData.nik,
+            phone: formData.phone,
+            whatsapp: formData.whatsapp,
+            provinsi: formData.provinsi,
+            kotaKabupaten: formData.kotaKabupaten,
+            kecamatan: formData.kecamatan,
+            kelurahan: formData.kelurahan,
             alamatLengkap: formData.alamatLengkap,
-            university: formData.university, major: formData.major, nim: formData.nim,
+            university: formData.university,
+            major: formData.major,
+            nim: formData.nim,
             universityAddress: formData.universityAddress,
             kategoriPengajuan: formData.kategoriPengajuan,
             internshipType: formData.internshipType,
             judulRiset: formData.judulRiset,
             perangkatDaerah: formData.perangkatDaerah,
-            role: 'student', status: 'pending'
-        };
-        localStorage.setItem('brida_latest_registration', JSON.stringify(userToSave));
-        navigate('/login');
+        });
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Registrasi Berhasil!',
+            text: 'Silakan login dengan email dan password yang telah didaftarkan.',
+            confirmButtonColor: '#2563eb'
+        }).then(() => {
+            navigate('/login');
+        });
     };
 
     return (

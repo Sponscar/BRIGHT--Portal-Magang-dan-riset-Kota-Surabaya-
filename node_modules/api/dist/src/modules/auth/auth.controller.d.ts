@@ -5,6 +5,7 @@ export declare class AuthController {
     constructor(authService: AuthService);
     register(dto: RegisterDto): Promise<{
         message: string;
+        otp: string;
     }>;
     verifyEmail(dto: VerifyEmailDto): Promise<{
         message: string;

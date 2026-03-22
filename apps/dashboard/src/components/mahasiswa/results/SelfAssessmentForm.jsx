@@ -13,7 +13,7 @@ const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSub
         setScores(prev =>
             prev.map(s =>
                 s.kriteriaId === kriteriaId
-                    ? { ...s, [field]: field === 'score' ? Math.min(100, Math.max(0, Number(value) || '')) : value }
+                    ? { ...s, [field]: field === 'score' ? Math.min(5, Math.max(0, Number(value) || '')) : value }
                     : s
             )
         );
@@ -87,7 +87,7 @@ const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSub
                                 </div>
                                 <div className="col-span-3 sm:col-span-2">
                                     <input
-                                        type="number" min="1" max="100" placeholder="0-100"
+                                        type="number" min="1" max="5" step="1" placeholder="1-5"
                                         disabled={hasSelfAssessment}
                                         className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                                         value={s.score}
@@ -119,8 +119,9 @@ const SelfAssessmentForm = ({ criteria, hasSelfAssessment, existingScores, onSub
                             />
                         </div>
                         <div className="flex flex-col items-center justify-center bg-blue-50 rounded-xl border border-blue-200 p-3">
-                            <span className="text-xs font-medium text-blue-500 uppercase">Rata-rata</span>
+                            <span className="text-xs font-medium text-blue-500 uppercase">Rata-rata (Likert)</span>
                             <span className="text-2xl font-bold text-blue-600">{getAvgScore()}</span>
+                            <span className="text-xs text-blue-400 mt-0.5">= {(getAvgScore() * 20).toFixed(0)} / 100</span>
                         </div>
                     </div>
 

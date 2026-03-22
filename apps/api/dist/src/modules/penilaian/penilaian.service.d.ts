@@ -1,8 +1,10 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Penilaian, Mahasiswa, NilaiAkhir, UserRole } from '../../entities';
+import { NotificationGateway } from '../notification/notification.gateway';
 export declare class PenilaianService {
     private readonly em;
-    constructor(em: EntityManager);
+    private readonly notificationGateway;
+    constructor(em: EntityManager, notificationGateway: NotificationGateway);
     submitSelfAssessment(userId: string, data: {
         scores: {
             kriteriaId: string;

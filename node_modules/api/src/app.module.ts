@@ -36,6 +36,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { KurikulumMagangModule } from './modules/kurikulum-magang/kurikulum-magang.module';
 import { PerguruanTinggiModule } from './modules/perguruan-tinggi/perguruan-tinggi.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 const entities = [
   User, OtpToken, Mahasiswa, TusiBrida, Dokumen, Administrasi,
@@ -88,6 +89,7 @@ const entities = [
     KurikulumMagangModule,
     PerguruanTinggiModule,
     FeedbackModule,
+    NotificationModule,
   ],
   providers: [
     {

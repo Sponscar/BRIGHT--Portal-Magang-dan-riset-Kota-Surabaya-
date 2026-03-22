@@ -35,10 +35,10 @@ const Sidebar = () => {
                 {/* Elegant Background Motif - Batik Kawung */}
                 <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                     <div
-                        className="absolute inset-0 opacity-15"
+                        className="absolute inset-0 z-0 overflow-hidden"
                         style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 40c-11-11-25-11-35 0-11 11-11 25 0 35 11 11 25 11 35 0 11-11 11-25 0-35zm0 25c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zM10 10c11 11 25 11 35 0 11-11 11-25 0-35-11-11-25-11-35 0-11 11-11 25 0 35zm25-15c0 5.5-4.5 10-10 10S15-4.5 15-10s4.5-10 10-10 10 4.5 10 10zM70 70c11 11 25 11 35 0 11-11 11-25 0-35-11-11-25-11-35 0-11 11-11 25 0 35zm25-15c0 5.5-4.5 10-10 10S75 55.5 75 50s4.5-10 10-10 10 4.5 10 10zM10 70c-11-11-11-25 0-35 11-11 25-11 35 0 11 11 11 25 0 35-11 11-25 11-35 0zm15-25c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zM70 10c-11 11-11 25 0 35 11 11 25 11 35 0 11-11 11-25 0-35-11-11-25-11-35 0zm15 25c-5.5 0-10-4.5-10-10S85-4.5 85-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10z' fill='%23ffffff' fill-opacity='0.6' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-                            backgroundSize: '40px 40px'
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='kawungReal' patternUnits='userSpaceOnUse' width='60' height='60'%3E%3Crect width='60' height='60' fill='none'/%3E%3Cg transform='rotate(45 30 30)' fill='rgba(255,255,255,0.08)' stroke='rgba(255,255,255,0.4)' stroke-width='1'%3E%3Cellipse cx='30' cy='10' rx='10' ry='20'/%3E%3Cellipse cx='30' cy='50' rx='10' ry='20'/%3E%3Cellipse cx='10' cy='30' rx='20' ry='10'/%3E%3Cellipse cx='50' cy='30' rx='20' ry='10'/%3E%3Ccircle cx='30' cy='30' r='4' fill='rgba(255,255,255,0.6)' stroke='none'/%3E%3C/g%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23kawungReal)'/%3E%3C/svg%3E")`,
+                            backgroundSize: '100px 100px'
                         }}
                     ></div>
                     <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/80 to-transparent"></div>

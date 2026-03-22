@@ -6,7 +6,8 @@ const AssessmentFormModal = ({
     assessmentForm, setAssessmentForm,
     criteria, studentList, assessments,
     handleScoreChange, calculateFinalScore,
-    handleSaveAssessment, getScoreColor, getScoreLabel
+    handleSaveAssessment, getScoreColor, getScoreLabel,
+    currentUserRole = 'admin'
 }) => {
     const [isClosing, setIsClosing] = useState(false);
 
@@ -23,6 +24,21 @@ const AssessmentFormModal = ({
     const behaviorCriteria = criteria.filter(c => c.category === 'behavior');
     const performanceCriteria = criteria.filter(c => c.category === 'performance');
 
+    // --- Kinerja Lock Logic ---
+    const selectedStudentAssessment = assessments.find(a => a.mahasiswa_id === assessmentForm.mahasiswa_id);
+    const kinerjaLockedBy = (() => {
+        if (!selectedStudentAssessment?.assessmentStatus) return null;
+        const status = selectedStudentAssessment.assessmentStatus;
+        if (currentUserRole === 'admin' && (status.koordinator_kinerja || status.sekretaris_kinerja)) {
+            return 'Koordinator';
+        }
+        if ((currentUserRole === 'koordinator' || currentUserRole === 'sekretaris') && status.admin_kinerja) {
+            return 'Admin';
+        }
+        return null;
+    })();
+    const isKinerjaLocked = !!kinerjaLockedBy;
+
     const getBehaviorAvg = () => {
         const behaviorScores = assessmentForm.scores.filter(s => {
             const crit = criteria.find(c => c.id === s.kriteria_id);
@@ -31,6 +47,8 @@ const AssessmentFormModal = ({
         if (behaviorScores.length === 0) return 0;
         return (behaviorScores.reduce((sum, s) => sum + Number(s.score), 0) / behaviorScores.length).toFixed(1);
     };
+
+    const getBehaviorConverted = () => (getBehaviorAvg() * 20).toFixed(0);
 
     const getPerformanceAvg = () => {
         const perfScores = assessmentForm.scores.filter(s => {
@@ -41,6 +59,7 @@ const AssessmentFormModal = ({
         return (perfScores.reduce((sum, s) => sum + Number(s.score), 0) / perfScores.length).toFixed(1);
     };
 
+
     const getGradeInfo = (score) => {
         const s = parseFloat(score);
         if (s >= 86) return { grade: 'A', label: 'Sangat Baik', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' };
@@ -49,42 +68,53 @@ const AssessmentFormModal = ({
         return { grade: 'D', label: 'Perlu Perbaikan', color: 'text-blue-600 bg-blue-50 border-blue-200' };
     };
 
-    const renderCriteriaSection = (title, icon, iconColor, criteriaList) => (
-        <div>
-            <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                <span className={`material-symbols-outlined notranslate ${iconColor} text-[18px]`}>{icon}</span>
-                {title}
-            </h4>
-            <div className="space-y-3">
-                {criteriaList.map(crit => {
-                    const scoreObj = assessmentForm.scores.find(s => s.kriteria_id === crit.id);
-                    return (
-                        <div key={crit.id} className="grid grid-cols-12 gap-3 items-center bg-slate-50 rounded-xl p-3 border border-slate-100">
-                            <div className="col-span-5">
-                                <span className="text-sm font-medium text-slate-700">{crit.name}</span>
+    const renderCriteriaSection = (title, icon, iconColor, criteriaList, category, disabled = false) => {
+        const isLikert = category === 'behavior';
+        const maxScore = isLikert ? 5 : 100;
+        const placeholder = isLikert ? '1-5' : '0-100';
+
+        return (
+            <div className={disabled ? 'opacity-50 pointer-events-none' : ''}>
+                <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <span className={`material-symbols-outlined notranslate ${iconColor} text-[18px]`}>{icon}</span>
+                    {title}
+                </h4>
+                {isLikert && (
+                    <p className="text-xs text-slate-400 mb-3 ml-7">Skala Likert: 1 (Sangat Kurang) — 5 (Sangat Baik)</p>
+                )}
+                <div className="space-y-3">
+                    {criteriaList.map(crit => {
+                        const scoreObj = assessmentForm.scores.find(s => s.kriteria_id === crit.id);
+                        return (
+                            <div key={crit.id} className="grid grid-cols-12 gap-3 items-center bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                <div className="col-span-5">
+                                    <span className="text-sm font-medium text-slate-700">{crit.name}</span>
+                                </div>
+                                <div className="col-span-2">
+                                    <input
+                                        type="number" min="1" max={maxScore} step="1" required={!disabled} placeholder={placeholder}
+                                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                        value={scoreObj?.score ?? ''}
+                                        onChange={(e) => handleScoreChange(crit.id, 'score', e.target.value)}
+                                        disabled={disabled}
+                                    />
+                                </div>
+                                <div className="col-span-5">
+                                    <input
+                                        type="text" placeholder="Keterangan..."
+                                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                        value={scoreObj?.keterangan ?? ''}
+                                        onChange={(e) => handleScoreChange(crit.id, 'keterangan', e.target.value)}
+                                        disabled={disabled}
+                                    />
+                                </div>
                             </div>
-                            <div className="col-span-2">
-                                <input
-                                    type="number" min="1" max="100" required placeholder="0-100"
-                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                                    value={scoreObj?.score ?? ''}
-                                    onChange={(e) => handleScoreChange(crit.id, 'score', e.target.value)}
-                                />
-                            </div>
-                            <div className="col-span-5">
-                                <input
-                                    type="text" placeholder="Keterangan..."
-                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                                    value={scoreObj?.keterangan ?? ''}
-                                    onChange={(e) => handleScoreChange(crit.id, 'keterangan', e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const finalScore = calculateFinalScore();
     const gradeInfo = getGradeInfo(finalScore);
@@ -120,26 +150,39 @@ const AssessmentFormModal = ({
                     {renderCriteriaSection(
                         'A. Perilaku Kerja (Behavior) — Bobot 40%',
                         'psychology', 'text-blue-500',
-                        behaviorCriteria
+                        behaviorCriteria, 'behavior'
                     )}
 
                     {/* Rata-rata Perilaku */}
                     <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
-                        <span className="text-sm font-bold text-blue-700">Rata-rata Perilaku:</span>
+                        <span className="text-sm font-bold text-blue-700">Rata-rata Perilaku (Likert):</span>
                         <span className="text-lg font-bold text-blue-600">{getBehaviorAvg()}</span>
+                        <span className="text-xs text-blue-400">= {getBehaviorConverted()} / 100</span>
                     </div>
+
+                    {/* Kinerja Lock Banner */}
+                    {isKinerjaLocked && (
+                        <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                            <span className="material-symbols-outlined notranslate text-amber-500 text-[20px]">lock</span>
+                            <div>
+                                <p className="text-sm font-bold text-amber-700">Kinerja Terkunci</p>
+                                <p className="text-xs text-amber-600">Penilaian kinerja mahasiswa ini sudah dilakukan oleh <strong>{kinerjaLockedBy}</strong>. Hanya satu penilai yang dapat menilai kinerja.</p>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Kinerja */}
                     {renderCriteriaSection(
                         'B. Kinerja (Performance) — Bobot 60%',
                         'trending_up', 'text-emerald-500',
-                        performanceCriteria
+                        performanceCriteria, 'performance',
+                        isKinerjaLocked
                     )}
 
                     {/* Rata-rata Kinerja */}
-                    <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                        <span className="text-sm font-bold text-emerald-700">Rata-rata Kinerja:</span>
-                        <span className="text-lg font-bold text-emerald-600">{getPerformanceAvg()}</span>
+                    <div className={`flex items-center gap-3 p-3 rounded-xl border ${isKinerjaLocked ? 'bg-slate-50 border-slate-200' : 'bg-emerald-50 border-emerald-200'}`}>
+                        <span className={`text-sm font-bold ${isKinerjaLocked ? 'text-slate-400' : 'text-emerald-700'}`}>Rata-rata Kinerja:</span>
+                        <span className={`text-lg font-bold ${isKinerjaLocked ? 'text-slate-400' : 'text-emerald-600'}`}>{isKinerjaLocked ? '—' : getPerformanceAvg()}</span>
                     </div>
 
                     {/* Feedback & Final Score */}

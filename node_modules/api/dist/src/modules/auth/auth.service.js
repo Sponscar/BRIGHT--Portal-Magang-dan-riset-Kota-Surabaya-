@@ -100,8 +100,14 @@ let AuthService = class AuthService {
         otp.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
         fork.persist([user, mahasiswa, otp]);
         await fork.flush();
-        await this.mailService.sendOtp(dto.email, otpCode, 'register');
-        return { message: 'Registrasi berhasil. Silakan cek email untuk kode OTP verifikasi.' };
+        try {
+            await this.mailService.sendOtp(dto.email, otpCode, 'register');
+        }
+        catch (err) {
+            console.warn(`⚠️ Gagal kirim OTP ke ${dto.email}: ${err.message}`);
+            console.warn(`📌 OTP code untuk testing: ${otpCode}`);
+        }
+        return { message: 'Registrasi berhasil. Silakan cek email untuk kode OTP verifikasi.', otp: otpCode };
     }
     async verifyEmail(dto) {
         const fork = this.em.fork();

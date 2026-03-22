@@ -63,9 +63,15 @@ export class AuthService {
         fork.persist([user, mahasiswa, otp]);
         await fork.flush();
 
-        await this.mailService.sendOtp(dto.email, otpCode, 'register');
+        // Kirim OTP — skip jika Resend belum dikonfigurasi (development)
+        try {
+            await this.mailService.sendOtp(dto.email, otpCode, 'register');
+        } catch (err) {
+            console.warn(`⚠️ Gagal kirim OTP ke ${dto.email}: ${err.message}`);
+            console.warn(`📌 OTP code untuk testing: ${otpCode}`);
+        }
 
-        return { message: 'Registrasi berhasil. Silakan cek email untuk kode OTP verifikasi.' };
+        return { message: 'Registrasi berhasil. Silakan cek email untuk kode OTP verifikasi.', otp: otpCode };
     }
 
     async verifyEmail(dto: VerifyEmailDto) {

@@ -13,6 +13,7 @@ exports.PenilaianService = void 0;
 const common_1 = require("@nestjs/common");
 const postgresql_1 = require("@mikro-orm/postgresql");
 const entities_1 = require("../../entities");
+const notification_gateway_1 = require("../notification/notification.gateway");
 const STAFF_ASSESSOR_ROLES = [
     entities_1.UserRole.ADMIN,
     entities_1.UserRole.SEKRETARIATAN,
@@ -21,11 +22,10 @@ const STAFF_ASSESSOR_ROLES = [
     entities_1.UserRole.KEPALA_BRIDA,
 ];
 const PERILAKU_WEIGHT = {
-    [entities_1.AssessorType.SELF]: 0.10,
-    [entities_1.AssessorType.PEER]: 0.15,
-    [entities_1.AssessorType.KOORDINATOR]: 0.25,
-    [entities_1.AssessorType.KEPALA_BRIDA]: 0.25,
-    [entities_1.AssessorType.ADMIN]: 0.25,
+    koordinator: 0.30,
+    self: 0.15,
+    peer: 0.20,
+    admin: 0.35,
 };
 function likertToScale100(likertScore) {
     return likertScore * 20;
@@ -52,8 +52,10 @@ function mapRoleToAssessorType(role) {
 }
 let PenilaianService = class PenilaianService {
     em;
-    constructor(em) {
+    notificationGateway;
+    constructor(em, notificationGateway) {
         this.em = em;
+        this.notificationGateway = notificationGateway;
     }
     async submitSelfAssessment(userId, data) {
         const fork = this.em.fork();
@@ -69,7 +71,15 @@ let PenilaianService = class PenilaianService {
         });
         if (existing)
             throw new common_1.BadRequestException('Anda sudah pernah menilai diri sendiri');
-        return this.savePenilaian(fork, mahasiswa, user, entities_1.AssessorType.SELF, entities_1.PenilaianComponent.PERILAKU, data);
+        const result = await this.savePenilaian(fork, mahasiswa, user, entities_1.AssessorType.SELF, entities_1.PenilaianComponent.PERILAKU, data);
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            assessorType: 'SELF',
+            assessorName: mahasiswa.fullName,
+            component: 'PERILAKU',
+        });
+        return result;
     }
     async submitPeerAssessment(userId, data) {
         const fork = this.em.fork();
@@ -93,7 +103,15 @@ let PenilaianService = class PenilaianService {
         });
         if (existing)
             throw new common_1.BadRequestException('Anda sudah pernah menilai teman ini');
-        return this.savePenilaian(fork, targetMahasiswa, user, entities_1.AssessorType.PEER, entities_1.PenilaianComponent.PERILAKU, data, assessorMahasiswa);
+        const result = await this.savePenilaian(fork, targetMahasiswa, user, entities_1.AssessorType.PEER, entities_1.PenilaianComponent.PERILAKU, data, assessorMahasiswa);
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: targetMahasiswa.id,
+            mahasiswaName: targetMahasiswa.fullName,
+            assessorType: 'PEER',
+            assessorName: assessorMahasiswa.fullName,
+            component: 'PERILAKU',
+        });
+        return result;
     }
     async submitStaffAssessment(userId, userRole, data) {
         if (!STAFF_ASSESSOR_ROLES.includes(userRole)) {
@@ -121,6 +139,13 @@ let PenilaianService = class PenilaianService {
             throw new common_1.BadRequestException('Anda sudah pernah menilai kinerja mahasiswa ini');
         const perilaku = await this.savePenilaian(fork, mahasiswa, user, assessorType, entities_1.PenilaianComponent.PERILAKU, data.perilaku);
         const kinerja = await this.savePenilaian(fork, mahasiswa, user, assessorType, entities_1.PenilaianComponent.KINERJA, data.kinerja);
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            assessorType: assessorType,
+            assessorName: user.name,
+            component: 'PERILAKU + KINERJA',
+        });
         return { perilaku, kinerja };
     }
     async calculateFinalScore(mahasiswaId) {
@@ -149,22 +174,33 @@ let PenilaianService = class PenilaianService {
         const koordinatorScores = [
             ...(perilakuScoresByType[entities_1.AssessorType.KOORDINATOR] || []),
             ...(perilakuScoresByType[entities_1.AssessorType.SEKRETARIS] || []),
+            ...(perilakuScoresByType[entities_1.AssessorType.KEPALA_BRIDA] || []),
         ];
         const koordinatorAvg = koordinatorScores.length > 0
             ? koordinatorScores.reduce((s, v) => s + v, 0) / koordinatorScores.length
             : null;
         const assessorBuckets = [
-            { type: entities_1.AssessorType.SELF, avg: getTypeAvg(entities_1.AssessorType.SELF), weight: PERILAKU_WEIGHT[entities_1.AssessorType.SELF] },
-            { type: entities_1.AssessorType.PEER, avg: getTypeAvg(entities_1.AssessorType.PEER), weight: PERILAKU_WEIGHT[entities_1.AssessorType.PEER] },
-            { type: 'koordinator_bucket', avg: koordinatorAvg, weight: PERILAKU_WEIGHT[entities_1.AssessorType.KOORDINATOR] },
-            { type: entities_1.AssessorType.KEPALA_BRIDA, avg: getTypeAvg(entities_1.AssessorType.KEPALA_BRIDA), weight: PERILAKU_WEIGHT[entities_1.AssessorType.KEPALA_BRIDA] },
-            { type: entities_1.AssessorType.ADMIN, avg: getTypeAvg(entities_1.AssessorType.ADMIN), weight: PERILAKU_WEIGHT[entities_1.AssessorType.ADMIN] },
+            { type: 'self', avg: getTypeAvg(entities_1.AssessorType.SELF), weight: PERILAKU_WEIGHT.self },
+            { type: 'peer', avg: getTypeAvg(entities_1.AssessorType.PEER), weight: PERILAKU_WEIGHT.peer },
+            { type: 'koordinator', avg: koordinatorAvg, weight: PERILAKU_WEIGHT.koordinator },
+            { type: 'admin', avg: getTypeAvg(entities_1.AssessorType.ADMIN), weight: PERILAKU_WEIGHT.admin },
         ];
-        const activeBuckets = assessorBuckets.filter(b => b.avg !== null);
-        const totalActiveWeight = activeBuckets.reduce((sum, b) => sum + b.weight, 0);
+        const missingBuckets = assessorBuckets.filter(b => b.avg === null);
+        if (missingBuckets.length > 0) {
+            const bucketLabels = {
+                self: 'Diri Sendiri',
+                peer: 'Teman Magang',
+                koordinator: 'Koordinator',
+                admin: 'Admin',
+            };
+            const missing = missingBuckets.map(b => bucketLabels[b.type] || b.type).join(', ');
+            throw new common_1.BadRequestException(`Tidak dapat menghitung nilai akhir. Penilaian perilaku belum lengkap. ` +
+                `Belum ada penilaian dari: ${missing}.`);
+        }
+        const totalActiveWeight = assessorBuckets.reduce((sum, b) => sum + b.weight, 0);
         let rataPerilaku = 0;
         if (totalActiveWeight > 0) {
-            rataPerilaku = activeBuckets.reduce((sum, b) => {
+            rataPerilaku = assessorBuckets.reduce((sum, b) => {
                 const normalizedWeight = b.weight / totalActiveWeight;
                 return sum + (b.avg * normalizedWeight);
             }, 0);
@@ -196,6 +232,14 @@ let PenilaianService = class PenilaianService {
         nilaiAkhir.nilaiAkhir = Number(nilaiAkhirValue.toFixed(2));
         nilaiAkhir.grade = grade;
         await fork.flush();
+        const predikatMap = { A: 'Sangat Baik', B: 'Baik', C: 'Cukup', D: 'Perlu Perbaikan' };
+        this.notificationGateway.emitPenilaianComplete({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            nilaiAkhir: nilaiAkhir.nilaiAkhir,
+            grade,
+            predikat: predikatMap[grade] || grade,
+        });
         return nilaiAkhir;
     }
     async getScoreSummary(mahasiswaId) {
@@ -300,10 +344,18 @@ let PenilaianService = class PenilaianService {
         fork.persist(penilaian);
         let totalScore = 0;
         let count = 0;
+        const isPerilaku = component === entities_1.PenilaianComponent.PERILAKU;
         for (const s of data.scores) {
             const kriteria = await fork.findOneOrFail(entities_1.KriteriaPenilaian, { id: s.kriteriaId });
-            if (s.score < 1 || s.score > 5) {
-                throw new common_1.BadRequestException(`Skor harus antara 1-5, diterima: ${s.score}`);
+            if (isPerilaku) {
+                if (s.score < 1 || s.score > 5) {
+                    throw new common_1.BadRequestException(`Skor perilaku harus antara 1-5 (Likert), diterima: ${s.score}`);
+                }
+            }
+            else {
+                if (s.score < 1 || s.score > 100) {
+                    throw new common_1.BadRequestException(`Skor kinerja harus antara 1-100, diterima: ${s.score}`);
+                }
             }
             const nilai = new entities_1.NilaiPenilaian();
             nilai.penilaian = penilaian;
@@ -311,7 +363,7 @@ let PenilaianService = class PenilaianService {
             nilai.score = s.score;
             nilai.keterangan = s.keterangan;
             fork.persist(nilai);
-            totalScore += likertToScale100(s.score);
+            totalScore += isPerilaku ? likertToScale100(s.score) : s.score;
             count++;
         }
         penilaian.finalScore = count > 0 ? Number((totalScore / count).toFixed(2)) : 0;
@@ -346,6 +398,7 @@ let PenilaianService = class PenilaianService {
 exports.PenilaianService = PenilaianService;
 exports.PenilaianService = PenilaianService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [postgresql_1.EntityManager])
+    __metadata("design:paramtypes", [postgresql_1.EntityManager,
+        notification_gateway_1.NotificationGateway])
 ], PenilaianService);
 //# sourceMappingURL=penilaian.service.js.map

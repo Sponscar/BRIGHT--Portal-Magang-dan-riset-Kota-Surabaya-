@@ -35,38 +35,20 @@ const Login = () => {
             return;
         }
 
-        // Determine role based on email for the new UI which doesn't have a selector
-        const role = email.includes('admin') ? 'admin' : 'student';
-
-        // Check for registered user data
-        let userData = {};
-        const savedRegistration = localStorage.getItem('brida_latest_registration');
-        if (savedRegistration) {
-            const parsedReg = JSON.parse(savedRegistration);
-            if (parsedReg.email === email && parsedReg.password === password) {
-                userData = {
-                    name: parsedReg.name,
-                    phone: parsedReg.phone,
-                    address: parsedReg.address,
-                    university: parsedReg.university,
-                    major: parsedReg.major,
-                    internshipType: parsedReg.internshipType,
-                    timKerja: parsedReg.timKerja
-                };
+        try {
+            const user = login(email, password);
+            if (user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/student');
             }
-        }
-
-        // If simply logging in without registration (demo purpose), allow it but use default name if not found
-        // For admin, hardcode name
-        if (role === 'admin') {
-            userData = { name: 'Administrator' };
-        }
-
-        const user = login(email, password, role, userData);
-        if (user.role === 'admin') {
-            navigate('/admin');
-        } else {
-            navigate('/student');
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal',
+                text: err.message,
+                confirmButtonColor: '#e53e3e'
+            });
         }
     };
     return (

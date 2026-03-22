@@ -4,6 +4,7 @@ import {
     Penilaian, NilaiPenilaian, KriteriaPenilaian, Mahasiswa, User,
     AssessorType, PenilaianComponent, NilaiAkhir, UserRole, MahasiswaStatus,
 } from '../../entities';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 // Roles yang boleh menilai sebagai staff
 const STAFF_ASSESSOR_ROLES: UserRole[] = [
@@ -14,13 +15,13 @@ const STAFF_ASSESSOR_ROLES: UserRole[] = [
     UserRole.KEPALA_BRIDA,
 ];
 
-// Sub-bobot per assessor type untuk penilaian perilaku 360°
-const PERILAKU_WEIGHT: Record<string, number> = {
-    [AssessorType.SELF]: 0.10,
-    [AssessorType.PEER]: 0.15,
-    [AssessorType.KOORDINATOR]: 0.25,
-    [AssessorType.KEPALA_BRIDA]: 0.25,
-    [AssessorType.ADMIN]: 0.25,
+// Sub-bobot per assessor bucket untuk penilaian perilaku 360°
+// 4 bucket: Koordinator 30%, Self 15%, Peer 20%, Admin 35%
+const PERILAKU_WEIGHT = {
+    koordinator: 0.30,  // Kepala BRIDA + Koordinator Riset + Koordinator Inovasi + Sekretaris
+    self: 0.15,
+    peer: 0.20,
+    admin: 0.35,
 };
 
 // Konversi skor Likert (1-5) ke skala 100
@@ -45,7 +46,10 @@ function mapRoleToAssessorType(role: UserRole): AssessorType {
 
 @Injectable()
 export class PenilaianService {
-    constructor(private readonly em: EntityManager) { }
+    constructor(
+        private readonly em: EntityManager,
+        private readonly notificationGateway: NotificationGateway,
+    ) { }
 
     // ────────────────────────────────────────────────
     // Self Assessment (Mahasiswa menilai diri sendiri)
@@ -65,7 +69,18 @@ export class PenilaianService {
         });
         if (existing) throw new BadRequestException('Anda sudah pernah menilai diri sendiri');
 
-        return this.savePenilaian(fork, mahasiswa, user, AssessorType.SELF, PenilaianComponent.PERILAKU, data);
+        const result = await this.savePenilaian(fork, mahasiswa, user, AssessorType.SELF, PenilaianComponent.PERILAKU, data);
+
+        // Emit real-time event
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            assessorType: 'SELF',
+            assessorName: mahasiswa.fullName,
+            component: 'PERILAKU',
+        });
+
+        return result;
     }
 
     // ────────────────────────────────────────────────
@@ -98,7 +113,18 @@ export class PenilaianService {
         });
         if (existing) throw new BadRequestException('Anda sudah pernah menilai teman ini');
 
-        return this.savePenilaian(fork, targetMahasiswa, user, AssessorType.PEER, PenilaianComponent.PERILAKU, data, assessorMahasiswa);
+        const result = await this.savePenilaian(fork, targetMahasiswa, user, AssessorType.PEER, PenilaianComponent.PERILAKU, data, assessorMahasiswa);
+
+        // Emit real-time event
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: targetMahasiswa.id,
+            mahasiswaName: targetMahasiswa.fullName,
+            assessorType: 'PEER',
+            assessorName: assessorMahasiswa.fullName,
+            component: 'PERILAKU',
+        });
+
+        return result;
     }
 
     // ────────────────────────────────────────────────
@@ -139,6 +165,15 @@ export class PenilaianService {
         const perilaku = await this.savePenilaian(fork, mahasiswa, user, assessorType, PenilaianComponent.PERILAKU, data.perilaku);
         const kinerja = await this.savePenilaian(fork, mahasiswa, user, assessorType, PenilaianComponent.KINERJA, data.kinerja);
 
+        // Emit real-time event
+        this.notificationGateway.emitPenilaianSubmitted({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            assessorType: assessorType,
+            assessorName: user.name,
+            component: 'PERILAKU + KINERJA',
+        });
+
         return { perilaku, kinerja };
     }
 
@@ -175,32 +210,47 @@ export class PenilaianService {
             return vals.reduce((sum, v) => sum + v, 0) / vals.length;
         };
 
-        // Gabungkan sekretaris ke dalam bucket koordinator
+        // Gabungkan Kepala BRIDA + Koordinator + Sekretaris → 1 bucket "koordinator"
         const koordinatorScores = [
             ...(perilakuScoresByType[AssessorType.KOORDINATOR] || []),
             ...(perilakuScoresByType[AssessorType.SEKRETARIS] || []),
+            ...(perilakuScoresByType[AssessorType.KEPALA_BRIDA] || []),
         ];
         const koordinatorAvg = koordinatorScores.length > 0
             ? koordinatorScores.reduce((s, v) => s + v, 0) / koordinatorScores.length
             : null;
 
         // Hitung weighted average — hanya dari assessor yang sudah menilai
-        // Sub-bobot: Self 10%, Peer 15%, Koordinator 25%, Kepala BRIDA 25%, Admin 25%
-        const assessorBuckets: { type: AssessorType | 'koordinator_bucket'; avg: number | null; weight: number }[] = [
-            { type: AssessorType.SELF, avg: getTypeAvg(AssessorType.SELF), weight: PERILAKU_WEIGHT[AssessorType.SELF] },
-            { type: AssessorType.PEER, avg: getTypeAvg(AssessorType.PEER), weight: PERILAKU_WEIGHT[AssessorType.PEER] },
-            { type: 'koordinator_bucket', avg: koordinatorAvg, weight: PERILAKU_WEIGHT[AssessorType.KOORDINATOR] },
-            { type: AssessorType.KEPALA_BRIDA, avg: getTypeAvg(AssessorType.KEPALA_BRIDA), weight: PERILAKU_WEIGHT[AssessorType.KEPALA_BRIDA] },
-            { type: AssessorType.ADMIN, avg: getTypeAvg(AssessorType.ADMIN), weight: PERILAKU_WEIGHT[AssessorType.ADMIN] },
+        // Sub-bobot: Koordinator 30%, Self 15%, Peer 20%, Admin 35%
+        const assessorBuckets: { type: string; avg: number | null; weight: number }[] = [
+            { type: 'self', avg: getTypeAvg(AssessorType.SELF), weight: PERILAKU_WEIGHT.self },
+            { type: 'peer', avg: getTypeAvg(AssessorType.PEER), weight: PERILAKU_WEIGHT.peer },
+            { type: 'koordinator', avg: koordinatorAvg, weight: PERILAKU_WEIGHT.koordinator },
+            { type: 'admin', avg: getTypeAvg(AssessorType.ADMIN), weight: PERILAKU_WEIGHT.admin },
         ];
 
-        // Redistribusi bobot jika ada assessor yang belum menilai
-        const activeBuckets = assessorBuckets.filter(b => b.avg !== null);
-        const totalActiveWeight = activeBuckets.reduce((sum, b) => sum + b.weight, 0);
+        // Cek apakah semua bucket perilaku sudah terisi
+        const missingBuckets = assessorBuckets.filter(b => b.avg === null);
+        if (missingBuckets.length > 0) {
+            const bucketLabels: Record<string, string> = {
+                self: 'Diri Sendiri',
+                peer: 'Teman Magang',
+                koordinator: 'Koordinator',
+                admin: 'Admin',
+            };
+            const missing = missingBuckets.map(b => bucketLabels[b.type] || b.type).join(', ');
+            throw new BadRequestException(
+                `Tidak dapat menghitung nilai akhir. Penilaian perilaku belum lengkap. ` +
+                `Belum ada penilaian dari: ${missing}.`
+            );
+        }
+
+        // Semua bucket sudah terisi, hitung weighted average
+        const totalActiveWeight = assessorBuckets.reduce((sum, b) => sum + b.weight, 0);
 
         let rataPerilaku = 0;
         if (totalActiveWeight > 0) {
-            rataPerilaku = activeBuckets.reduce((sum, b) => {
+            rataPerilaku = assessorBuckets.reduce((sum, b) => {
                 const normalizedWeight = b.weight / totalActiveWeight;
                 return sum + (b.avg! * normalizedWeight);
             }, 0);
@@ -208,7 +258,7 @@ export class PenilaianService {
         const nilaiPerilakuFinal = rataPerilaku * 0.4;
 
         // ═══════════════════════════════════════════
-        // 2. KINERJA — tetap sama (rata-rata semua)
+        // 2. KINERJA — rata-rata semua (skala 1-100)
         // ═══════════════════════════════════════════
         const kinerjaList = await fork.find(Penilaian, {
             mahasiswa: { id: mahasiswaId },
@@ -244,6 +294,16 @@ export class PenilaianService {
         nilaiAkhir.grade = grade;
 
         await fork.flush();
+
+        // Emit real-time event
+        const predikatMap: Record<string, string> = { A: 'Sangat Baik', B: 'Baik', C: 'Cukup', D: 'Perlu Perbaikan' };
+        this.notificationGateway.emitPenilaianComplete({
+            mahasiswaId: mahasiswa.id,
+            mahasiswaName: mahasiswa.fullName,
+            nilaiAkhir: nilaiAkhir.nilaiAkhir,
+            grade,
+            predikat: predikatMap[grade] || grade,
+        });
 
         return nilaiAkhir;
     }
@@ -398,19 +458,29 @@ export class PenilaianService {
 
         let totalScore = 0;
         let count = 0;
+        const isPerilaku = component === PenilaianComponent.PERILAKU;
+
         for (const s of data.scores) {
             const kriteria = await fork.findOneOrFail(KriteriaPenilaian, { id: s.kriteriaId });
-            // Validasi skor Likert 1-5
-            if (s.score < 1 || s.score > 5) {
-                throw new BadRequestException(`Skor harus antara 1-5, diterima: ${s.score}`);
+
+            if (isPerilaku) {
+                if (s.score < 1 || s.score > 5) {
+                    throw new BadRequestException(`Skor perilaku harus antara 1-5 (Likert), diterima: ${s.score}`);
+                }
+            } else {
+                if (s.score < 1 || s.score > 100) {
+                    throw new BadRequestException(`Skor kinerja harus antara 1-100, diterima: ${s.score}`);
+                }
             }
+
             const nilai = new NilaiPenilaian();
             nilai.penilaian = penilaian;
             nilai.kriteria = kriteria;
-            nilai.score = s.score; // Simpan sebagai Likert 1-5
+            nilai.score = s.score;
             nilai.keterangan = s.keterangan;
             fork.persist(nilai);
-            totalScore += likertToScale100(s.score); // Konversi ke skala 100 untuk finalScore
+
+            totalScore += isPerilaku ? likertToScale100(s.score) : s.score;
             count++;
         }
 

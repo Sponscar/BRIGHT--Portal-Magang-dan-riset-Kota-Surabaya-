@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CourseConversionProvider } from './context/CourseConversionContext';
+import { SocketProvider } from './contexts/SocketContext';
 import Login from './pages/auth/Login';
 import AdminLayout from './pages/admin/AdminLayout';
 import StudentLayout from './pages/StudentLayout';
@@ -65,54 +66,56 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <CourseConversionProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } />
-            <Route path="/register" element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } />
-            <Route path="/" element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute allowedRole="admin">
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<DashboardOverview />} />
-              <Route path="verification" element={<StudentVerification />} />
-              <Route path="mahasiswa" element={<StudentManagement />} />
-              <Route path="logbook" element={<ReviewLogbook />} />
-              <Route path="reports" element={<FinalReports />} />
-              <Route path="teams" element={<TeamManagement />} />
-              <Route path="results" element={<AssessmentCertificate />} />
-            </Route>
-            <Route path="/student" element={
-              <ProtectedRoute allowedRole="student">
-                <StudentLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<StudentDashboard />} />
-              <Route path="documents" element={<Documents />} />
-              <Route path="logbook" element={<Logbook />} />
-              <Route path="results" element={<Results />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="team/:teamSlug" element={<TeamDetail />} />
-              <Route path="attendance" element={<Attendance />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </CourseConversionProvider>
+      <SocketProvider>
+        <CourseConversionProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } />
+              <Route path="/register" element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              } />
+              <Route path="/" element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute allowedRole="admin">
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<DashboardOverview />} />
+                <Route path="verification" element={<StudentVerification />} />
+                <Route path="mahasiswa" element={<StudentManagement />} />
+                <Route path="logbook" element={<ReviewLogbook />} />
+                <Route path="reports" element={<FinalReports />} />
+                <Route path="teams" element={<TeamManagement />} />
+                <Route path="results" element={<AssessmentCertificate />} />
+              </Route>
+              <Route path="/student" element={
+                <ProtectedRoute allowedRole="student">
+                  <StudentLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<StudentDashboard />} />
+                <Route path="documents" element={<Documents />} />
+                <Route path="logbook" element={<Logbook />} />
+                <Route path="results" element={<Results />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="team/:teamSlug" element={<TeamDetail />} />
+                <Route path="attendance" element={<Attendance />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </CourseConversionProvider>
+      </SocketProvider>
     </AuthProvider>
   );
 }

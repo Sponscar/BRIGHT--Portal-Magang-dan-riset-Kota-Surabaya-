@@ -10,6 +10,7 @@ export declare class AuthService {
     constructor(em: EntityManager, jwtService: JwtService, mailService: MailService);
     register(dto: RegisterDto): Promise<{
         message: string;
+        otp: string;
     }>;
     verifyEmail(dto: VerifyEmailDto): Promise<{
         message: string;
