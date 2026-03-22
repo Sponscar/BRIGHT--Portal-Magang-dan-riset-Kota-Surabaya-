@@ -32,11 +32,38 @@ const AssessmentCertificate = () => {
 
     // Mock: Daftar Mahasiswa
     const studentList = [
-        { id: 's1', name: 'Siti Aminah', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', team: 'Riset' },
-        { id: 's2', name: 'Eko Prasetyo', university: 'PENS', major: 'Teknik Komputer', team: 'Inovasi' },
-        { id: 's3', name: 'Rina Wijaya', university: 'ITS', major: 'Desain Produk', team: 'Kesekretariatan' },
-        { id: 's4', name: 'Ahmad Rizky', university: 'Institut Teknologi Sepuluh Nopember', major: 'Teknik Informatika', team: 'Riset' },
-        { id: 's5', name: 'Dewi Lestari', university: 'UPN Veteran Jawa Timur', major: 'Sistem Informasi', team: 'Inovasi' },
+        { id: 's1', name: 'Siti Aminah', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', team: 'Riset', nim: '101120001',
+            kurikulum: [
+                { id: 1, materi: 'Analisis data kesehatan masyarakat' },
+                { id: 2, materi: 'Dashboard monitoring epidemiologi' },
+                { id: 3, materi: 'Metode penelitian kualitatif dan kuantitatif' },
+            ]
+        },
+        { id: 's2', name: 'Eko Prasetyo', university: 'PENS', major: 'Teknik Komputer', team: 'Inovasi', nim: '101120002',
+            kurikulum: [
+                { id: 4, materi: 'Pengembangan aplikasi berbasis web' },
+                { id: 5, materi: 'Maintenance jaringan dan server' },
+            ]
+        },
+        { id: 's3', name: 'Rina Wijaya', university: 'ITS', major: 'Desain Produk', team: 'Kesekretariatan', nim: '101120003',
+            kurikulum: [
+                { id: 6, materi: 'Pembelajaran administrasi perkantoran pemerintahan' },
+                { id: 7, materi: 'Pengelolaan arsip dan dokumentasi' },
+            ]
+        },
+        { id: 's4', name: 'Ahmad Rizky', university: 'Institut Teknologi Sepuluh Nopember', major: 'Teknik Informatika', team: 'Riset', nim: '101120004',
+            kurikulum: [
+                { id: 8, materi: 'Pengolahan data statistik menggunakan SPSS' },
+                { id: 9, materi: 'Teknik penulisan laporan ilmiah' },
+                { id: 10, materi: 'Pendataan inovasi daerah' },
+            ]
+        },
+        { id: 's5', name: 'Dewi Lestari', university: 'UPN Veteran Jawa Timur', major: 'Sistem Informasi', team: 'Inovasi', nim: '101120005',
+            kurikulum: [
+                { id: 11, materi: 'Pengembangan dashboard visualisasi data' },
+                { id: 12, materi: 'Database management dengan PostgreSQL' },
+            ]
+        },
     ];
 
     // State
@@ -267,7 +294,7 @@ const AssessmentCertificate = () => {
 
     // --- SURAT KETERANGAN FUNCTIONS ---
     const openSuratModal = () => {
-        setSuratForm({ mahasiswa_id: '', nomor_surat: '', perangkat_daerah: '', tanggal_mulai: '', tanggal_selesai: '', nim: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '' });
+        setSuratForm({ mahasiswa_id: '', nomor_surat: '', perangkat_daerah: '', tanggal_mulai: '', tanggal_selesai: '', nim: '', kepala_name: '', kepala_nip: '', instansi: '', jabatan_kepala: '', bidang: '', fokus_kegiatan: [''] });
         setIsSuratModalOpen(true);
     };
 
@@ -290,6 +317,8 @@ const AssessmentCertificate = () => {
             kepala_nip: generatedData.kepala_nip || '',
             instansi: generatedData.instansi || '',
             jabatan_kepala: generatedData.jabatan_kepala || '',
+            bidang: generatedData.bidang || '',
+            fokus_kegiatan: generatedData.fokus_kegiatan || [],
             created_at: new Date().toISOString().split('T')[0]
         };
         setSuratList([newSurat, ...suratList]);

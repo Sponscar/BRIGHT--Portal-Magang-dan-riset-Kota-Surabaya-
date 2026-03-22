@@ -31,11 +31,11 @@ const SuratKeteranganPreviewModal = ({ isOpen, onClose, surat }) => {
         printWindow.document.write(`
             <!DOCTYPE html>
             <html><head>
-                <title>Surat Keterangan Lulus - ${surat.studentName}</title>
+                <title>Surat Keterangan - ${surat.studentName}</title>
                 <style>
                     @page { size: A4 portrait; margin: 0; }
                     * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body { font-family: 'Times New Roman', serif; }
+                    body { font-family: Arial, sans-serif; }
                     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
                 </style>
             </head><body><div id="print-root"></div></body></html>
@@ -58,6 +58,12 @@ const SuratKeteranganPreviewModal = ({ isOpen, onClose, surat }) => {
                 kepalaNip={surat.kepala_nip}
                 instansi={surat.instansi}
                 jabatanKepala={surat.jabatan_kepala}
+                headerNamaInstansi={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.nama.toUpperCase() : (surat.instansi || 'BADAN RISET DAN INOVASI DAERAH').toUpperCase(); })()}
+                headerAlamat={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.alamat : 'Jl. Jimerto No. 25-27 Surabaya 60272'; })()}
+                headerTelp={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.telp : '(031) 5347182'; })()}
+                headerEmail={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.email : 'brida@surabaya.go.id'; })()}
+                bidang={surat.bidang || ''}
+                fokusKegiatan={surat.fokus_kegiatan || []}
             />
         );
 
@@ -75,7 +81,7 @@ const SuratKeteranganPreviewModal = ({ isOpen, onClose, surat }) => {
                 {/* Header */}
                 <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-white z-10">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900">Preview Surat Keterangan Lulus</h3>
+                        <h3 className="text-lg font-bold text-slate-900">Preview Surat Keterangan</h3>
                         <p className="text-xs text-slate-500 mt-0.5">{surat.studentName} — {surat.nomor_surat}</p>
                     </div>
                     <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -113,6 +119,8 @@ const SuratKeteranganPreviewModal = ({ isOpen, onClose, surat }) => {
                                 headerAlamat={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.alamat : 'Jl. Jaksa Agung Suprapto No. 6 – 8 Surabaya 60272'; })()}
                                 headerTelp={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.telp : '(031) 5347182'; })()}
                                 headerEmail={(() => { const pd = perangkatDaerahData.find(p => p.nama === surat.perangkat_daerah); return pd ? pd.email : 'brida@surabaya.go.id'; })()}
+                                bidang={surat.bidang || ''}
+                                fokusKegiatan={surat.fokus_kegiatan || []}
                             />
                         </div>
                     </div>

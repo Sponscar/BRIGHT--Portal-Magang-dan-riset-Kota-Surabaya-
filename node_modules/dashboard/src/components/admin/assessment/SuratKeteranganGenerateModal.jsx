@@ -63,7 +63,14 @@ const SuratKeteranganGenerateModal = ({
 
     const handleSelectStudent = (student) => {
         const autoNomor = `${String(suratList.length + 1).padStart(3, '0')}/BRIDA/SK-MG/${new Date().getFullYear()}`;
-        setSuratForm({ ...suratForm, mahasiswa_id: student.id, nomor_surat: autoNomor, nim: student.nim || '-' });
+        const kurikulumMateri = (student.kurikulum || []).map(k => k.materi);
+        setSuratForm({ 
+            ...suratForm, 
+            mahasiswa_id: student.id, 
+            nomor_surat: autoNomor, 
+            nim: student.nim || '-',
+            fokus_kegiatan: kurikulumMateri.length > 0 ? kurikulumMateri : ['']
+        });
         setSearchTerm('');
         setIsDropdownOpen(false);
     };
@@ -273,6 +280,50 @@ const SuratKeteranganGenerateModal = ({
                                     onChange={(e) => setSuratForm({ ...suratForm, kepala_nip: e.target.value })}
                                 />
                             </div>
+                            <div className="pt-2 border-t border-slate-200">
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Bidang / Tim Lokus</label>
+                                <input type="text"
+                                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                    placeholder="Misal: Bidang Riset dan Pengembangan"
+                                    value={suratForm.bidang || ''}
+                                    onChange={(e) => setSuratForm({ ...suratForm, bidang: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Kurikulum Magang</label>
+                                {(suratForm.fokus_kegiatan || ['']).map((item, idx) => (
+                                    <div key={idx} className="flex gap-1.5 mb-1.5">
+                                        <input type="text"
+                                            className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                            placeholder={`Kurikulum ${idx + 1}...`}
+                                            value={item}
+                                            onChange={(e) => {
+                                                const updated = [...(suratForm.fokus_kegiatan || [''])];
+                                                updated[idx] = e.target.value;
+                                                setSuratForm({ ...suratForm, fokus_kegiatan: updated });
+                                            }}
+                                        />
+                                        {(suratForm.fokus_kegiatan || ['']).length > 1 && (
+                                            <button type="button" onClick={() => {
+                                                const updated = [...(suratForm.fokus_kegiatan || [''])];
+                                                updated.splice(idx, 1);
+                                                setSuratForm({ ...suratForm, fokus_kegiatan: updated });
+                                            }}
+                                                className="p-1 text-red-400 hover:text-red-600 transition-colors">
+                                                <span className="material-symbols-outlined notranslate text-[18px]">close</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button type="button" onClick={() => {
+                                    const updated = [...(suratForm.fokus_kegiatan || ['']), ''];
+                                    setSuratForm({ ...suratForm, fokus_kegiatan: updated });
+                                }}
+                                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1 transition-colors">
+                                    <span className="material-symbols-outlined notranslate text-[16px]">add</span>
+                                    Tambah Kurikulum
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -285,7 +336,7 @@ const SuratKeteranganGenerateModal = ({
                                     : 'bg-primary text-white hover:bg-blue-700 shadow-blue-200'
                             }`}>
                             <span className="material-symbols-outlined notranslate">description</span>
-                            Terbitkan Surat Keterangan Lulus
+                            Terbitkan Surat Keterangan
                         </button>
                         <button type="button" onClick={handleClose}
                             className="w-full py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all duration-300 hover:-translate-y-0.5 active:scale-95">
@@ -302,7 +353,7 @@ const SuratKeteranganGenerateModal = ({
                         </button>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Live Preview Surat Keterangan Lulus</h4>
+                    <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Live Preview Surat Keterangan</h4>
 
                     {/* Preview Container — A4 Portrait */}
                     <div className="relative shadow-xl mx-auto overflow-hidden bg-white"
@@ -334,6 +385,8 @@ const SuratKeteranganGenerateModal = ({
                                 headerAlamat={(() => { const pd = perangkatDaerahData.find(p => p.nama === suratForm.perangkat_daerah); return pd ? pd.alamat : 'Jl. Jaksa Agung Suprapto No. 6 – 8 Surabaya 60272'; })()}
                                 headerTelp={(() => { const pd = perangkatDaerahData.find(p => p.nama === suratForm.perangkat_daerah); return pd ? pd.telp : '(031) 5347182'; })()}
                                 headerEmail={(() => { const pd = perangkatDaerahData.find(p => p.nama === suratForm.perangkat_daerah); return pd ? pd.email : 'brida@surabaya.go.id'; })()}
+                                bidang={suratForm.bidang || ''}
+                                fokusKegiatan={suratForm.fokus_kegiatan || []}
                             />
                         </div>
                     </div>

@@ -10,7 +10,7 @@ export const perangkatDaerahData = [
     { nama: 'Badan Pendapatan Daerah', alamat: 'Jl. Jimerto No. 25-27 Surabaya 60272', telp: '(031) 5312144', email: 'supportbapenda@surabaya.go.id' },
     { nama: 'Badan Pengelolaan Keuangan dan Aset Daerah', alamat: 'Jl. Jimerto No. 25-27 Surabaya 60272', telp: '(031) 5312144', email: 'bpkad@surabaya.go.id' },
     { nama: 'Badan Perencanaan Pembangunan Daerah', alamat: 'Jl. Jimerto No. 25-27 Surabaya 60272', telp: '(031) 5312144', email: 'bappeko@surabaya.go.id' },
-    { nama: 'Badan Riset dan Inovasi Daerah', alamat: 'Jl. Jaksa Agung Suprapto No. 6 – 8 Surabaya 60272', telp: '(031) 5347182', email: 'brida@surabaya.go.id' },
+    { nama: 'Badan Riset dan Inovasi Daerah', alamat: 'Jl. Jimerto No. 25-27 Surabaya 60272', telp: '(031) 5347182', email: 'brida@surabaya.go.id' },
     { nama: 'Dinas Kebudayaan, Kepemudaan dan Olahraga Serta Pariwisata', alamat: 'Jl. Tunjungan No. 1-3 (Gedung Siola Lantai II) Kel. Genteng, Kec. Genteng, Surabaya 60275', telp: '(031) 5318409', email: 'disbudporapar@surabaya.go.id' },
     { nama: 'Dinas Kependudukan dan Pencatatan Sipil', alamat: 'Jl. Manyar Kertoarjo No. 6 Surabaya 60116', telp: '(031) 5964749', email: 'dispendukcapil@surabaya.go.id' },
     { nama: 'Dinas Kesehatan', alamat: 'Jl. Jemursari No. 197 Surabaya 60237', telp: '(031) 8433373', email: 'dinkes@surabaya.go.id' },
