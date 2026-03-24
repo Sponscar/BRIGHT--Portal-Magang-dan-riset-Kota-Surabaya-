@@ -1,7 +1,8 @@
 -- ============================================================
 -- Database Schema: Sistem Manajemen Magang BRIDA Surabaya
 -- Database: PostgreSQL
--- Total: 20 Tabel (Updated)
+-- Total: 23 Tabel
+-- Refactored: 2026-03-24 (synced with entity files)
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -12,6 +13,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE user_role AS ENUM (
     'student',
+    'admin_opd',
+    'koordinator_opd',
     'kepala_brida',
     'sekretariatan',
     'koordinator_riset',
@@ -25,7 +28,12 @@ CREATE TYPE user_role AS ENUM (
     'staf_non_asn',
     'admin'
 );
-CREATE TYPE mahasiswa_status AS ENUM ('pending', 'documents_uploaded', 'verified', 'active', 'completed');
+
+CREATE TYPE mahasiswa_status AS ENUM (
+    'pending', 'documents_uploaded', 'verified',
+    'forwarded_to_opd', 'active', 'completed'
+);
+
 CREATE TYPE internship_type AS ENUM ('magang_kp', 'magang_mbkm', 'magang_mandiri');
 CREATE TYPE document_type AS ENUM ('surat_pengantar', 'proposal', 'ktp', 'ktm', 'cv', 'surat_pernyataan');
 CREATE TYPE document_status AS ENUM ('pending', 'approved', 'rejected');
@@ -38,11 +46,31 @@ CREATE TYPE validasi_status AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE penilaian_category AS ENUM ('behavior', 'performance');
 CREATE TYPE administrasi_status AS ENUM ('draft', 'submitted', 'verified');
 CREATE TYPE otp_type AS ENUM ('register', 'reset_password');
-CREATE TYPE assessor_type AS ENUM ('self', 'peer', 'koordinator', 'sekretaris', 'admin');
+CREATE TYPE assessor_type AS ENUM (
+    'self', 'peer', 'koordinator',
+    'admin_opd', 'koordinator_opd',
+    'sekretaris', 'kepala_brida', 'admin'
+);
 CREATE TYPE penilaian_component AS ENUM ('perilaku', 'kinerja');
 
 -- ============================================================
--- 1. TABEL USERS
+-- 1. TABEL OPD (BARU)
+-- ============================================================
+
+CREATE TABLE opd (
+    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nama        VARCHAR(255) UNIQUE NOT NULL,
+    slug        VARCHAR(255) UNIQUE NOT NULL,
+    alamat      TEXT,
+    telp        VARCHAR(50),
+    email       VARCHAR(255),
+    is_active   BOOLEAN DEFAULT true,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- 2. TABEL USERS
 -- ============================================================
 
 CREATE TABLE users (
@@ -52,12 +80,13 @@ CREATE TABLE users (
     password_hash   VARCHAR(255) NOT NULL,
     role            user_role NOT NULL DEFAULT 'student',
     email_verified  BOOLEAN DEFAULT false,
+    opd_id          UUID REFERENCES opd(id),
     created_at      TIMESTAMPTZ DEFAULT NOW(),
     updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================
--- 2. TABEL OTP_TOKENS
+-- 3. TABEL OTP_TOKENS
 -- ============================================================
 
 CREATE TABLE otp_tokens (
@@ -71,7 +100,7 @@ CREATE TABLE otp_tokens (
 );
 
 -- ============================================================
--- 3. TABEL MASTER_PERGURUAN_TINGGI (BARU)
+-- 4. TABEL MASTER_PERGURUAN_TINGGI
 -- ============================================================
 
 CREATE TABLE master_perguruan_tinggi (
@@ -86,7 +115,7 @@ CREATE TABLE master_perguruan_tinggi (
 );
 
 -- ============================================================
--- 4. TABEL TUSI_BRIDA
+-- 5. TABEL TUSI_BRIDA
 -- ============================================================
 
 CREATE TABLE tusi_brida (
@@ -106,7 +135,28 @@ CREATE TABLE tusi_brida (
 );
 
 -- ============================================================
--- 5. TABEL MAHASISWA (UPDATED)
+-- 6. TABEL TIM_LOKUS (BARU - Tim Lokus per OPD)
+-- ============================================================
+
+CREATE TABLE tim_lokus (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name                VARCHAR(100) NOT NULL,
+    slug                VARCHAR(100) NOT NULL,
+    short_description   TEXT,
+    full_description    TEXT,
+    icon                VARCHAR(50),
+    image_url           VARCHAR(500),
+    responsibilities    TEXT,
+    requirements        TEXT,
+    is_active           BOOLEAN DEFAULT true,
+    display_order       INTEGER,
+    opd_id              UUID REFERENCES opd(id),
+    created_at          TIMESTAMPTZ DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- 7. TABEL MAHASISWA
 -- ============================================================
 
 CREATE TABLE mahasiswa (
@@ -136,6 +186,8 @@ CREATE TABLE mahasiswa (
     conversion_type     VARCHAR(50),
     perangkat_daerah    VARCHAR(500),
     profile_image_url   VARCHAR(500),
+    opd_id              UUID REFERENCES opd(id),
+    kelurahan_opd       VARCHAR(255),
     status              mahasiswa_status DEFAULT 'pending',
     tusi_brida_id       UUID REFERENCES tusi_brida(id),
     assigned_by         UUID REFERENCES users(id),
@@ -145,7 +197,7 @@ CREATE TABLE mahasiswa (
 );
 
 -- ============================================================
--- 6. TABEL DOKUMEN
+-- 8. TABEL DOKUMEN
 -- ============================================================
 
 CREATE TABLE dokumen (
@@ -164,7 +216,7 @@ CREATE TABLE dokumen (
 );
 
 -- ============================================================
--- 7. TABEL JENIS_AKTIVITAS
+-- 9. TABEL JENIS_AKTIVITAS
 -- ============================================================
 
 CREATE TABLE jenis_aktivitas (
@@ -178,7 +230,7 @@ CREATE TABLE jenis_aktivitas (
 );
 
 -- ============================================================
--- 8. TABEL MATA_KULIAH_KONVERSI
+-- 10. TABEL MATA_KULIAH_KONVERSI
 -- ============================================================
 
 CREATE TABLE mata_kuliah_konversi (
@@ -191,37 +243,39 @@ CREATE TABLE mata_kuliah_konversi (
 );
 
 -- ============================================================
--- 9. TABEL LOGBOOK
+-- 11. TABEL LOGBOOK
 -- ============================================================
 
 CREATE TABLE logbook (
-    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    mahasiswa_id        UUID NOT NULL REFERENCES mahasiswa(id),
-    jenis_aktivitas_id  UUID REFERENCES jenis_aktivitas(id),
-    mata_kuliah_id      UUID REFERENCES mata_kuliah_konversi(id),
-    type                logbook_type,
-    log_date            DATE NOT NULL,
-    start_time          VARCHAR(10),
-    end_time            VARCHAR(10),
-    total_jam_kerja     VARCHAR(50),
-    description         TEXT NOT NULL,
-    pembelajaran        TEXT,
-    lokasi_nama         VARCHAR(255),
-    lokasi_lat          DOUBLE PRECISION,
-    lokasi_lng          DOUBLE PRECISION,
-    attachment_url      VARCHAR(500),
-    university          VARCHAR(255),
-    major               VARCHAR(255),
-    status              logbook_status DEFAULT 'draft',
-    reviewed_by         UUID REFERENCES users(id),
-    reviewed_at         TIMESTAMPTZ,
-    deleted_at          TIMESTAMPTZ,
-    created_at          TIMESTAMPTZ DEFAULT NOW(),
-    updated_at          TIMESTAMPTZ DEFAULT NOW()
+    id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    mahasiswa_id            UUID NOT NULL REFERENCES mahasiswa(id),
+    jenis_aktivitas_id      UUID REFERENCES jenis_aktivitas(id),
+    mata_kuliah_id          UUID REFERENCES mata_kuliah_konversi(id),
+    jenis_penugasan_text    VARCHAR(255),
+    jenis_aktivitas_text    VARCHAR(255),
+    type                    logbook_type,
+    log_date                DATE NOT NULL,
+    start_time              VARCHAR(10),
+    end_time                VARCHAR(10),
+    total_jam_kerja         VARCHAR(50),
+    description             TEXT NOT NULL,
+    pembelajaran            TEXT,
+    lokasi_nama             VARCHAR(255),
+    lokasi_lat              DOUBLE PRECISION,
+    lokasi_lng              DOUBLE PRECISION,
+    attachment_url          VARCHAR(500),
+    university              VARCHAR(255),
+    major                   VARCHAR(255),
+    status                  logbook_status DEFAULT 'draft',
+    reviewed_by             UUID REFERENCES users(id),
+    reviewed_at             TIMESTAMPTZ,
+    deleted_at              TIMESTAMPTZ,
+    created_at              TIMESTAMPTZ DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================
--- 10. TABEL JURNAL
+-- 12. TABEL JURNAL
 -- ============================================================
 
 CREATE TABLE jurnal (
@@ -240,7 +294,7 @@ CREATE TABLE jurnal (
 );
 
 -- ============================================================
--- 11. TABEL KRITERIA_PENILAIAN
+-- 13. TABEL KRITERIA_PENILAIAN
 -- ============================================================
 
 CREATE TABLE kriteria_penilaian (
@@ -255,7 +309,7 @@ CREATE TABLE kriteria_penilaian (
 );
 
 -- ============================================================
--- 12. TABEL PENILAIAN (UPDATED)
+-- 14. TABEL PENILAIAN
 -- ============================================================
 
 CREATE TABLE penilaian (
@@ -273,7 +327,7 @@ CREATE TABLE penilaian (
 );
 
 -- ============================================================
--- 13. TABEL NILAI_PENILAIAN
+-- 15. TABEL NILAI_PENILAIAN
 -- ============================================================
 
 CREATE TABLE nilai_penilaian (
@@ -286,7 +340,7 @@ CREATE TABLE nilai_penilaian (
 );
 
 -- ============================================================
--- 14. TABEL NILAI_AKHIR (BARU)
+-- 16. TABEL NILAI_AKHIR
 -- ============================================================
 
 CREATE TABLE nilai_akhir (
@@ -306,7 +360,7 @@ CREATE TABLE nilai_akhir (
 -- Grade: A (>=86), B (>=71), C (>=51), D (<51)
 
 -- ============================================================
--- 15. TABEL SERTIFIKAT (UPDATED - Auto-Generate)
+-- 17. TABEL SERTIFIKAT
 -- ============================================================
 
 CREATE TABLE sertifikat (
@@ -321,10 +375,8 @@ CREATE TABLE sertifikat (
     created_at          TIMESTAMPTZ DEFAULT NOW()
 );
 
--- nomor_sertifikat: auto-generated format BRIDA-CERT-{UUID_SHORT}-{RANDOM}
-
 -- ============================================================
--- 16. TABEL LAPORAN_AKHIR
+-- 18. TABEL LAPORAN_AKHIR
 -- ============================================================
 
 CREATE TABLE laporan_akhir (
@@ -343,7 +395,7 @@ CREATE TABLE laporan_akhir (
 );
 
 -- ============================================================
--- 17. TABEL PRESENSI
+-- 19. TABEL PRESENSI
 -- ============================================================
 
 CREATE TABLE presensi (
@@ -361,7 +413,7 @@ CREATE TABLE presensi (
 );
 
 -- ============================================================
--- 18. TABEL MAHASISWA_MATA_KULIAH
+-- 20. TABEL MAHASISWA_MATA_KULIAH
 -- ============================================================
 
 CREATE TABLE mahasiswa_mata_kuliah (
@@ -373,7 +425,7 @@ CREATE TABLE mahasiswa_mata_kuliah (
 );
 
 -- ============================================================
--- 19. TABEL ADMINISTRASI
+-- 21. TABEL ADMINISTRASI
 -- ============================================================
 
 CREATE TABLE administrasi (
@@ -391,7 +443,7 @@ CREATE TABLE administrasi (
 );
 
 -- ============================================================
--- 20. TABEL KURIKULUM_MAGANG (BARU)
+-- 22. TABEL KURIKULUM_MAGANG
 -- ============================================================
 
 CREATE TABLE kurikulum_magang (
@@ -400,4 +452,39 @@ CREATE TABLE kurikulum_magang (
     materi          TEXT NOT NULL,
     created_at      TIMESTAMPTZ DEFAULT NOW(),
     updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- 23. TABEL SURAT_KETERANGAN
+-- ============================================================
+
+CREATE TABLE surat_keterangan (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    mahasiswa_id        UUID UNIQUE NOT NULL REFERENCES mahasiswa(id),
+    nomor_surat         VARCHAR(100) UNIQUE NOT NULL,
+    perangkat_daerah    VARCHAR(255),
+    instansi            VARCHAR(255),
+    tanggal_mulai       DATE NOT NULL,
+    tanggal_selesai     DATE NOT NULL,
+    tanggal_terbit      DATE NOT NULL,
+    kepala_name         VARCHAR(255),
+    kepala_nip          VARCHAR(50),
+    jabatan_kepala      VARCHAR(255),
+    bidang              VARCHAR(255),
+    fokus_kegiatan      TEXT,
+    file_url            VARCHAR(500),
+    created_at          TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- 24. TABEL FEEDBACK (BARU - Home Page)
+-- ============================================================
+
+CREATE TABLE feedback (
+    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nama        VARCHAR(200) NOT NULL,
+    email       VARCHAR(200) NOT NULL,
+    rating      SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    komentar    TEXT,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );

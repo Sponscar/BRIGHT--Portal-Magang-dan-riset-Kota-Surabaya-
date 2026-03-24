@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../../context/AuthContext';
 import universities from '../../data/universities';
 import { provinces, kotaKabupatenJawaTimur, kecamatanKelurahanSurabaya } from '../../data/regions';
-import { perangkatDaerah } from '../../data/perangkatDaerah';
+import { perangkatDaerah, wilayahSurabaya } from '../../data/perangkatDaerah';
 import Swal from 'sweetalert2';
 
 // Reusable searchable dropdown component (defined outside Register to avoid re-creation on every render)
@@ -32,13 +32,20 @@ const SearchableDropdown = ({ label, icon, id, placeholder, value, onSearchChang
             </div>
             {showDropdown && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-[220px] overflow-y-auto w-[calc(100%+20px)] md:w-full">
-                    {items.length > 0 ? items.slice(0, 30).map((item, idx) => (
-                        <button key={idx} type="button"
-                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-primary transition-colors border-b border-gray-50 last:border-0 cursor-pointer"
-                            onClick={() => onSelect(item)}>
-                            {typeof item === 'object' ? item.nama : item}
-                        </button>
-                    )) : <div className="px-4 py-3 text-sm text-gray-400 text-center">Tidak ada data ditemukan</div>}
+                    {items.length > 0 ? items.slice(0, 50).map((item, idx) => {
+                        const isObj = typeof item === 'object';
+                        const label = isObj ? (item.label || item.nama) : item;
+                        const isKel = isObj && item.type === 'kelurahan';
+                        return (
+                            <button key={idx} type="button"
+                                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-primary transition-colors border-b border-gray-50 last:border-0 cursor-pointer flex items-center gap-2 ${isKel ? 'pl-8 bg-slate-50/50' : ''}`}
+                                onClick={() => onSelect(item)}>
+                                {isKel && <span className="material-symbols-outlined notranslate text-[16px] text-emerald-500">pin_drop</span>}
+                                <span className={isKel ? 'text-slate-600' : ''}>{label}</span>
+                                {isKel && <span className="text-[10px] text-slate-400 ml-auto">({item.parentKecamatan})</span>}
+                            </button>
+                        );
+                    }) : <div className="px-4 py-3 text-sm text-gray-400 text-center">Tidak ada data ditemukan</div>}
                     {manualOption && (
                         <button type="button"
                             className="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2 cursor-pointer border-t border-gray-100 bg-gray-50/50"
@@ -108,6 +115,7 @@ const Register = () => {
         internshipType: '',
         judulRiset: '',
         perangkatDaerah: '',
+        kelurahanOpd: '',
         password: '',
         confirmPassword: ''
     });
@@ -144,6 +152,11 @@ const Register = () => {
     const [perangkatSearch, setPerangkatSearch] = useState('');
     const perangkatRef = useRef(null);
 
+    // Kelurahan OPD Dropdown State (for kecamatan OPDs)
+    const [showKelurahanOpdDropdown, setShowKelurahanOpdDropdown] = useState(false);
+    const [kelurahanOpdSearch, setKelurahanOpdSearch] = useState('');
+    const kelurahanOpdRef = useRef(null);
+
     // Derived: is Jawa Timur selected?
     const isJawaTimur = formData.provinsi === 'Jawa Timur';
     // Derived: is Kota Surabaya selected?
@@ -173,6 +186,35 @@ const Register = () => {
         p.toLowerCase().includes(perangkatSearch.toLowerCase())
     );
 
+    // Build expanded list: perangkat daerah + kelurahan entries
+    // Each item: { label, value, type: 'opd'|'kelurahan', parentKecamatan? }
+    const allPerangkatOptions = (() => {
+        const items = [];
+        perangkatDaerah.forEach(pd => {
+            items.push({ label: pd, value: pd, type: 'opd' });
+            // If it's a kecamatan, add its kelurahan entries
+            const wil = wilayahSurabaya.find(w => w.nama === pd);
+            if (wil) {
+                wil.kelurahan.forEach(kel => {
+                    items.push({ label: `Kelurahan ${kel}`, value: kel, type: 'kelurahan', parentKecamatan: pd });
+                });
+            }
+        });
+        return items;
+    })();
+
+    const filteredPerangkatOptions = allPerangkatOptions.filter(item =>
+        item.label.toLowerCase().includes(perangkatSearch.toLowerCase())
+    );
+
+    // Check if selected OPD is a kecamatan
+    const selectedWilayah = wilayahSurabaya.find(w => w.nama === formData.perangkatDaerah);
+    const isKecamatanOpd = !!selectedWilayah;
+    const kelurahanOpdList = selectedWilayah ? selectedWilayah.kelurahan : [];
+    const filteredKelurahanOpd = kelurahanOpdList.filter(k =>
+        k.toLowerCase().includes(kelurahanOpdSearch.toLowerCase())
+    );
+
     // Close dropdowns on outside click
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -182,6 +224,7 @@ const Register = () => {
             if (kecamatanRef.current && !kecamatanRef.current.contains(event.target)) setShowKecamatanDropdown(false);
             if (kelurahanRef.current && !kelurahanRef.current.contains(event.target)) setShowKelurahanDropdown(false);
             if (perangkatRef.current && !perangkatRef.current.contains(event.target)) setShowPerangkatDropdown(false);
+            if (kelurahanOpdRef.current && !kelurahanOpdRef.current.contains(event.target)) setShowKelurahanOpdDropdown(false);
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -255,11 +298,31 @@ const Register = () => {
         setShowKelurahanDropdown(false);
         if (errors.kelurahan) setErrors(prev => ({ ...prev, kelurahan: '' }));
     };
-    const handlePerangkatSelect = (pd) => {
-        setFormData(prev => ({ ...prev, perangkatDaerah: pd }));
-        setPerangkatSearch(pd);
+    const handlePerangkatSelect = (item) => {
+        if (typeof item === 'string') {
+            // Legacy: plain string select (shouldn't happen with new flow)
+            setFormData(prev => ({ ...prev, perangkatDaerah: item, kelurahanOpd: '' }));
+            setPerangkatSearch(item);
+        } else if (item.type === 'kelurahan') {
+            // Kelurahan selected: auto-map to parent kecamatan
+            setFormData(prev => ({ ...prev, perangkatDaerah: item.parentKecamatan, kelurahanOpd: item.value }));
+            setPerangkatSearch(`Kelurahan ${item.value} (${item.parentKecamatan})`);
+            setKelurahanOpdSearch(item.value);
+        } else {
+            // OPD (badan/dinas/kecamatan) selected directly
+            setFormData(prev => ({ ...prev, perangkatDaerah: item.value, kelurahanOpd: '' }));
+            setPerangkatSearch(item.label);
+            setKelurahanOpdSearch('');
+        }
         setShowPerangkatDropdown(false);
         if (errors.perangkatDaerah) setErrors(prev => ({ ...prev, perangkatDaerah: '' }));
+    };
+
+    const handleKelurahanOpdSelect = (kel) => {
+        setFormData(prev => ({ ...prev, kelurahanOpd: kel }));
+        setKelurahanOpdSearch(kel);
+        setShowKelurahanOpdDropdown(false);
+        if (errors.kelurahanOpd) setErrors(prev => ({ ...prev, kelurahanOpd: '' }));
     };
 
     const validateForm = () => {
@@ -325,6 +388,7 @@ const Register = () => {
             newErrors.judulRiset = 'Judul Riset wajib diisi.';
         }
         if (!formData.perangkatDaerah) newErrors.perangkatDaerah = 'Lokus Perangkat Daerah wajib dipilih.';
+        // Kelurahan OPD validation is no longer required since kelurahan can be selected from the main dropdown
         if (!formData.email) newErrors.email = 'Alamat Email wajib diisi.';
         
         if (!formData.password) {
@@ -387,6 +451,7 @@ const Register = () => {
             internshipType: formData.internshipType,
             judulRiset: formData.judulRiset,
             perangkatDaerah: formData.perangkatDaerah,
+            kelurahanOpd: formData.kelurahanOpd || null,
         });
 
         Swal.fire({
@@ -805,12 +870,12 @@ const Register = () => {
                             {/* Perangkat Daerah Kota Surabaya */}
                             <SearchableDropdown
                                 id="perangkatDaerah"
-                                label="Lokus Perangkat Daerah Kota Surabaya" icon="account_balance" placeholder="Cari perangkat daerah kota surabaya..."
+                                label="Lokus Perangkat Daerah Kota Surabaya" icon="account_balance" placeholder="Cari perangkat daerah atau kelurahan..."
                                 value={perangkatSearch}
                                 onSearchChange={(e) => { setPerangkatSearch(e.target.value); setShowPerangkatDropdown(true); if(errors.perangkatDaerah) setErrors(prev => ({...prev, perangkatDaerah: ''})); }}
                                 showDropdown={showPerangkatDropdown}
                                 onFocus={() => setShowPerangkatDropdown(true)}
-                                items={filteredPerangkat}
+                                items={filteredPerangkatOptions}
                                 onSelect={handlePerangkatSelect}
                                 dropdownRef={perangkatRef}
                                 error={errors.perangkatDaerah}

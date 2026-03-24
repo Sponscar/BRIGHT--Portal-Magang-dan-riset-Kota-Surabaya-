@@ -96,6 +96,7 @@ erDiagram
     kriteria_penilaian ||--o{ nilai_penilaian : defines
     mahasiswa ||--o| nilai_akhir : has_final_score
     mahasiswa ||--o{ kurikulum_magang : fills
+    mahasiswa ||--o| surat_keterangan : issued
     
     users {
         uuid id PK
@@ -651,6 +652,28 @@ erDiagram
 
 ---
 
+### 4.17 Tabel `surat_keterangan`
+
+| Kolom | Tipe | Constraint | Keterangan |
+|:------|:-----|:-----------|:-----------|
+| id | UUID | PK | ID unik |
+| mahasiswa_id | UUID | FK → mahasiswa(id), UNIQUE, NOT NULL | Pemilik (1 mahasiswa = 1 surat) |
+| nomor_surat | VARCHAR(100) | UNIQUE, NOT NULL | Nomor surat (auto-generated) |
+| perangkat_daerah | VARCHAR(255) | | Perangkat daerah / lokus |
+| instansi | VARCHAR(255) | | Nama instansi |
+| tanggal_mulai | DATE | NOT NULL | Tanggal mulai magang |
+| tanggal_selesai | DATE | NOT NULL | Tanggal selesai magang |
+| tanggal_terbit | DATE | NOT NULL | Tanggal terbit surat |
+| kepala_name | VARCHAR(255) | | Nama pejabat penandatangan |
+| kepala_nip | VARCHAR(50) | | NIP pejabat |
+| jabatan_kepala | VARCHAR(255) | | Jabatan penandatangan |
+| bidang | VARCHAR(255) | | Bidang / Tim Lokus |
+| fokus_kegiatan | TEXT | | Kurikulum magang (JSON array) |
+| file_url | VARCHAR(500) | | URL file PDF |
+| created_at | TIMESTAMP | DEFAULT NOW() | |
+
+---
+
 ### 4.18 Tabel `kurikulum_magang`
 
 | Kolom | Tipe | Constraint | Keterangan |
@@ -673,6 +696,7 @@ erDiagram
 | `jurnal` | Private | File jurnal |
 | `laporan-akhir` | Private | Laporan akhir |
 | `sertifikat` | Private | Sertifikat |
+| `surat-keterangan` | Private | Surat keterangan lulus magang |
 | `gambar-tusi` | Public | Gambar tusi BRIDA |
 
 ---

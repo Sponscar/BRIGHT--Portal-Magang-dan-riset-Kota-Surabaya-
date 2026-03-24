@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Feedback = exports.KurikulumMagang = exports.PerguruanTinggi = exports.LaporanStatus = exports.LaporanAkhir = exports.Sertifikat = exports.NilaiAkhir = exports.NilaiPenilaian = exports.PenilaianComponent = exports.AssessorType = exports.Penilaian = exports.PenilaianCategory = exports.KriteriaPenilaian = exports.ValidasiStatus = exports.PresensiStatus = exports.Presensi = exports.JurnalStatus = exports.Jurnal = exports.LogbookType = exports.LogbookStatus = exports.Logbook = exports.MahasiswaMataKuliah = exports.MataKuliahKonversi = exports.JenisAktivitas = exports.AdministrasiStatus = exports.Administrasi = exports.DocumentStatus = exports.DocumentType = exports.Dokumen = exports.TusiBrida = exports.InternshipType = exports.MahasiswaStatus = exports.Mahasiswa = exports.OtpType = exports.OtpToken = exports.ROLE_PERMISSION_MAP = exports.PermissionLevel = exports.UserRole = exports.User = void 0;
+exports.Feedback = exports.KurikulumMagang = exports.PerguruanTinggi = exports.LaporanStatus = exports.LaporanAkhir = exports.Sertifikat = exports.NilaiAkhir = exports.NilaiPenilaian = exports.PenilaianComponent = exports.AssessorType = exports.Penilaian = exports.PenilaianCategory = exports.KriteriaPenilaian = exports.ValidasiStatus = exports.PresensiStatus = exports.Presensi = exports.JurnalStatus = exports.Jurnal = exports.LogbookType = exports.LogbookStatus = exports.Logbook = exports.MahasiswaMataKuliah = exports.MataKuliahKonversi = exports.JenisAktivitas = exports.AdministrasiStatus = exports.Administrasi = exports.DocumentStatus = exports.DocumentType = exports.Dokumen = exports.TusiBrida = exports.TimLokus = exports.Opd = exports.InternshipType = exports.MahasiswaStatus = exports.Mahasiswa = exports.OtpType = exports.OtpToken = exports.ROLE_PERMISSION_MAP = exports.PermissionLevel = exports.UserRole = exports.User = void 0;
 var user_entity_1 = require("./user.entity");
 Object.defineProperty(exports, "User", { enumerable: true, get: function () { return user_entity_1.User; } });
 Object.defineProperty(exports, "UserRole", { enumerable: true, get: function () { return user_entity_1.UserRole; } });
@@ -13,6 +13,10 @@ var mahasiswa_entity_1 = require("./mahasiswa.entity");
 Object.defineProperty(exports, "Mahasiswa", { enumerable: true, get: function () { return mahasiswa_entity_1.Mahasiswa; } });
 Object.defineProperty(exports, "MahasiswaStatus", { enumerable: true, get: function () { return mahasiswa_entity_1.MahasiswaStatus; } });
 Object.defineProperty(exports, "InternshipType", { enumerable: true, get: function () { return mahasiswa_entity_1.InternshipType; } });
+var opd_entity_1 = require("./opd.entity");
+Object.defineProperty(exports, "Opd", { enumerable: true, get: function () { return opd_entity_1.Opd; } });
+var tim_lokus_entity_1 = require("./tim-lokus.entity");
+Object.defineProperty(exports, "TimLokus", { enumerable: true, get: function () { return tim_lokus_entity_1.TimLokus; } });
 var tusi_brida_entity_1 = require("./tusi-brida.entity");
 Object.defineProperty(exports, "TusiBrida", { enumerable: true, get: function () { return tusi_brida_entity_1.TusiBrida; } });
 var dokumen_entity_1 = require("./dokumen.entity");

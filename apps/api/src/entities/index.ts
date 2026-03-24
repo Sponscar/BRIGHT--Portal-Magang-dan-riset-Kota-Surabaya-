@@ -1,6 +1,8 @@
 export { User, UserRole, PermissionLevel, ROLE_PERMISSION_MAP } from './user.entity';
 export { OtpToken, OtpType } from './otp-token.entity';
 export { Mahasiswa, MahasiswaStatus, InternshipType } from './mahasiswa.entity';
+export { Opd } from './opd.entity';
+export { TimLokus } from './tim-lokus.entity';
 export { TusiBrida } from './tusi-brida.entity';
 export { Dokumen, DocumentType, DocumentStatus } from './dokumen.entity';
 export { Administrasi, AdministrasiStatus } from './administrasi.entity';

@@ -6,7 +6,7 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 
 // Entities
 import {
-  User, OtpToken, Mahasiswa, TusiBrida, Dokumen, Administrasi,
+  User, OtpToken, Mahasiswa, TusiBrida, Opd, TimLokus, Dokumen, Administrasi,
   JenisAktivitas, MataKuliahKonversi, MahasiswaMataKuliah, Logbook,
   Jurnal, Presensi, KriteriaPenilaian, Penilaian, NilaiPenilaian,
   NilaiAkhir, Sertifikat, LaporanAkhir, PerguruanTinggi, KurikulumMagang,
@@ -39,7 +39,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
 import { NotificationModule } from './modules/notification/notification.module';
 
 const entities = [
-  User, OtpToken, Mahasiswa, TusiBrida, Dokumen, Administrasi,
+  User, OtpToken, Mahasiswa, TusiBrida, Opd, TimLokus, Dokumen, Administrasi,
   JenisAktivitas, MataKuliahKonversi, MahasiswaMataKuliah, Logbook,
   Jurnal, Presensi, KriteriaPenilaian, Penilaian, NilaiPenilaian,
   NilaiAkhir, Sertifikat, LaporanAkhir, PerguruanTinggi, KurikulumMagang,

@@ -19,6 +19,7 @@ var MahasiswaStatus;
     MahasiswaStatus["PENDING"] = "pending";
     MahasiswaStatus["DOCUMENTS_UPLOADED"] = "documents_uploaded";
     MahasiswaStatus["VERIFIED"] = "verified";
+    MahasiswaStatus["FORWARDED_TO_OPD"] = "forwarded_to_opd";
     MahasiswaStatus["ACTIVE"] = "active";
     MahasiswaStatus["COMPLETED"] = "completed";
 })(MahasiswaStatus || (exports.MahasiswaStatus = MahasiswaStatus = {}));
@@ -53,6 +54,8 @@ let Mahasiswa = class Mahasiswa {
     conversionType;
     perangkatDaerah;
     profileImageUrl;
+    opd;
+    kelurahanOpd;
     status = MahasiswaStatus.PENDING;
     tusiBrida;
     assignedBy;
@@ -157,6 +160,14 @@ __decorate([
     (0, core_1.Property)({ length: 500, nullable: true }),
     __metadata("design:type", String)
 ], Mahasiswa.prototype, "profileImageUrl", void 0);
+__decorate([
+    (0, core_1.ManyToOne)('Opd', { nullable: true, fieldName: 'opd_id' }),
+    __metadata("design:type", Function)
+], Mahasiswa.prototype, "opd", void 0);
+__decorate([
+    (0, core_1.Property)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Mahasiswa.prototype, "kelurahanOpd", void 0);
 __decorate([
     (0, core_1.Enum)({ items: () => MahasiswaStatus, default: MahasiswaStatus.PENDING }),
     __metadata("design:type", String)

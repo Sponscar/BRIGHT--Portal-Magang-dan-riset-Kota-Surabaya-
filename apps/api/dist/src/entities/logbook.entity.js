@@ -33,6 +33,8 @@ let Logbook = class Logbook {
     mahasiswa;
     jenisAktivitas;
     mataKuliah;
+    jenisPenugasanText;
+    jenisAktivitasText;
     type;
     logDate;
     startTime;
@@ -70,6 +72,14 @@ __decorate([
     (0, core_1.ManyToOne)('MataKuliahKonversi', { nullable: true, fieldName: 'mata_kuliah_id' }),
     __metadata("design:type", Function)
 ], Logbook.prototype, "mataKuliah", void 0);
+__decorate([
+    (0, core_1.Property)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Logbook.prototype, "jenisPenugasanText", void 0);
+__decorate([
+    (0, core_1.Property)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Logbook.prototype, "jenisAktivitasText", void 0);
 __decorate([
     (0, core_1.Enum)({ items: () => LogbookType, nullable: true }),
     __metadata("design:type", String)

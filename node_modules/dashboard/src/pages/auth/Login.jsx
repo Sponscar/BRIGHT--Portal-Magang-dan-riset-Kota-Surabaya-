@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, getDashboardPath } from '../../context/AuthContext';
 import Swal from 'sweetalert2';
 
 const Login = () => {
@@ -37,11 +37,7 @@ const Login = () => {
 
         try {
             const user = login(email, password);
-            if (user.role === 'admin') {
-                navigate('/admin');
-            } else {
-                navigate('/student');
-            }
+            navigate(getDashboardPath(user.role));
         } catch (err) {
             Swal.fire({
                 icon: 'error',

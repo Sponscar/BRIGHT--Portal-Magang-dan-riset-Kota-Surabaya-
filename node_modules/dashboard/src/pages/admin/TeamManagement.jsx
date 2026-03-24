@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import { useAuth, isOpdRole } from '../../context/AuthContext';
+import { useTeams } from '../../context/TeamContext';
 import AdminHeader from '../../components/admin/AdminHeader';
 import TeamFormModal from '../../components/admin/teams/TeamFormModal';
 import TeamCard from '../../components/admin/teams/TeamCard';
 
 const TeamManagement = () => {
-    const [teams, setTeams] = useState([
-        { id: '1', name: 'Kesekretariatan', slug: 'secretariat', icon: 'folder_shared', short_description: 'Tim yang menangani administrasi dan dokumentasi BRIGHT', full_description: 'Tim Kesekretariatan bertanggung jawab atas pengelolaan administrasi, dokumentasi kegiatan, dan koordinasi internal BRIGHT.', responsibilities: ['Mengelola arsip dan dokumen administrasi', 'Membuat laporan kegiatan berkala'], requirements: ['Teliti dan rapi dalam bekerja', 'Mahir Microsoft Office'], is_active: true },
-        { id: '2', name: 'Riset', slug: 'research', icon: 'science', short_description: 'Tim yang fokus pada penelitian dan pengembangan', full_description: 'Tim Riset BRIGHT bertugas melakukan kajian, penelitian, dan analisis data untuk mendukung pengambilan keputusan berbasis bukti.', responsibilities: ['Melakukan penelitian dan kajian', 'Mengumpulkan dan menganalisis data'], requirements: ['Kemampuan analisis data yang kuat', 'Familiar dengan metodologi penelitian'], is_active: true },
-        { id: '3', name: 'Inovasi', slug: 'innovation', icon: 'lightbulb', short_description: 'Tim yang mengembangkan solusi inovatif', full_description: 'Tim Inovasi BRIGHT berfokus pada pengembangan ide-ide kreatif dan solusi inovatif untuk tantangan pembangunan daerah.', responsibilities: ['Mengembangkan ide dan konsep inovatif', 'Prototyping solusi digital'], requirements: ['Kreatif dan open-minded', 'Familiar dengan design thinking'], is_active: true }
-    ]);
+    const { user } = useAuth();
+    const isOpd = isOpdRole(user?.role);
+    const opdName = user?.opd?.nama || 'OPD';
+    const headerSubtitle = isOpd ? `Kelola data tim lokus ${opdName}.` : 'Kelola data tim magang BRIGHT.';
+    const { teams, addTeam, updateTeam, toggleTeamStatus } = useTeams();
+
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentTeam, setCurrentTeam] = useState(null);
@@ -23,9 +26,9 @@ const TeamManagement = () => {
         const newTeamData = { ...formData, id: currentTeam ? currentTeam.id : Date.now().toString(), responsibilities: formData.responsibilities.split('\n').filter(item => item.trim() !== ''), requirements: formData.requirements.split('\n').filter(item => item.trim() !== '') };
         
         if (currentTeam) { 
-            setTeams(teams.map(t => t.id === currentTeam.id ? newTeamData : t)); 
+            updateTeam(currentTeam.id, newTeamData); 
         } else { 
-            setTeams([...teams, newTeamData]); 
+            addTeam(newTeamData); 
         }
         
         setIsModalOpen(false);
@@ -46,7 +49,7 @@ const TeamManagement = () => {
         const team = teams.find(t => t.id === id);
         const newStatus = !team.is_active;
 
-        setTeams(teams.map(t => t.id === id ? { ...t, is_active: newStatus } : t)); 
+        toggleTeamStatus(id); 
 
         Swal.fire({
             icon: 'success',
@@ -62,7 +65,7 @@ const TeamManagement = () => {
 
     return (
         <>
-            <AdminHeader title="Data Tim" subtitle="Kelola data tim magang BRIGHT.">
+            <AdminHeader title="Data Tim" subtitle={headerSubtitle}>
                 <button onClick={openAddModal} className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
                     <span className="material-symbols-outlined notranslate text-[20px]">add</span> Tambah Tim
                 </button>

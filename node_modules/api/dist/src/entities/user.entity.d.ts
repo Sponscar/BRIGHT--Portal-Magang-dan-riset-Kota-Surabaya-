@@ -1,5 +1,8 @@
+import type { Opd } from './opd.entity';
 export declare enum UserRole {
     STUDENT = "student",
+    ADMIN_OPD = "admin_opd",
+    KOORDINATOR_OPD = "koordinator_opd",
     KEPALA_BRIDA = "kepala_brida",
     SEKRETARIATAN = "sekretariatan",
     KOORDINATOR_RISET = "koordinator_riset",
@@ -29,4 +32,5 @@ export declare class User {
     emailVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
+    opd?: Opd;
 }

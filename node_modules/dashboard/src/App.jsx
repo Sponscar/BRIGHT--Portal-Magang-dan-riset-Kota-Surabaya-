@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth, getDashboardPath } from './context/AuthContext';
+import { TeamProvider } from './context/TeamContext';
 import { CourseConversionProvider } from './context/CourseConversionContext';
 import { SocketProvider } from './contexts/SocketContext';
 import Login from './pages/auth/Login';
@@ -20,9 +21,10 @@ import Attendance from './pages/Attendance';
 import FinalReports from './pages/admin/FinalReports';
 import TeamManagement from './pages/admin/TeamManagement';
 import AssessmentCertificate from './pages/admin/AssessmentCertificate';
+import TeamVerification from './pages/admin/TeamVerification';
 
-// Protected Route component
-const ProtectedRoute = ({ children, allowedRole }) => {
+// Protected Route component - supports array of allowed roles
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
 
   if (loading) {
@@ -37,8 +39,8 @@ const ProtectedRoute = ({ children, allowedRole }) => {
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRole && user.role !== allowedRole) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/student'} replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={getDashboardPath(user.role)} replace />;
   }
 
   return children;
@@ -57,7 +59,7 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/student'} replace />;
+    return <Navigate to={getDashboardPath(user.role)} replace />;
   }
 
   return children;
@@ -85,9 +87,12 @@ function App() {
                   <Login />
                 </PublicRoute>
               } />
+              {/* Admin Routes (BRIDA + OPD) */}
               <Route path="/admin" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'admin_opd', 'koordinator_opd']}>
+                <TeamProvider>
                   <AdminLayout />
+                </TeamProvider>
                 </ProtectedRoute>
               }>
                 <Route index element={<DashboardOverview />} />
@@ -96,10 +101,12 @@ function App() {
                 <Route path="logbook" element={<ReviewLogbook />} />
                 <Route path="reports" element={<FinalReports />} />
                 <Route path="teams" element={<TeamManagement />} />
+                <Route path="team-verification" element={<TeamVerification />} />
                 <Route path="results" element={<AssessmentCertificate />} />
               </Route>
+              {/* Student Routes */}
               <Route path="/student" element={
-                <ProtectedRoute allowedRole="student">
+                <ProtectedRoute allowedRoles={['student']}>
                   <StudentLayout />
                 </ProtectedRoute>
               }>

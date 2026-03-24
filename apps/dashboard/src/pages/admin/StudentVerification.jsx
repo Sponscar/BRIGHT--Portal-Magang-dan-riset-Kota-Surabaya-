@@ -3,18 +3,19 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import VerificationActionModal from '../../components/admin/verification/VerificationActionModal';
 import AdminDetailModal from '../../components/admin/verification/AdminDetailModal';
 import VerificationTable from '../../components/admin/verification/VerificationTable';
+import { wilayahSurabaya } from '../../data/perangkatDaerah';
 import Swal from 'sweetalert2';
 
 const StudentVerification = () => {
     // Mock Data
     const [students, setStudents] = useState([
-        { id: 1, name: 'Ahmad Rizky', university: 'Institut Teknologi Sepuluh Nopember', major: 'Teknik Informatika', status: 'pending', date: '01 Feb 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null },
-        { id: 2, name: 'Siti Aminah', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', status: 'approved', date: '01 Feb 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: 'Riset' },
-        { id: 3, name: 'Dewi Lestari', university: 'UPN Veteran Jawa Timur', major: 'Sistem Informasi', status: 'revision', date: '29 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null },
-        { id: 4, name: 'Eko Prasetyo', university: 'PENS', major: 'Teknik Komputer', status: 'approved', date: '28 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' } },
-        { id: 5, name: 'Budi Santoso', university: 'Politeknik Negeri Malang', major: 'Teknik Elektro', status: 'pending', date: '27 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null },
-        { id: 6, name: 'Rina Wijaya', university: 'Universitas Negeri Surabaya', major: 'Desain Komunikasi Visual', status: 'revision', date: '26 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null },
-        { id: 7, name: 'Dian Pratama', university: 'Universitas Brawijaya', major: 'Ilmu Administrasi Publik', status: 'approved', date: '25 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: 'Kesekretariatan' }
+        { id: 1, name: 'Ahmad Rizky', university: 'Institut Teknologi Sepuluh Nopember', major: 'Teknik Informatika', status: 'pending', date: '01 Feb 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null, opd: 'Badan Riset dan Inovasi Daerah', kelurahanOpd: null },
+        { id: 2, name: 'Siti Aminah', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', status: 'approved', date: '01 Feb 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: 'Riset', opd: 'Badan Riset dan Inovasi Daerah', kelurahanOpd: null },
+        { id: 3, name: 'Dewi Lestari', university: 'UPN Veteran Jawa Timur', major: 'Sistem Informasi', status: 'revision', date: '29 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null, opd: 'Dinas Komunikasi dan Informatika', kelurahanOpd: null },
+        { id: 4, name: 'Eko Prasetyo', university: 'PENS', major: 'Teknik Komputer', status: 'forwarded_to_opd', date: '28 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null, opd: 'Kecamatan Sukolilo', kelurahanOpd: 'Keputih' },
+        { id: 5, name: 'Budi Santoso', university: 'Politeknik Negeri Malang', major: 'Teknik Elektro', status: 'pending', date: '27 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null, opd: 'Kecamatan Gubeng', kelurahanOpd: 'Mojo' },
+        { id: 6, name: 'Rina Wijaya', university: 'Universitas Negeri Surabaya', major: 'Desain Komunikasi Visual', status: 'revision', date: '26 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: null, opd: 'Dinas Pendidikan', kelurahanOpd: null },
+        { id: 7, name: 'Dian Pratama', university: 'Universitas Brawijaya', major: 'Ilmu Administrasi Publik', status: 'approved', date: '25 Jan 2026', documents: { cv: '#', letter: '#', proposal: '#' }, team: 'Kesekretariatan', opd: 'Badan Riset dan Inovasi Daerah', kelurahanOpd: null }
     ]);
 
     const [adminData] = useState([
@@ -33,6 +34,7 @@ const StudentVerification = () => {
     // Filter & Search
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [activeTab, setActiveTab] = useState('brida'); // 'brida' or 'opd'
 
     // Team selection state
     const [teamSelections, setTeamSelections] = useState({});
@@ -107,7 +109,7 @@ const StudentVerification = () => {
             });
         };
 
-        if (type === 'approve') {
+        if (type === 'approve' && activeTab === 'brida') {
             if (!sel || sel.teams.length === 0) { showAlert('Silakan pilih minimal satu Tim BRIGHT terlebih dahulu sebelum menyetujui.'); return; }
             if (sel.teams.includes('Enabler / Faktor Pendorong') && sel.enablerTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Enabler.'); return; }
             if (sel.teams.includes('Riset') && sel.risetTypes.length === 0) { showAlert('Silakan pilih jenis penugasan Riset.'); return; }
@@ -140,17 +142,43 @@ const StudentVerification = () => {
         });
     };
 
+    // --- FORWARD TO OPD ---
+    const handleForwardToOpd = (student) => {
+        Swal.fire({
+            title: 'Kirim ke OPD?',
+            html: `<p>Data mahasiswa <b>${student.name}</b> akan dikirimkan ke:<br/><b>${student.opd}</b>${student.kelurahanOpd ? ` (Kel. ${student.kelurahanOpd})` : ''}</p>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#059669',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Kirim',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setStudents(prev => prev.map(s => s.id === student.id ? { ...s, status: 'forwarded_to_opd' } : s));
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: `Data telah dikirim ke ${student.opd}.`, timer: 2500, showConfirmButton: false });
+            }
+        });
+    };
+
     // --- FILTER ---
+    const isBridaStudent = (student) => student.opd === 'Badan Riset dan Inovasi Daerah';
+
     const filteredStudents = students.filter(student => {
         const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) || student.university.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = filterStatus === 'all' || student.status === filterStatus;
-        return matchesSearch && matchesFilter;
+        const matchesTab = activeTab === 'brida' ? isBridaStudent(student) : !isBridaStudent(student);
+        return matchesSearch && matchesFilter && matchesTab;
     });
 
+    // Tab counts
+    const bridaCount = students.filter(isBridaStudent).length;
+    const opdCount = students.filter(s => !isBridaStudent(s)).length;
+
     const getStatusBadge = (status) => {
-        const styles = { pending: 'bg-amber-50 text-amber-700 border-amber-200', approved: 'bg-emerald-50 text-emerald-700 border-emerald-200', rejected: 'bg-blue-50 text-blue-700 border-blue-200', revision: 'bg-blue-50 text-blue-700 border-blue-200' };
-        const labels = { pending: 'Menunggu Verifikasi', approved: 'Disetujui', rejected: 'Ditolak', revision: 'Perlu Revisi' };
-        return <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${styles[status]}`}>{labels[status]}</span>;
+        const styles = { pending: 'bg-amber-50 text-amber-700 border-amber-200', approved: 'bg-emerald-50 text-emerald-700 border-emerald-200', rejected: 'bg-blue-50 text-blue-700 border-blue-200', revision: 'bg-blue-50 text-blue-700 border-blue-200', forwarded_to_opd: 'bg-teal-50 text-teal-700 border-teal-200' };
+        const labels = { pending: 'Menunggu Verifikasi', approved: 'Disetujui', rejected: 'Ditolak', revision: 'Perlu Revisi', forwarded_to_opd: 'Dikirim ke OPD' };
+        return <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${styles[status] || ''}`}>{labels[status] || status}</span>;
     };
 
     return (
@@ -159,6 +187,42 @@ const StudentVerification = () => {
 
             <main className="flex-1 overflow-y-auto p-4 lg:p-8">
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Tabs */}
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div className="flex">
+                            <button
+                                onClick={() => { setActiveTab('brida'); setFilterStatus('all'); }}
+                                className={`flex-1 py-3.5 px-4 text-sm font-bold transition-all relative flex items-center justify-center gap-2 ${
+                                    activeTab === 'brida'
+                                        ? 'text-primary bg-primary/5'
+                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined notranslate text-[18px]">science</span>
+                                Verifikasi BRIDA
+                                <span className={`px-2 py-0.5 text-xs rounded-full font-bold ${
+                                    activeTab === 'brida' ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'
+                                }`}>{bridaCount}</span>
+                                {activeTab === 'brida' && <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full"></span>}
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab('opd'); setFilterStatus('all'); }}
+                                className={`flex-1 py-3.5 px-4 text-sm font-bold transition-all relative flex items-center justify-center gap-2 ${
+                                    activeTab === 'opd'
+                                        ? 'text-emerald-700 bg-emerald-50/50'
+                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined notranslate text-[18px]">account_balance</span>
+                                Verifikasi OPD
+                                <span className={`px-2 py-0.5 text-xs rounded-full font-bold ${
+                                    activeTab === 'opd' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                                }`}>{opdCount}</span>
+                                {activeTab === 'opd' && <span className="absolute bottom-0 left-0 w-full h-[3px] bg-emerald-600 rounded-t-full"></span>}
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Filters */}
                     <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
                         <div className="relative w-full md:max-w-xs">
@@ -173,6 +237,7 @@ const StudentVerification = () => {
                                 <option value="all">Semua Status</option>
                                 <option value="pending">Menunggu</option>
                                 <option value="approved">Disetujui</option>
+                                {activeTab === 'opd' && <option value="forwarded_to_opd">Dikirim ke OPD</option>}
                                 <option value="revision">Revisi</option>
                                 <option value="rejected">Ditolak</option>
                             </select>
@@ -180,8 +245,9 @@ const StudentVerification = () => {
                     </div>
 
                     {/* Table */}
-                    <div key={`${filterStatus}-${searchQuery}`} className="animate-page-enter">
+                    <div key={`${activeTab}-${filterStatus}-${searchQuery}`} className="animate-page-enter">
                         <VerificationTable
+                            mode={activeTab}
                             students={filteredStudents} adminData={adminData}
                             teamSelections={teamSelections} teamDropdownOpen={teamDropdownOpen} teamOptions={teamOptions}
                             enablerSubOptions={enablerSubOptions} risetSubOptions={risetSubOptions}
@@ -194,6 +260,7 @@ const StudentVerification = () => {
                             onKesekretariatanTypeToggle={handleKesekretariatanTypeToggle}
                             onLainnyaTextChange={handleLainnyaTextChange}
                             onToggleTeamDropdown={toggleTeamDropdown} onAction={handleAction}
+                            onForwardToOpd={handleForwardToOpd}
                             onViewAdmin={(admin) => { setSelectedAdminDetail(admin); setIsAdminDetailOpen(true); }}
                             getStatusBadge={getStatusBadge}
                         />

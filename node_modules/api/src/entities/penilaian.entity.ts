@@ -8,6 +8,8 @@ export enum AssessorType {
     SELF = 'self',
     PEER = 'peer',
     KOORDINATOR = 'koordinator',
+    ADMIN_OPD = 'admin_opd',
+    KOORDINATOR_OPD = 'koordinator_opd',
     SEKRETARIS = 'sekretaris',
     KEPALA_BRIDA = 'kepala_brida',
     ADMIN = 'admin',

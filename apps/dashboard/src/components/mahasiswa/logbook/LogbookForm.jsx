@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { initialActivityTypes, activityCategories, categoryLabels } from '../../../data/activityTypes';
 import { useCourseConversion } from '../../../context/CourseConversionContext';
+import { useAuth } from '../../../context/AuthContext';
 import LocationPicker from './LocationPicker';
 import Swal from 'sweetalert2';
 
 const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) => {
     const { courses: mataKuliahOptions } = useCourseConversion();
+    const { user } = useAuth();
+
+    // Check if user is BRIDA — if yes, use dropdown; otherwise, free-text
+    const isBrida = user?.opd?.slug === 'brida' || user?.opd?.nama === 'Badan Riset dan Inovasi Daerah' || !user?.opd;
+
     const [formData, setFormData] = useState({
         tanggal: '',
         jamMulai: '',
@@ -16,7 +22,9 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
         lokasiNama: '',
         lokasiLat: null,
         lokasiLng: null,
-        uraian: ''
+        uraian: '',
+        jenisPenugasanText: '',
+        jenisAktivitasText: '',
     });
 
     const calculateTotalHours = (start, end) => {
@@ -333,85 +341,136 @@ const LogbookForm = ({ entryType, initialData, viewMode, onSubmit, onCancel }) =
                 </div>
                 {entryType === 'Laporan Harian' && (
                     <>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="kategori">Jenis Penugasan</label>
-                            <select
-                                id="kategori"
-                                name="kategori"
-                                value={selectedCategory}
-                                onChange={handleCategoryChange}
-                                disabled={viewMode}
-                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
-                                    errors.kategori ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
-                                }`}
-                            >
-                                <option value="">Pilih Penugasan</option>
-                                {activityCategories.map(cat => (
-                                    <optgroup key={cat.id} label={cat.label}>
-                                        {cat.subCategories.map(sub => (
-                                            <option key={sub} value={sub}>{categoryLabels[sub]}</option>
+                        {isBrida ? (
+                            /* === BRIDA MODE: Dropdown from activityTypes.js === */
+                            <>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="kategori">Jenis Penugasan</label>
+                                    <select
+                                        id="kategori"
+                                        name="kategori"
+                                        value={selectedCategory}
+                                        onChange={handleCategoryChange}
+                                        disabled={viewMode}
+                                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                            errors.kategori ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                        }`}
+                                    >
+                                        <option value="">Pilih Penugasan</option>
+                                        {activityCategories.map(cat => (
+                                            <optgroup key={cat.id} label={cat.label}>
+                                                {cat.subCategories.map(sub => (
+                                                    <option key={sub} value={sub}>{categoryLabels[sub]}</option>
+                                                ))}
+                                            </optgroup>
                                         ))}
-                                    </optgroup>
-                                ))}
-                            </select>
-                            {errors.kategori && (
-                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
-                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
-                                    {errors.kategori}
-                                </p>
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jenisKegiatan">Jenis Aktivitas</label>
-                            <select
-                                id="jenisKegiatan"
-                                name="jenisKegiatan"
-                                value={isCustomAktivitas ? 'Lainnya' : formData.jenisKegiatan}
-                                onChange={handleInputChange}
-                                disabled={viewMode || !selectedCategory}
-                                className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
-                                    errors.jenisKegiatan ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
-                                }`}
-                            >
-                                <option value="" disabled>Pilih Aktivitas</option>
-                                {initialActivityTypes
-                                    .filter(act => act.category === selectedCategory)
-                                    .map(act => (
-                                        <option key={act.id} value={act.name}>{act.name}</option>
-                                    ))
-                                }
-                                <option value="Lainnya">Lainnya... (Tulis Sendiri)</option>
-                            </select>
-                            {errors.jenisKegiatan && (
-                                <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
-                                    <span className="material-symbols-outlined notranslate text-[14px]">error</span>
-                                    {errors.jenisKegiatan}
-                                </p>
-                            )}
-                        </div>
+                                    </select>
+                                    {errors.kategori && (
+                                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                            {errors.kategori}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jenisKegiatan">Jenis Aktivitas</label>
+                                    <select
+                                        id="jenisKegiatan"
+                                        name="jenisKegiatan"
+                                        value={isCustomAktivitas ? 'Lainnya' : formData.jenisKegiatan}
+                                        onChange={handleInputChange}
+                                        disabled={viewMode || !selectedCategory}
+                                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                            errors.jenisKegiatan ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                        }`}
+                                    >
+                                        <option value="" disabled>Pilih Aktivitas</option>
+                                        {initialActivityTypes
+                                            .filter(act => act.category === selectedCategory)
+                                            .map(act => (
+                                                <option key={act.id} value={act.name}>{act.name}</option>
+                                            ))
+                                        }
+                                        <option value="Lainnya">Lainnya... (Tulis Sendiri)</option>
+                                    </select>
+                                    {errors.jenisKegiatan && (
+                                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                            {errors.jenisKegiatan}
+                                        </p>
+                                    )}
+                                </div>
 
-                        {/* Custom Input for 'Lainnya' */}
-                        {isCustomAktivitas && (
-                            <div className="flex flex-col gap-1.5 animate-in slide-in-from-top-1 fade-in duration-200">
-                                <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="customAktivitasInput">Tulis Jenis Aktivitas <span className="text-red-500">*</span></label>
-                                <input
-                                    type="text"
-                                    id="customAktivitasInput"
-                                    value={customAktivitas}
-                                    onChange={handleCustomAktivitasChange}
-                                    disabled={viewMode}
-                                    placeholder="Contoh: Mengatur Database Server"
-                                    className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
-                                        errors.customAktivitas ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
-                                    }`}
-                                />
-                                {errors.customAktivitas && (
-                                    <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
-                                        <span className="material-symbols-outlined notranslate text-[14px]">error</span>
-                                        {errors.customAktivitas}
-                                    </p>
+                                {/* Custom Input for 'Lainnya' */}
+                                {isCustomAktivitas && (
+                                    <div className="flex flex-col gap-1.5 animate-in slide-in-from-top-1 fade-in duration-200">
+                                        <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="customAktivitasInput">Tulis Jenis Aktivitas <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="text"
+                                            id="customAktivitasInput"
+                                            value={customAktivitas}
+                                            onChange={handleCustomAktivitasChange}
+                                            disabled={viewMode}
+                                            placeholder="Contoh: Mengatur Database Server"
+                                            className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                                errors.customAktivitas ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                            }`}
+                                        />
+                                        {errors.customAktivitas && (
+                                            <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                                <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                                {errors.customAktivitas}
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
-                            </div>
+                            </>
+                        ) : (
+                            /* === NON-BRIDA MODE: Free-text inputs === */
+                            <>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jenisPenugasanText">Jenis Penugasan</label>
+                                    <input
+                                        type="text"
+                                        id="jenisPenugasanText"
+                                        name="jenisPenugasanText"
+                                        value={formData.jenisPenugasanText}
+                                        onChange={handleInputChange}
+                                        disabled={viewMode}
+                                        placeholder="Ketik jenis penugasan..."
+                                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                            errors.jenisPenugasanText ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                        }`}
+                                    />
+                                    {errors.jenisPenugasanText && (
+                                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                            {errors.jenisPenugasanText}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[13px] font-bold text-[#1b0d0d]" htmlFor="jenisAktivitasText">Jenis Aktivitas</label>
+                                    <input
+                                        type="text"
+                                        id="jenisAktivitasText"
+                                        name="jenisAktivitasText"
+                                        value={formData.jenisAktivitasText}
+                                        onChange={handleInputChange}
+                                        disabled={viewMode}
+                                        placeholder="Ketik jenis aktivitas..."
+                                        className={`w-full h-10 text-sm rounded-lg border-2 bg-white text-[#1b0d0d] shadow-sm px-3 disabled:bg-slate-50 disabled:text-slate-500 transition-colors ${
+                                            errors.jenisAktivitasText ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-1 focus:ring-blue-400' : 'border-[#e0d0d0] focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                                        }`}
+                                    />
+                                    {errors.jenisAktivitasText && (
+                                        <p className="text-xs text-blue-500 font-medium flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
+                                            <span className="material-symbols-outlined notranslate text-[14px]">error</span>
+                                            {errors.jenisAktivitasText}
+                                        </p>
+                                    )}
+                                </div>
+                            </>
                         )}
                     </>
                 )}

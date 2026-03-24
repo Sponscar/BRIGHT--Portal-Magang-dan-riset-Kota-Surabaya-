@@ -1,10 +1,18 @@
 import { useState } from 'react';
+import { useAuth, isOpdRole } from '../../context/AuthContext';
+import { wilayahSurabaya } from '../../data/perangkatDaerah';
 import AdminHeader from '../../components/admin/AdminHeader';
 import StudentManagementTable from '../../components/admin/student/StudentManagementTable';
 import RekapMahasiswaTable, { getRekapColumns, getRekapRowKeys, REKAP_AVAILABLE_COLUMNS } from '../../components/admin/student/RekapMahasiswaTable';
 import { useRef, useEffect } from 'react';
 
 const StudentManagement = () => {
+    const { user } = useAuth();
+    const isOpd = isOpdRole(user?.role);
+    const opdName = user?.opd?.nama || 'OPD';
+    // Check if OPD is a kecamatan (has kelurahan data)
+    const isKecamatanOpd = isOpd && wilayahSurabaya.some(w => w.nama === user?.opd?.nama);
+
     // Mock Data — Presensi & Izin
     const [students, setStudents] = useState([
         { id: 1, name: 'Siti Aminah', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', status: 'approved', team: 'Riset', logs: [{ date: '2026-02-11', time: '07:55 AM', status: 'pending' }, { date: '2026-02-10', time: '08:00 AM', status: 'approved' }] },
@@ -20,14 +28,14 @@ const StudentManagement = () => {
 
     // Mock Data — Rekap Mahasiswa
     const [rekapStudents] = useState([
-        { id: 1, fullName: 'Siti Aminah', nik: '3578012345670001', nim: '101911001', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', team: 'Riset', internshipType: 'Penelitian', email: 'siti.aminah@mail.com', phone: '081234567890', whatsapp: '081234567890', year: '2026' },
-        { id: 2, fullName: 'Eko Prasetyo', nik: '3578012345670002', nim: '102011002', university: 'Politeknik Elektronika Negeri Surabaya (PENS)', major: 'Teknik Komputer', team: 'Inovasi', internshipType: 'Magang', email: 'eko.pras@mail.com', phone: '081234567891', whatsapp: '081234567891', year: '2026' },
-        { id: 3, fullName: 'Budi Santoso', nik: '3578012345670003', nim: '103011003', university: 'Universitas Brawijaya', major: 'Ilmu Komunikasi', team: '-', internshipType: 'Magang', email: 'budi.s@mail.com', phone: '081234567892', whatsapp: '081234567892', year: '2025' },
-        { id: 4, fullName: 'Rina Wijaya', nik: '3578012345670004', nim: '104011004', university: 'Institut Teknologi Sepuluh Nopember', major: 'Desain Produk', team: 'Kesekretariatan', internshipType: 'Penelitian', email: 'rina.w@mail.com', phone: '081234567893', whatsapp: '081234567893', year: '2026' },
-        { id: 5, fullName: 'Ahmad Fauzi', nik: '3578012345670005', nim: '105011005', university: 'Universitas Negeri Surabaya (UNESA)', major: 'Teknik Informatika', team: 'Riset', internshipType: 'Magang', email: 'ahmad.f@mail.com', phone: '081234567894', whatsapp: '081234567894', year: '2026' },
-        { id: 6, fullName: 'Dewi Lestari', nik: '3578012345670006', nim: '106011006', university: 'Universitas Airlangga', major: 'Statistika', team: 'Inovasi', internshipType: 'Penelitian', email: 'dewi.l@mail.com', phone: '081234567895', whatsapp: '081234567895', year: '2025' },
-        { id: 7, fullName: 'Farhan Rizky', nik: '3578012345670007', nim: '107011007', university: 'Universitas Pembangunan Nasional Veteran Jawa Timur (UPNVJT)', major: 'Sistem Informasi', team: 'Kesekretariatan', internshipType: 'Magang', email: 'farhan.r@mail.com', phone: '081234567896', whatsapp: '081234567896', year: '2026' },
-        { id: 8, fullName: 'Nadia Putri', nik: '3578012345670008', nim: '108011008', university: 'Universitas Ciputra Surabaya', major: 'Manajemen Bisnis', team: 'Riset', internshipType: 'Magang', email: 'nadia.p@mail.com', phone: '081234567897', whatsapp: '081234567897', year: '2025' },
+        { id: 1, fullName: 'Siti Aminah', nik: '3578012345670001', nim: '101911001', university: 'Universitas Airlangga', major: 'Kesehatan Masyarakat', team: 'Riset', perangkatDaerah: 'Badan Riset dan Inovasi Daerah', internshipType: 'Penelitian', email: 'siti.aminah@mail.com', phone: '081234567890', whatsapp: '081234567890', year: '2026', kelurahan: '-' },
+        { id: 2, fullName: 'Eko Prasetyo', nik: '3578012345670002', nim: '102011002', university: 'Politeknik Elektronika Negeri Surabaya (PENS)', major: 'Teknik Komputer', team: 'Inovasi', perangkatDaerah: 'Dinas Komunikasi dan Informatika', internshipType: 'Magang', email: 'eko.pras@mail.com', phone: '081234567891', whatsapp: '081234567891', year: '2026', kelurahan: '-' },
+        { id: 3, fullName: 'Budi Santoso', nik: '3578012345670003', nim: '103011003', university: 'Universitas Brawijaya', major: 'Ilmu Komunikasi', team: '-', perangkatDaerah: 'Kecamatan Sukolilo', internshipType: 'Magang', email: 'budi.s@mail.com', phone: '081234567892', whatsapp: '081234567892', year: '2025', kelurahan: 'Keputih' },
+        { id: 4, fullName: 'Rina Wijaya', nik: '3578012345670004', nim: '104011004', university: 'Institut Teknologi Sepuluh Nopember', major: 'Desain Produk', team: 'Kesekretariatan', perangkatDaerah: 'Kecamatan Sukolilo', internshipType: 'Penelitian', email: 'rina.w@mail.com', phone: '081234567893', whatsapp: '081234567893', year: '2026', kelurahan: 'Semolowaru' },
+        { id: 5, fullName: 'Ahmad Fauzi', nik: '3578012345670005', nim: '105011005', university: 'Universitas Negeri Surabaya (UNESA)', major: 'Teknik Informatika', team: 'Riset', perangkatDaerah: 'Badan Riset dan Inovasi Daerah', internshipType: 'Magang', email: 'ahmad.f@mail.com', phone: '081234567894', whatsapp: '081234567894', year: '2026', kelurahan: '-' },
+        { id: 6, fullName: 'Dewi Lestari', nik: '3578012345670006', nim: '106011006', university: 'Universitas Airlangga', major: 'Statistika', team: 'Inovasi', perangkatDaerah: 'Kecamatan Gubeng', internshipType: 'Penelitian', email: 'dewi.l@mail.com', phone: '081234567895', whatsapp: '081234567895', year: '2025', kelurahan: 'Mojo' },
+        { id: 7, fullName: 'Farhan Rizky', nik: '3578012345670007', nim: '107011007', university: 'Universitas Pembangunan Nasional Veteran Jawa Timur (UPNVJT)', major: 'Sistem Informasi', team: 'Kesekretariatan', perangkatDaerah: 'Dinas Kesehatan', internshipType: 'Magang', email: 'farhan.r@mail.com', phone: '081234567896', whatsapp: '081234567896', year: '2026', kelurahan: '-' },
+        { id: 8, fullName: 'Nadia Putri', nik: '3578012345670008', nim: '108011008', university: 'Universitas Ciputra Surabaya', major: 'Manajemen Bisnis', team: 'Riset', perangkatDaerah: 'Kecamatan Rungkut', internshipType: 'Magang', email: 'nadia.p@mail.com', phone: '081234567897', whatsapp: '081234567897', year: '2025', kelurahan: 'Medokan Ayu' },
     ]);
 
     const TABS = ['presensi', 'izin', 'rekap'];
@@ -47,9 +55,15 @@ const StudentManagement = () => {
     const [selectedPermDate, setSelectedPermDate] = useState('');
 
     // --- Rekap Mahasiswa State ---
-    // --- Rekap Mahasiswa State ---
     const [rekapSearch, setRekapSearch] = useState('');
-    const [visibleColumns, setVisibleColumns] = useState(REKAP_AVAILABLE_COLUMNS.map(c => c.key));
+    // Determine which columns are available based on role
+    // OPD non-kecamatan: hide kelurahan entirely (not in filter, not in default)
+    const isOpdNonKecamatan = isOpd && !isKecamatanOpd;
+    const availableColumns = isOpdNonKecamatan
+        ? REKAP_AVAILABLE_COLUMNS.filter(c => c.key !== 'kelurahan')
+        : REKAP_AVAILABLE_COLUMNS;
+    const defaultColumns = availableColumns.map(c => c.key);
+    const [visibleColumns, setVisibleColumns] = useState(defaultColumns);
     const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
     const columnMenuRef = useRef(null);
 
@@ -70,8 +84,13 @@ const StudentManagement = () => {
         );
     };
 
+    // OPD-scoped data: OPD admins only see students from their own perangkat daerah
+    const scopedRekapStudents = isOpd
+        ? rekapStudents.filter(s => s.perangkatDaerah === opdName)
+        : rekapStudents;
+
     // Filtered rekap data (search only within visible columns)
-    const filteredRekap = rekapStudents.filter(s => {
+    const filteredRekap = scopedRekapStudents.filter(s => {
         if (rekapSearch === '') return true;
         const q = rekapSearch.toLowerCase();
         
@@ -112,7 +131,6 @@ const StudentManagement = () => {
             const headers = ['No', 'Nama Mahasiswa', 'Perguruan Tinggi', 'Tanggal', 'Jenis', 'Keterangan', 'Link Bukti', 'Status Validasi'];
             const rows = filteredPermissions.map((p, i) => [i + 1, p.studentName, p.university, p.date, p.type, p.description, p.proofLink, p.status === 'approved' ? 'Disetujui' : p.status === 'rejected' ? 'Ditolak' : 'Menunggu']);
             downloadCSV(headers, rows, `Data_Izin.csv`);
-        } else if (activeTab === 'rekap') {
         } else if (activeTab === 'rekap') {
             const headers = getRekapColumns(visibleColumns);
             const keys = getRekapRowKeys(visibleColumns);
@@ -174,7 +192,7 @@ const StudentManagement = () => {
                                             <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
                                                 <div className="p-2 border-b border-slate-100 flex justify-between items-center mb-1">
                                                     <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tampilkan Kolom</span>
-                                                    <button onClick={() => setVisibleColumns(REKAP_AVAILABLE_COLUMNS.map(c => c.key))} className="text-xs text-primary font-medium hover:underline">Semua</button>
+                                                    <button onClick={() => setVisibleColumns(availableColumns.map(c => c.key))} className="text-xs text-primary font-medium hover:underline">Semua</button>
                                                 </div>
                                                 <div className="space-y-1">
                                                     {/* Fixed Columns */}
@@ -186,7 +204,7 @@ const StudentManagement = () => {
                                                     </label>
                                                     
                                                     {/* Optional Columns */}
-                                                    {REKAP_AVAILABLE_COLUMNS.map(col => {
+                                                    {availableColumns.map(col => {
                                                         const isChecked = visibleColumns.includes(col.key);
                                                         return (
                                                             <label key={col.key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors group">

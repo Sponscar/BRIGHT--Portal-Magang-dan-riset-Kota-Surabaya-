@@ -70,3 +70,50 @@ export const perangkatDaerahData = [
 
 // Backward compatibility: export flat array of names
 export const perangkatDaerah = perangkatDaerahData.map(pd => pd.nama);
+
+/* ===================================================
+   DATA KECAMATAN & KELURAHAN SURABAYA
+=================================================== */
+
+export const wilayahSurabaya = [
+
+    { nama: "Kecamatan Asemrowo", kelurahan: ["Asemrowo","Genting Kalianak","Tambak Sarioso"] },
+    { nama: "Kecamatan Benowo", kelurahan: ["Kandangan","Romokalisari","Sememi","Tambak Osowilangun"] },
+    { nama: "Kecamatan Pakal", kelurahan: ["Babat Jerawat","Benowo","Pakal","Sumberejo","Tambakdono"] },
+    { nama: "Kecamatan Sambikerep", kelurahan: ["Lontar","Sambikerep","Bringin","Made"] },
+    { nama: "Kecamatan Lakarsantri", kelurahan: ["Lakarsantri","Jeruk","Lidah Kulon","Lidah Wetan","Bangkingan","Sumur Welut"] },
+    { nama: "Kecamatan Tandes", kelurahan: ["Balongsari","Banjar Sugihan","Manukan Kulon","Manukan Wetan","Tandes Lor","Tandes Kidul","Gadel"] },
+    { nama: "Kecamatan Sukomanunggal", kelurahan: ["Simomulyo","Tanjungsari","Putat Gede","Sonokwijenan","Sukomanunggal"] },
+
+    { nama: "Kecamatan Bubutan", kelurahan: ["Alun-alun Contong","Bubutan","Gundih","Jepara","Tembok Dukuh"] },
+    { nama: "Kecamatan Genteng", kelurahan: ["Embong Kaliasin","Genteng","Kapasari","Ketabang","Peneleh"] },
+    { nama: "Kecamatan Tegalsari", kelurahan: ["Dr. Soetomo","Kedungdoro","Keputran","Tegalsari"] },
+    { nama: "Kecamatan Simokerto", kelurahan: ["Kapasan","Sidodadi","Simokerto","Tambakrejo"] },
+
+    { nama: "Kecamatan Gubeng", kelurahan: ["Airlangga","Baratajaya","Gubeng","Kertajaya","Mojo","Pucang Sewu"] },
+    { nama: "Kecamatan Gunung Anyar", kelurahan: ["Gunung Anyar","Gunung Anyar Tambak","Rungkut Menanggal","Rungkut Tengah"] },
+    { nama: "Kecamatan Sukolilo", kelurahan: ["Gebang Putih","Keputih","Klampis Ngasem","Medokan Semampir","Menur Pumpungan","Nginden Jangkungan","Semolowaru"] },
+    { nama: "Kecamatan Tambaksari", kelurahan: ["Pacar Keling","Pacar Kembang","Ploso","Gading","Rangkah","Tambaksari"] },
+    { nama: "Kecamatan Mulyorejo", kelurahan: ["Kalisari","Kejawen Putih Tambak","Dukuh Sutorejo","Kalijudan","Mulyorejo","Manyar Sabrangan"] },
+    { nama: "Kecamatan Rungkut", kelurahan: ["Kali Rungkut","Rungkut Kidul","Medokan Ayu","Wonorejo","Penjaringan Sari","Kedung Baruk"] },
+    { nama: "Kecamatan Tenggilis Mejoyo", kelurahan: ["Kutisari","Kendangsari","Tenggilis Mejoyo","Panjang Jiwo","Prapen"] },
+
+    { nama: "Kecamatan Wonokromo", kelurahan: ["Darmo","Jagir","Ngagel","Ngagelrejo","Sawunggaling","Wonokromo"] },
+    { nama: "Kecamatan Wonocolo", kelurahan: ["Jemur Wonosari","Margorejo","Sidosermo","Siwalankerto","Wonocolo","Pagesangan"] },
+    { nama: "Kecamatan Gayungan", kelurahan: ["Dukuh Menanggal","Gayungan","Ketintang","Menanggal"] },
+    { nama: "Kecamatan Jambangan", kelurahan: ["Jambangan","Karah","Kebonsari"] },
+    { nama: "Kecamatan Karang Pilang", kelurahan: ["Karang Pilang","Kebraon","Kedurus","Warugunung"] },
+    { nama: "Kecamatan Dukuh Pakis", kelurahan: ["Dukuh Kupang","Dukuh Pakis","Gunung Sari","Pradah Kalikendal"] },
+    { nama: "Kecamatan Wiyung", kelurahan: ["Babatan","Balasklumprik","Jajar Tunggal","Wiyung"] },
+
+    { nama: "Kecamatan Sawahan", kelurahan: ["Banyu Urip","Kupang Krajan","Pakis","Putat Jaya","Sawahan","Petemon"] },
+
+    { nama: "Kecamatan Bulak", kelurahan: ["Bulak","Kedung Cowek","Kenjeran","Sukolilo Baru"] },
+    { nama: "Kecamatan Kenjeran", kelurahan: ["Bulak Banteng","Sidotopo Wetan","Tanah Kali Kedinding","Tambak Wedi"] },
+    { nama: "Kecamatan Semampir", kelurahan: ["Ampel","Sidotopo","Pegirian","Wonokusumo","Ujung"] },
+    { nama: "Kecamatan Pabean Cantikan", kelurahan: ["Bongkaran","Nyamplungan","Krembangan Utara","Perak Timur","Perak Utara"] },
+    { nama: "Kecamatan Krembangan", kelurahan: ["Dupak","Krembangan Selatan","Kemayoran","Perak Barat","Moro Krembangan"] }
+];
+
+// versi flat kecamatan
+export const kecamatanSurabaya = wilayahSurabaya.map(w => w.nama);

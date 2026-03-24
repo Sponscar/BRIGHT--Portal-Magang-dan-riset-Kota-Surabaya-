@@ -1,4 +1,5 @@
 const VerificationTable = ({
+    mode = 'brida',
     students, adminData,
     teamSelections, teamDropdownOpen, teamOptions,
     enablerSubOptions, risetSubOptions, inovasiSubOptions,
@@ -6,9 +7,11 @@ const VerificationTable = ({
     onTeamToggle, onRisetTypeToggle, onEnablerTypeToggle,
     onInovasiTypeToggle, onPengelolaanKebunRayaTypeToggle,
     onKesekretariatanTypeToggle, onLainnyaTextChange,
-    onToggleTeamDropdown, onAction,
+    onToggleTeamDropdown, onAction, onForwardToOpd,
     onViewAdmin, getStatusBadge
 }) => {
+    const isOpdMode = mode === 'opd';
+
     return (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -18,7 +21,9 @@ const VerificationTable = ({
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Mahasiswa</th>
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Perguruan Tinggi / Prodi</th>
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Dokumen</th>
-                            <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Ploting Tim</th>
+                            <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                                {isOpdMode ? 'Plotting Perangkat Daerah' : 'Ploting Tim'}
+                            </th>
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Administrasi</th>
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Status</th>
                             <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right whitespace-nowrap">Aksi</th>
@@ -58,28 +63,42 @@ const VerificationTable = ({
                                     </div>
                                 </td>
                                 <td className="py-4 px-6">
-                                    {student.status === 'pending' || student.status === 'revision' ? (
-                                        <TeamAssignmentCell
-                                            student={student}
-                                            teamSelections={teamSelections}
-                                            teamDropdownOpen={teamDropdownOpen}
-                                            teamOptions={teamOptions}
-                                            enablerSubOptions={enablerSubOptions}
-                                            risetSubOptions={risetSubOptions}
-                                            inovasiSubOptions={inovasiSubOptions}
-                                            pengelolaankebunrayamangroveSubOptions={pengelolaankebunrayamangroveSubOptions}
-                                            kesekretariatanSubOptions={kesekretariatanSubOptions}
-                                            onTeamToggle={onTeamToggle}
-                                            onRisetTypeToggle={onRisetTypeToggle}
-                                            onEnablerTypeToggle={onEnablerTypeToggle}
-                                            onInovasiTypeToggle={onInovasiTypeToggle}
-                                            onPengelolaanKebunRayaTypeToggle={onPengelolaanKebunRayaTypeToggle}
-                                            onKesekretariatanTypeToggle={onKesekretariatanTypeToggle}
-                                            onLainnyaTextChange={onLainnyaTextChange}
-                                            onToggleTeamDropdown={onToggleTeamDropdown}
-                                        />
+                                    {isOpdMode ? (
+                                        /* === OPD MODE: Show OPD name + kelurahan === */
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm font-medium text-slate-800">{student.opd}</span>
+                                            {student.kelurahanOpd && (
+                                                <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                                                    <span className="material-symbols-outlined notranslate text-[12px]">pin_drop</span>
+                                                    Kel. {student.kelurahanOpd}
+                                                </span>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <span className="text-sm font-medium text-slate-700">{student.team}</span>
+                                        /* === BRIDA MODE: Team assignment dropdown === */
+                                        student.status === 'pending' || student.status === 'revision' ? (
+                                            <TeamAssignmentCell
+                                                student={student}
+                                                teamSelections={teamSelections}
+                                                teamDropdownOpen={teamDropdownOpen}
+                                                teamOptions={teamOptions}
+                                                enablerSubOptions={enablerSubOptions}
+                                                risetSubOptions={risetSubOptions}
+                                                inovasiSubOptions={inovasiSubOptions}
+                                                pengelolaankebunrayamangroveSubOptions={pengelolaankebunrayamangroveSubOptions}
+                                                kesekretariatanSubOptions={kesekretariatanSubOptions}
+                                                onTeamToggle={onTeamToggle}
+                                                onRisetTypeToggle={onRisetTypeToggle}
+                                                onEnablerTypeToggle={onEnablerTypeToggle}
+                                                onInovasiTypeToggle={onInovasiTypeToggle}
+                                                onPengelolaanKebunRayaTypeToggle={onPengelolaanKebunRayaTypeToggle}
+                                                onKesekretariatanTypeToggle={onKesekretariatanTypeToggle}
+                                                onLainnyaTextChange={onLainnyaTextChange}
+                                                onToggleTeamDropdown={onToggleTeamDropdown}
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-medium text-slate-700">{student.team}</span>
+                                        )
                                     )}
                                 </td>
                                 <td className="py-4 px-6">
@@ -102,17 +121,43 @@ const VerificationTable = ({
                                     {getStatusBadge(student.status)}
                                 </td>
                                 <td className="py-4 px-6 text-right">
-                                    {student.status === 'pending' || student.status === 'revision' ? (
-                                        <div className="flex justify-end gap-2">
-                                            <button onClick={() => onAction(student, 'revision')} className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Minta Revisi">
-                                                <span className="material-symbols-outlined notranslate text-[20px]">edit_note</span>
+                                    {isOpdMode ? (
+                                        /* === OPD MODE ACTIONS === */
+                                        student.status === 'pending' || student.status === 'revision' ? (
+                                            <div className="flex justify-end gap-2">
+                                                <button onClick={() => onAction(student, 'revision')} className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Minta Revisi">
+                                                    <span className="material-symbols-outlined notranslate text-[20px]">edit_note</span>
+                                                </button>
+                                                <button onClick={() => onAction(student, 'approve')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Setujui">
+                                                    <span className="material-symbols-outlined notranslate text-[20px]">check_circle</span>
+                                                </button>
+                                            </div>
+                                        ) : student.status === 'approved' && onForwardToOpd ? (
+                                            <button onClick={() => onForwardToOpd(student)}
+                                                className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-1.5 ml-auto"
+                                                title="Kirim ke OPD">
+                                                <span className="material-symbols-outlined notranslate text-[16px]">send</span>
+                                                Kirim ke OPD
                                             </button>
-                                            <button onClick={() => onAction(student, 'approve')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Setujui">
-                                                <span className="material-symbols-outlined notranslate text-[20px]">check_circle</span>
-                                            </button>
-                                        </div>
+                                        ) : (
+                                            <span className="text-xs text-slate-400 italic">
+                                                {student.status === 'forwarded_to_opd' ? 'Sudah dikirim' : 'Selesai'}
+                                            </span>
+                                        )
                                     ) : (
-                                        <span className="text-xs text-slate-400 italic">Selesai</span>
+                                        /* === BRIDA MODE ACTIONS === */
+                                        student.status === 'pending' || student.status === 'revision' ? (
+                                            <div className="flex justify-end gap-2">
+                                                <button onClick={() => onAction(student, 'revision')} className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Minta Revisi">
+                                                    <span className="material-symbols-outlined notranslate text-[20px]">edit_note</span>
+                                                </button>
+                                                <button onClick={() => onAction(student, 'approve')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Setujui">
+                                                    <span className="material-symbols-outlined notranslate text-[20px]">check_circle</span>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs text-slate-400 italic">Selesai</span>
+                                        )
                                     )}
                                 </td>
                             </tr>

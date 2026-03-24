@@ -1,8 +1,11 @@
-import { Entity, PrimaryKey, Property, Enum, OneToOne } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Enum, OneToOne, ManyToOne } from '@mikro-orm/core';
 import { v4 } from 'uuid';
+import type { Opd } from './opd.entity';
 
 export enum UserRole {
     STUDENT = 'student',
+    ADMIN_OPD = 'admin_opd',
+    KOORDINATOR_OPD = 'koordinator_opd',
     KEPALA_BRIDA = 'kepala_brida',
     SEKRETARIATAN = 'sekretariatan',
     KOORDINATOR_RISET = 'koordinator_riset',
@@ -26,6 +29,8 @@ export enum PermissionLevel {
 
 export const ROLE_PERMISSION_MAP: Record<UserRole, PermissionLevel> = {
     [UserRole.STUDENT]: PermissionLevel.STUDENT,
+    [UserRole.ADMIN_OPD]: PermissionLevel.EDITOR,
+    [UserRole.KOORDINATOR_OPD]: PermissionLevel.EDITOR,
     [UserRole.KEPALA_BRIDA]: PermissionLevel.EDITOR,
     [UserRole.SEKRETARIATAN]: PermissionLevel.EDITOR,
     [UserRole.KOORDINATOR_RISET]: PermissionLevel.EDITOR,
@@ -65,4 +70,7 @@ export class User {
 
     @Property({ type: 'timestamptz', defaultRaw: 'NOW()', onUpdate: () => new Date() })
     updatedAt: Date = new Date();
+
+    @ManyToOne('Opd', { nullable: true, fieldName: 'opd_id' })
+    opd?: Opd;
 }

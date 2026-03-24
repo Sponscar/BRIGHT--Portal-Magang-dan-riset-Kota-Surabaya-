@@ -2,11 +2,13 @@ import { Entity, PrimaryKey, Property, Enum, ManyToOne, OneToMany, OneToOne, Col
 import { v4 } from 'uuid';
 import { User } from './user.entity';
 import { TusiBrida } from './tusi-brida.entity';
+import type { Opd } from './opd.entity';
 
 export enum MahasiswaStatus {
     PENDING = 'pending',
     DOCUMENTS_UPLOADED = 'documents_uploaded',
     VERIFIED = 'verified',
+    FORWARDED_TO_OPD = 'forwarded_to_opd',
     ACTIVE = 'active',
     COMPLETED = 'completed',
 }
@@ -92,6 +94,12 @@ export class Mahasiswa {
 
     @Property({ length: 500, nullable: true })
     profileImageUrl?: string;
+
+    @ManyToOne('Opd', { nullable: true, fieldName: 'opd_id' })
+    opd?: Opd;
+
+    @Property({ length: 255, nullable: true })
+    kelurahanOpd?: string;
 
     @Enum({ items: () => MahasiswaStatus, default: MahasiswaStatus.PENDING })
     status: MahasiswaStatus = MahasiswaStatus.PENDING;

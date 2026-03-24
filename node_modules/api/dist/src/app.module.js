@@ -35,7 +35,7 @@ const perguruan_tinggi_module_1 = require("./modules/perguruan-tinggi/perguruan-
 const feedback_module_1 = require("./modules/feedback/feedback.module");
 const notification_module_1 = require("./modules/notification/notification.module");
 const entities = [
-    entities_1.User, entities_1.OtpToken, entities_1.Mahasiswa, entities_1.TusiBrida, entities_1.Dokumen, entities_1.Administrasi,
+    entities_1.User, entities_1.OtpToken, entities_1.Mahasiswa, entities_1.TusiBrida, entities_1.Opd, entities_1.TimLokus, entities_1.Dokumen, entities_1.Administrasi,
     entities_1.JenisAktivitas, entities_1.MataKuliahKonversi, entities_1.MahasiswaMataKuliah, entities_1.Logbook,
     entities_1.Jurnal, entities_1.Presensi, entities_1.KriteriaPenilaian, entities_1.Penilaian, entities_1.NilaiPenilaian,
     entities_1.NilaiAkhir, entities_1.Sertifikat, entities_1.LaporanAkhir, entities_1.PerguruanTinggi, entities_1.KurikulumMagang,

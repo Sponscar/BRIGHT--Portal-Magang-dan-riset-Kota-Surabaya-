@@ -33,6 +33,12 @@ export class Logbook {
     @ManyToOne('MataKuliahKonversi', { nullable: true, fieldName: 'mata_kuliah_id' })
     mataKuliah?: MataKuliahKonversi;
 
+    @Property({ length: 255, nullable: true })
+    jenisPenugasanText?: string;
+
+    @Property({ length: 255, nullable: true })
+    jenisAktivitasText?: string;
+
     @Enum({ items: () => LogbookType, nullable: true })
     type?: LogbookType;
 

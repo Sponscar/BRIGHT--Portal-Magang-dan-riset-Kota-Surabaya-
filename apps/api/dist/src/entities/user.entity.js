@@ -15,6 +15,8 @@ const uuid_1 = require("uuid");
 var UserRole;
 (function (UserRole) {
     UserRole["STUDENT"] = "student";
+    UserRole["ADMIN_OPD"] = "admin_opd";
+    UserRole["KOORDINATOR_OPD"] = "koordinator_opd";
     UserRole["KEPALA_BRIDA"] = "kepala_brida";
     UserRole["SEKRETARIATAN"] = "sekretariatan";
     UserRole["KOORDINATOR_RISET"] = "koordinator_riset";
@@ -37,6 +39,8 @@ var PermissionLevel;
 })(PermissionLevel || (exports.PermissionLevel = PermissionLevel = {}));
 exports.ROLE_PERMISSION_MAP = {
     [UserRole.STUDENT]: PermissionLevel.STUDENT,
+    [UserRole.ADMIN_OPD]: PermissionLevel.EDITOR,
+    [UserRole.KOORDINATOR_OPD]: PermissionLevel.EDITOR,
     [UserRole.KEPALA_BRIDA]: PermissionLevel.EDITOR,
     [UserRole.SEKRETARIATAN]: PermissionLevel.EDITOR,
     [UserRole.KOORDINATOR_RISET]: PermissionLevel.EDITOR,
@@ -59,6 +63,7 @@ let User = class User {
     emailVerified = false;
     createdAt = new Date();
     updatedAt = new Date();
+    opd;
 };
 exports.User = User;
 __decorate([
@@ -93,6 +98,10 @@ __decorate([
     (0, core_1.Property)({ type: 'timestamptz', defaultRaw: 'NOW()', onUpdate: () => new Date() }),
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
+__decorate([
+    (0, core_1.ManyToOne)('Opd', { nullable: true, fieldName: 'opd_id' }),
+    __metadata("design:type", Function)
+], User.prototype, "opd", void 0);
 exports.User = User = __decorate([
     (0, core_1.Entity)({ tableName: 'users' })
 ], User);

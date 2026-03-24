@@ -1,9 +1,11 @@
 import { User } from './user.entity';
 import { TusiBrida } from './tusi-brida.entity';
+import type { Opd } from './opd.entity';
 export declare enum MahasiswaStatus {
     PENDING = "pending",
     DOCUMENTS_UPLOADED = "documents_uploaded",
     VERIFIED = "verified",
+    FORWARDED_TO_OPD = "forwarded_to_opd",
     ACTIVE = "active",
     COMPLETED = "completed"
 }
@@ -37,6 +39,8 @@ export declare class Mahasiswa {
     conversionType?: string;
     perangkatDaerah?: string;
     profileImageUrl?: string;
+    opd?: Opd;
+    kelurahanOpd?: string;
     status: MahasiswaStatus;
     tusiBrida?: TusiBrida;
     assignedBy?: User;

@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, isBridaAdmin, isOpdRole } from '../../context/AuthContext';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+    const userRole = user?.role || 'admin';
+    const isBrida = isBridaAdmin(userRole);
+    const isOpd = isOpdRole(userRole);
 
     const handleLogout = () => {
         setIsLogoutModalOpen(true);
@@ -28,6 +32,24 @@ const Sidebar = () => {
     const getIconClass = ({ isActive }) => {
         return isActive ? "material-symbols-outlined notranslate fill text-[20px]" : "material-symbols-outlined notranslate text-[20px]";
     };
+
+    // Build nav items based on role
+    const navItems = [
+        { to: '/admin', end: true, icon: 'dashboard', label: 'Dashboard', show: true },
+        { to: '/admin/mahasiswa', icon: 'group', label: 'Mahasiswa', show: true },
+        { to: '/admin/teams', icon: 'groups', label: 'Data Tim Lokus', show: true },
+        { to: '/admin/verification', icon: 'folder', label: 'Verifikasi Mahasiswa', show: isBrida },
+        { to: '/admin/team-verification', icon: 'assignment_turned_in', label: 'Verifikasi Tim', show: isOpd },
+        { to: '/admin/logbook', icon: 'rate_review', label: 'Review Logbook', show: true },
+        { to: '/admin/reports', icon: 'description', label: 'Laporan Akhir / Jurnal', show: true },
+        { to: '/admin/results', icon: 'workspace_premium', label: 'Penilaian & Sertifikat', show: true },
+    ];
+
+    // Sidebar title/subtitle based on role
+    const sidebarTitle = 'BRIGHT';
+    const sidebarSubtitle = isOpd
+        ? (user?.opd?.nama || 'Admin OPD')
+        : 'Admin Portal';
 
     return (
         <>
@@ -54,85 +76,26 @@ const Sidebar = () => {
                             <div className="flex h-10 w-10 bg-white p-1.5 items-center justify-center rounded-xl overflow-hidden shadow-sm">
                                 <img src="/logo.png" alt="BRIDA Logo" className="h-full w-full object-contain" />
                             </div>
-                            <div className="flex flex-col">
-                                <h1 className="text-base font-bold leading-tight tracking-tight text-white">BRIGHT</h1>
-                                <p className="text-[11px] font-medium text-white/80">Admin Portal</p>
+                            <div className="flex flex-col min-w-0">
+                                <h1 className="text-base font-bold leading-tight tracking-tight text-white truncate">{sidebarTitle}</h1>
+                                <p className="text-[11px] font-medium text-white/80 truncate">{sidebarSubtitle}</p>
                             </div>
                         </div>
                     </div>
                     <nav className="px-2 py-1">
                         <ul className="flex flex-col gap-0.5">
-                            <li>
-                                <NavLink to="/admin" end className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>dashboard</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Dashboard</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="/admin/mahasiswa" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>group</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Mahasiswa</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="/admin/teams" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>groups</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Data Tim Lokus</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="/admin/verification" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>folder</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Verifikasi Mahasiswa</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="/admin/logbook" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>rate_review</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Review Logbook</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="/admin/reports" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>description</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Laporan Akhir / Jurnal</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
-
-                            <li>
-                                <NavLink to="/admin/results" className={getLinkClass}>
-                                    {({ isActive }) => (
-                                        <>
-                                            <span className={getIconClass({ isActive })}>workspace_premium</span>
-                                            <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>Penilaian & Sertifikat</span>
-                                        </>
-                                    )}
-                                </NavLink>
-                            </li>
+                            {navItems.filter(item => item.show).map((item) => (
+                                <li key={item.to}>
+                                    <NavLink to={item.to} end={item.end} className={getLinkClass}>
+                                        {({ isActive }) => (
+                                            <>
+                                                <span className={getIconClass({ isActive })}>{item.icon}</span>
+                                                <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+                                            </>
+                                        )}
+                                    </NavLink>
+                                </li>
+                            ))}
                         </ul>
                     </nav>
                 </div>
@@ -140,7 +103,7 @@ const Sidebar = () => {
                     <div className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="h-10 w-10 rounded-full border border-white/50 bg-white/10 shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
-                                <span className="material-symbols-outlined notranslate text-white text-[20px]">admin_panel_settings</span>
+                                <span className="material-symbols-outlined notranslate text-white text-[20px]">{isOpd ? 'account_balance' : 'admin_panel_settings'}</span>
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <p className="text-sm font-bold text-white truncate">{user?.name || 'Admin'}</p>

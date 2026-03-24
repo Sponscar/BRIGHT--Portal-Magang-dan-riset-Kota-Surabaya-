@@ -19,6 +19,8 @@ var AssessorType;
     AssessorType["SELF"] = "self";
     AssessorType["PEER"] = "peer";
     AssessorType["KOORDINATOR"] = "koordinator";
+    AssessorType["ADMIN_OPD"] = "admin_opd";
+    AssessorType["KOORDINATOR_OPD"] = "koordinator_opd";
     AssessorType["SEKRETARIS"] = "sekretaris";
     AssessorType["KEPALA_BRIDA"] = "kepala_brida";
     AssessorType["ADMIN"] = "admin";

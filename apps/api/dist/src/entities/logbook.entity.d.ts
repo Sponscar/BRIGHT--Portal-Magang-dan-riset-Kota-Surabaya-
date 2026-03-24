@@ -19,6 +19,8 @@ export declare class Logbook {
     mahasiswa: Mahasiswa;
     jenisAktivitas?: JenisAktivitas;
     mataKuliah?: MataKuliahKonversi;
+    jenisPenugasanText?: string;
+    jenisAktivitasText?: string;
     type?: LogbookType;
     logDate: Date;
     startTime?: string;

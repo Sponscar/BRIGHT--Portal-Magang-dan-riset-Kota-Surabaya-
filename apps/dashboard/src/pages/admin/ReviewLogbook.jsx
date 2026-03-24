@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth, isOpdRole } from '../../context/AuthContext';
 import { initialActivityTypes } from '../../data/activityTypes';
 import AdminHeader from '../../components/admin/AdminHeader';
 import LogbookReviewTab from '../../components/admin/review-logbook/LogbookReviewTab';
@@ -166,7 +167,10 @@ const ReviewLogbook = () => {
         );
     };
 
-    const MAIN_TABS = ['review', 'activities', 'kurikulum'];
+    const { user } = useAuth();
+    const isOpd = isOpdRole(user?.role);
+
+    const MAIN_TABS = isOpd ? ['review', 'kurikulum'] : ['review', 'activities', 'kurikulum'];
     const [activeTab, setActiveTab] = useState('review');
     const [mainSlideDirection, setMainSlideDirection] = useState('left');
 
@@ -294,15 +298,17 @@ const ReviewLogbook = () => {
                             >
                                 Review Logbook
                             </button>
-                            <button
-                                onClick={() => handleMainTabChange('activities')}
-                                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'activities'
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                                    }`}
-                            >
-                                Kelola Jenis Aktivitas
-                            </button>
+                            {!isOpd && (
+                                <button
+                                    onClick={() => handleMainTabChange('activities')}
+                                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'activities'
+                                        ? 'border-primary text-primary'
+                                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                                        }`}
+                                >
+                                    Kelola Jenis Aktivitas
+                                </button>
+                            )}
                             <button
                                 onClick={() => handleMainTabChange('kurikulum')}
                                 className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'kurikulum'
